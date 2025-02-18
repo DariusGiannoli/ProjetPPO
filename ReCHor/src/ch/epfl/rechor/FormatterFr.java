@@ -14,15 +14,15 @@ public final class FormatterFr {
 
     private FormatterFr() {}
 
-    static String formatDuration(Duration duration){
+    public static String formatDuration(Duration duration){
         long totalMinutes = duration.toMinutes();
         long hours = totalMinutes / 60;
         long minutes = totalMinutes % 60;
 
         if (hours == 0) {
-            return minutes + "min";
+            return minutes + " min";
         } else {
-            return hours + "h" + (minutes > 0 ? minutes + "min" : "");
+            return hours + " h " + minutes + " min";
         }
 
     }
@@ -30,13 +30,15 @@ public final class FormatterFr {
     public static String formatTime(LocalDateTime dateTime) {
         // Ex. on veut "jour/mois/année heurehminute"
         // On peut construire un DateTimeFormatter personnalisé :
-        DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
+        /*DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
                 .appendValue(ChronoField.DAY_OF_MONTH)
                 .appendLiteral('/')
                 .appendValue(ChronoField.MONTH_OF_YEAR)
                 .appendLiteral('/')
                 .appendValue(ChronoField.YEAR)
                 .toFormatter();
+
+         */
 
         String hourPart = dateTime.getHour() + "h" + String.format("%02d", dateTime.getMinute());
 

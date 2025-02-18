@@ -78,7 +78,7 @@ public record Journey(List<Leg> legs) {
                 }
             }
         }
-        public record Transport(Stop depStop, Stop arrStop, LocalDateTime arrTime, LocalDateTime depTime, List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination) implements Leg {
+        public record Transport(Stop depStop, LocalDateTime depTime,  Stop arrStop, LocalDateTime arrTime, List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination) implements Leg {
 
             public Transport{
                 Objects.requireNonNull(depStop,       "depStop ne peut pas être null.");
@@ -141,6 +141,10 @@ public record Journey(List<Leg> legs) {
 
     public LocalDateTime arrTime(){
         return legs.getLast().arrTime();
+    }
+
+    public Duration duration() {
+        return Duration.between(depTime(), arrTime());
     }
 
 
