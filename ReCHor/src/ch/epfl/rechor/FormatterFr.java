@@ -30,7 +30,7 @@ public final class FormatterFr {
     public static String formatTime(LocalDateTime dateTime) {
         // Ex. on veut "jour/mois/année heurehminute"
         // On peut construire un DateTimeFormatter personnalisé :
-        DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
+        /*DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
                 .appendValue(ChronoField.DAY_OF_MONTH)
                 .appendLiteral('/')
                 .appendValue(ChronoField.MONTH_OF_YEAR)
@@ -38,10 +38,12 @@ public final class FormatterFr {
                 .appendValue(ChronoField.YEAR)
                 .toFormatter();
 
+         */
+
         String hourPart = dateTime.getHour() + "h" + String.format("%02d", dateTime.getMinute());
 
         // On assemble date + heure
-        return dateFormatter.format(dateTime) + " " + hourPart;
+        return /*dateFormatter.format(dateTime) + " " +*/ hourPart;
     }
 
     public static String formatPlatformName(Stop stop) {
@@ -91,7 +93,7 @@ public final class FormatterFr {
         }
 
         // 4) Séparateur " -> "
-        sb.append(" -> ");
+        sb.append(" → ");
 
         // 5) Nom de la gare d'arrivée
         sb.append(leg.arrStop().name());
