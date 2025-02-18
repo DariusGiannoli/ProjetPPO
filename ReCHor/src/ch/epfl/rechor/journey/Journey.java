@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * Journey est un voyage.
  * @author Antoine Lepin
- * @author
+ * @author ton nom et sciper
  * @param legs la liste des étapes du voyage.
  */
 public record Journey(List<Leg> legs) {
