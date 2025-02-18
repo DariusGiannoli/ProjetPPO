@@ -30,15 +30,13 @@ public final class FormatterFr {
     public static String formatTime(LocalDateTime dateTime) {
         // Ex. on veut "jour/mois/année heurehminute"
         // On peut construire un DateTimeFormatter personnalisé :
-        /*DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
+        DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
                 .appendValue(ChronoField.DAY_OF_MONTH)
                 .appendLiteral('/')
                 .appendValue(ChronoField.MONTH_OF_YEAR)
                 .appendLiteral('/')
                 .appendValue(ChronoField.YEAR)
                 .toFormatter();
-
-         */
 
         String hourPart = dateTime.getHour() + "h" + String.format("%02d", dateTime.getMinute());
 
