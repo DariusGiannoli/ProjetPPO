@@ -78,7 +78,7 @@ public record Journey(List<Leg> legs) {
                 }
             }
         }
-    public record Transport(Stop depStop, Stop arrStop, LocalDateTime arrTime, LocalDateTime depTime, List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination) {
+        public record Transport(Stop depStop, Stop arrStop, LocalDateTime arrTime, LocalDateTime depTime, List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination) implements Leg {
 
             public Transport{
                 Objects.requireNonNull(depStop,       "depStop ne peut pas être null.");
@@ -98,11 +98,11 @@ public record Journey(List<Leg> legs) {
                 }
                 intermediateStops = List.copyOf(intermediateStops);
 
+            }
+
         }
 
-    }
-
-    public record Foot(Stop depStop, LocalDateTime depTime, Stop arrStop, LocalDateTime arrTime) implements Leg{
+        public record Foot(Stop depStop, LocalDateTime depTime, Stop arrStop, LocalDateTime arrTime) implements Leg{
 
             public Foot{
                 Objects.requireNonNull(depStop, "depStop ne peut pas être null.");
@@ -116,16 +116,16 @@ public record Journey(List<Leg> legs) {
                     );
                 }
             }
-        @Override
-        public List<IntermediateStop> intermediateStops() {
-            return List.of();
-        }
+            @Override
+            public List<IntermediateStop> intermediateStops() {
+                return List.of();
+            }
 
-        public boolean isTransfer() {
-            return depStop.name().equals(arrStop.name());
+            public boolean isTransfer() {
+                return depStop.name().equals(arrStop.name());
+            }
         }
     }
-}
 
     public Stop depStop(){
         return legs.getFirst().depStop();
