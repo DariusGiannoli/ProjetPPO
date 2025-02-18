@@ -10,10 +10,22 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoField;
 
+/**
+ * Class pour le format d'apparition des informations sur les trajets.
+ * @author Antoine Lepin ()
+ * @author
+ */
 public final class FormatterFr {
 
+    /**
+     * Constructeur de la classe FormatterFr, en privée pour qu'elle soit non instanciable.
+     */
     private FormatterFr() {}
 
+    /**
+     * @param duration durée du voyage ou d'une de ses étapes.
+     * @return retourne la représentation textuelle de la durée entrée en argument.
+     */
     public static String formatDuration(Duration duration){
         long totalMinutes = duration.toMinutes();
         long hours = totalMinutes / 60;
@@ -27,6 +39,10 @@ public final class FormatterFr {
 
     }
 
+    /**
+     * @param dateTime une heure d'arrivée ou de depart.
+     * @return la representation textuelle de l'heure de départ ou d'arrivée.
+     */
     public static String formatTime(LocalDateTime dateTime) {
         // Ex. on veut "jour/mois/année heurehminute"
         // On peut construire un DateTimeFormatter personnalisé :
@@ -46,6 +62,10 @@ public final class FormatterFr {
         return /*dateFormatter.format(dateTime) + " " +*/ hourPart;
     }
 
+    /**
+     * @param stop un arrêt
+     * @return la présentation textuelle du nom de la voie ou du quai de l'arrêt stop.
+     */
     public static String formatPlatformName(Stop stop) {
         // Récupère le nom de la voie/quai
         String platformName = stop.platformName();
@@ -64,6 +84,11 @@ public final class FormatterFr {
         }
     }
 
+    /**
+     * Renvoie le type d'étape à pied (changement ou trajet à pied) et la durée de cette étape.
+     * @param footLeg une étape à pied.
+     * @return la présentation textuelle de l'étape à pied.
+     */
     public static String formatLeg(Foot footLeg) {
         // Vérifie si c’est un changement au même arrêt (isTransfer = true)
         String description = footLeg.isTransfer() ? "changement" : "trajet à pied";
@@ -79,6 +104,10 @@ public final class FormatterFr {
         return description + " (" + dureeStr + ")";
     }
 
+    /**
+     * @param leg une étape en transport public
+     * @return la representation textuelle de cette étape, avec l'heure de départ, le nom de la gare de départ et la voie/quai, et la meme chose pour l'arrivée.
+     */
     public static String formatLeg(Journey.Leg.Transport leg) {
 
         StringBuilder sb = new StringBuilder();
@@ -122,6 +151,10 @@ public final class FormatterFr {
         return sb.toString();
     }
 
+    /**
+     * @param transportLeg un trajet en transport.
+     * @return la representation textuelle de la ligne et du sens de parcours emprunté.
+     */
     public static String formatRouteDestination(Journey.Leg.Transport transportLeg) {
         // On récupère la ligne et la destination
         String route = transportLeg.route();

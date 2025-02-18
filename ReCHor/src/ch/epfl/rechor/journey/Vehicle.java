@@ -2,6 +2,11 @@ package ch.epfl.rechor.journey;
 
 import java.util.List;
 
+/**
+ * Type énuméré pour le type de transport utilisé.
+ * @author Antoine Lepin ()
+ * @author
+ */
 public enum Vehicle {
     TRAM,
     METRO,
@@ -11,6 +16,9 @@ public enum Vehicle {
     AERIAL_LIFT,
     FUNICULAR;
 
+    /**
+     * Liste de tous les véhicules.
+     */
     public static final List<Vehicle> ALL = List.of(Vehicle.values());
 
 }
