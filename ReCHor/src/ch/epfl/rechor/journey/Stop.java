@@ -8,6 +8,6 @@ public record Stop(String name, String platformName, double longitude, double la
 
     public Stop {
         Objects.requireNonNull(name);
-        Preconditions.checkArgument(longitude > -180 && longitude < 180 && latitude < 90 && latitude > -90);
+        Preconditions.checkArgument(longitude >= -180 && longitude <= 180 && latitude <= 90 && latitude >= -90);
     }
 }
