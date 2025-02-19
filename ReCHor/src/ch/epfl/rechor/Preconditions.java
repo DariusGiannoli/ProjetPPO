@@ -3,7 +3,7 @@ package ch.epfl.rechor;
 
 /**
  * Class pour verifier une condition.
- * @author Antoine Lepin ()
+ * @author Antoine Lepin (390950)
  * @author ton nom et sciper
  */
 public final class Preconditions {

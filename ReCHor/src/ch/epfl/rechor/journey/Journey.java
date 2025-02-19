@@ -10,7 +10,7 @@ import static ch.epfl.rechor.Preconditions.checkArgument;
 
 /**
  * Journey est un voyage.
- * @author Antoine Lepin
+ * @author Antoine Lepin (390950)
  * @author ton nom et sciper
  * @param legs la liste des étapes du voyage.
  */

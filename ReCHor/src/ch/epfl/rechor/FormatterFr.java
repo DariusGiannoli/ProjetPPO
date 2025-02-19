@@ -12,7 +12,7 @@ import java.time.temporal.ChronoField;
 
 /**
  * Class pour le format d'apparition des informations sur les trajets.
- * @author Antoine Lepin ()
+ * @author Antoine Lepin (390950)
  * @author ton nom et sciper
  */
 public final class FormatterFr {

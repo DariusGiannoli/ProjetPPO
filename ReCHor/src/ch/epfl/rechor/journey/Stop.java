@@ -5,7 +5,7 @@ import ch.epfl.rechor.Preconditions;
 import java.util.Objects;
 
 /**
- * @author Antoine Lepin
+ * @author Antoine Lepin (390950)
  * @author ton nom et sciper
  * Un arrêt de transport public.
  * @param name le nom de l'arrêt.
