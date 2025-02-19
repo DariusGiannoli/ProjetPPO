@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Type énuméré pour le type de transport utilisé.
  * @author Antoine Lepin (390950)
- * @author ton nom et sciper
+ * @author Darius Giannoli (380759)
  */
 public enum Vehicle {
     TRAM,

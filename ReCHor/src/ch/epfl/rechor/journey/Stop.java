@@ -6,7 +6,7 @@ import java.util.Objects;
 
 /**
  * @author Antoine Lepin (390950)
- * @author ton nom et sciper
+ * @author Darius Giannoli (380759)
  * Un arrêt de transport public.
  * @param name le nom de l'arrêt.
  * @param platformName le nom de la voie ou du quai, ou null si l'arrêt correspond à une gare

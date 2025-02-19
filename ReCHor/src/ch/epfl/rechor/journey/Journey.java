@@ -11,7 +11,7 @@ import static ch.epfl.rechor.Preconditions.checkArgument;
 /**
  * Journey est un voyage.
  * @author Antoine Lepin (390950)
- * @author ton nom et sciper
+ * @author Darius Giannoli (380759)
  * @param legs la liste des étapes du voyage.
  */
 public record Journey(List<Leg> legs) {
