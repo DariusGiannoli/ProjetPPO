@@ -141,10 +141,10 @@ public record Journey(List<Leg> legs) {
 
         /**
          * Foot est une étape effectuée à pied.
-         * @param depStop l'arrêt de départ de l'étape
-         * @param depTime la date/heure de départ de l'étape
-         * @param arrStop l'arrêt d'arrivée de l'étape
-         * @param arrTime la date/heure d'arrivée de l'étape
+         * @param depStop l'arrêt de départ de l'étape.
+         * @param depTime la date/heure de départ de l'étape.
+         * @param arrStop l'arrêt d'arrivée de l'étape.
+         * @param arrTime la date/heure d'arrivée de l'étape.
          */
         public record Foot(Stop depStop, LocalDateTime depTime, Stop arrStop, LocalDateTime arrTime) implements Leg{
 
