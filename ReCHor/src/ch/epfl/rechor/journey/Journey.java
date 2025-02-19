@@ -5,6 +5,8 @@ import java.util.List;
 import java.time.Duration;
 import java.util.Objects;
 
+import static ch.epfl.rechor.Preconditions.checkArgument;
+
 
 /**
  * Journey est un voyage.
@@ -20,9 +22,7 @@ public record Journey(List<Leg> legs) {
      * @param legs la liste des étapes du voyage.
      */
     public Journey {
-        if (legs.isEmpty()) {
-            throw new IllegalArgumentException("La liste des étapes ne doit pas être vide.");
-        }
+        checkArgument(legs.isEmpty());
 
         // Copie pour l’immuabilité
         legs = List.copyOf(legs);
@@ -35,26 +35,14 @@ public record Journey(List<Leg> legs) {
                 Leg previous = legs.get(i - 1);
 
                 // 2) Alternance pied/transport
-                if ((previous instanceof Leg.Foot && current instanceof Leg.Foot)
-                        || (previous instanceof Leg.Transport && current instanceof Leg.Transport)) {
-                    throw new IllegalArgumentException(
-                            "Deux étapes de même type (pied/transport) se suivent."
-                    );
-                }
+                checkArgument((previous instanceof Leg.Foot && current instanceof Leg.Foot)
+                        || (previous instanceof Leg.Transport && current instanceof Leg.Transport));
 
                 // 3) L’instant de départ ne précède pas celui d’arrivée de la précédente
-                if (current.depTime().isBefore(previous.arrTime())) {
-                    throw new IllegalArgumentException(
-                            "Heure de départ avant l'heure d'arrivée de l'étape précédente."
-                    );
-                }
+                checkArgument(current.depTime().isBefore(previous.arrTime()));
 
                 // 4) L'arrêt de départ est identique à l'arrêt d'arrivée de la précédente
-                if (!current.depStop().equals(previous.arrStop())) {
-                    throw new IllegalArgumentException(
-                            "L'arrêt de départ n'est pas identique à l'arrêt d'arrivée de l'étape précédente."
-                    );
-                }
+                checkArgument(!current.depStop().equals(previous.arrStop()));
             }
 
 
@@ -91,7 +79,7 @@ public record Journey(List<Leg> legs) {
          */
         default Duration duration() {
             return Duration.between(depTime(), arrTime());
-        };
+        }
 
         /**
          * @return retourne la liste des arrêts intermédiaires de l'étape.
@@ -112,11 +100,7 @@ public record Journey(List<Leg> legs) {
             public IntermediateStop {
                 Objects.requireNonNull(stop, "Le stop ne peut pas être null.");
 
-                if (depTime.isBefore(arrTime)) {
-                    throw new IllegalArgumentException(
-                            "L'heure de départ ne peut pas précéder l'heure d'arrivée."
-                    );
-                }
+                checkArgument(depTime.isBefore(arrTime));
             }
         }
 
@@ -148,11 +132,7 @@ public record Journey(List<Leg> legs) {
                 Objects.requireNonNull(route,          "type ne peut pas être null.");
                 Objects.requireNonNull(destination,   "destination ne peut pas être null.");
 
-                if (arrTime.isBefore(depTime)) {
-                    throw new IllegalArgumentException(
-                            "La date/heure d'arrivée ne peut pas précéder la date/heure de départ."
-                    );
-                }
+                checkArgument(arrTime.isBefore(depTime));
                 intermediateStops = List.copyOf(intermediateStops);
 
             }
@@ -178,11 +158,7 @@ public record Journey(List<Leg> legs) {
                 Objects.requireNonNull(arrStop, "arrStop ne peut pas être null.");
                 Objects.requireNonNull(arrTime, "arrTime ne peut pas être null.");
 
-                if (arrTime.isBefore(depTime)) {
-                    throw new IllegalArgumentException(
-                            "La date/heure d'arrivée ne peut pas précéder la date/heure de départ."
-                    );
-                }
+                checkArgument(arrTime.isBefore(depTime));
             }
 
             /**
