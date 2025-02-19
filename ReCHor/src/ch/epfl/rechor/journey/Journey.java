@@ -22,7 +22,7 @@ public record Journey(List<Leg> legs) {
      * @param legs la liste des étapes du voyage.
      */
     public Journey {
-        checkArgument(legs.isEmpty());
+        checkArgument(!(legs.isEmpty()));
 
         // Copie pour l’immuabilité
         legs = List.copyOf(legs);
@@ -35,14 +35,14 @@ public record Journey(List<Leg> legs) {
                 Leg previous = legs.get(i - 1);
 
                 // 2) Alternance pied/transport
-                checkArgument((previous instanceof Leg.Foot && current instanceof Leg.Foot)
-                        || (previous instanceof Leg.Transport && current instanceof Leg.Transport));
+                checkArgument(!((previous instanceof Leg.Foot && current instanceof Leg.Foot)
+                        || (previous instanceof Leg.Transport && current instanceof Leg.Transport)));
 
                 // 3) L’instant de départ ne précède pas celui d’arrivée de la précédente
-                checkArgument(current.depTime().isBefore(previous.arrTime()));
+                checkArgument(!(current.depTime().isBefore(previous.arrTime())));
 
                 // 4) L'arrêt de départ est identique à l'arrêt d'arrivée de la précédente
-                checkArgument(!current.depStop().equals(previous.arrStop()));
+                checkArgument(current.depStop().equals(previous.arrStop()));
             }
 
 
@@ -100,7 +100,7 @@ public record Journey(List<Leg> legs) {
             public IntermediateStop {
                 Objects.requireNonNull(stop, "Le stop ne peut pas être null.");
 
-                checkArgument(depTime.isBefore(arrTime));
+                checkArgument(!(depTime.isBefore(arrTime)));
             }
         }
 
@@ -132,7 +132,7 @@ public record Journey(List<Leg> legs) {
                 Objects.requireNonNull(route,          "type ne peut pas être null.");
                 Objects.requireNonNull(destination,   "destination ne peut pas être null.");
 
-                checkArgument(arrTime.isBefore(depTime));
+                checkArgument(!(arrTime.isBefore(depTime)));
                 intermediateStops = List.copyOf(intermediateStops);
 
             }
@@ -158,7 +158,7 @@ public record Journey(List<Leg> legs) {
                 Objects.requireNonNull(arrStop, "arrStop ne peut pas être null.");
                 Objects.requireNonNull(arrTime, "arrTime ne peut pas être null.");
 
-                checkArgument(arrTime.isBefore(depTime));
+                checkArgument(!(arrTime.isBefore(depTime)));
             }
 
             /**
