@@ -31,7 +31,8 @@ public final class IcalBuilder {
 
     private StringBuilder ICalString = new StringBuilder();
 
-    private String textAdd(String name, String str2) {
+/**
+    public String textAdd(String name, String str2) {
         StringBuilder sb = new StringBuilder();
 
         String strTotal = name + ":" + str2;
@@ -56,6 +57,30 @@ public final class IcalBuilder {
         return sb.toString();
 
     }
+*/
+
+
+    public String textAdd(String name, String str2) {
+
+        String line = name + ":" + str2;
+        StringBuilder sb = new StringBuilder();
+
+        //opérateur ternaire, en gros : si index c'est 0 ( donc première itération) on augmente de 75 et puis après que
+        //de 74 car l'espace est en plus
+        for (int index = 0; index < line.length(); index += (index == 0 ? 75 : 74)) {
+            if (index == 0) {
+                // Vérification de précaution pour éviter de dépasser
+                int end = Math.min(75, line.length());
+                sb.append(line.substring(index, end)).append(CRLF);
+            } else {
+                //idem
+                int end = Math.min(index + 74, line.length());
+                sb.append(" ").append(line.substring(index, end)).append(CRLF);
+            }
+        }
+        return sb.toString();
+    }
+
 
     public IcalBuilder add(Name name, String value) {
         String nameString = name.toString();
