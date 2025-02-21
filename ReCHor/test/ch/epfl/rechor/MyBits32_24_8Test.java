@@ -1,9 +1,5 @@
 package ch.epfl.rechor;
 
-/*
- *	Author:      Antoine Lepin
- *	Date:
- */
 
 import org.junit.jupiter.api.Test;
 
@@ -30,17 +26,23 @@ class MyBits32_24_8Test {
 
     @Test
     void TestPack() {
-        assertEquals(0b11111111111111111111111011111100, Bits32_24_8.pack(0b111111111111111111111110, 0b11111100));
+        int result = Bits32_24_8.pack(0b111111111111111111111110, 0b11111100);
+        int expected = 0b11111111111111111111111011111100;
+        assertEquals(expected, result);
     }
 
     @Test
     void TestUnpack24() {
-        assertEquals(0b111111111111011111101110, Bits32_24_8.unpack24(0b11111111111101111110111011101110));
+        int result = Bits32_24_8.unpack24(0b11111111111101111110111011101110);
+        int expected = 0b111111111111011111101110;
+        assertEquals(expected, result);
     }
 
     @Test
     void TestUnpack8() {
-        assertEquals(0b11101110, Bits32_24_8.unpack8(0b11111111111101111110111011101110));
+        int result = Bits32_24_8.unpack8(0b11111111111101111110111011101110);
+        int expected = 0b11101110;
+        assertEquals(expected, result);
 
     }
 
