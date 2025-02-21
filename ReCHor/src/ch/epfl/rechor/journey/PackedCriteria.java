@@ -7,8 +7,12 @@ public class PackedCriteria {
     private PackedCriteria() {}
 
     public static long pack(int arrMins, int changes, int payload){
-        Preconditions.checkArgument((changes >> 7) == 0 && (arrMins >> 12) == 0);
-        long pack = (((long) arrMins) << 39) + (((long) changes) << 32) + payload;
+        long arrMinsLong = Integer.toUnsignedLong(arrMins);
+        long changesLong = Integer.toUnsignedLong(changes);
+        long payloadLong = Integer.toUnsignedLong(payload);
+
+        Preconditions.checkArgument((changes >>> 7) == 0 && (arrMins >>> 12) == 0);
+        long pack = (arrMinsLong << 39) + (changesLong << 32) + payloadLong;
         return pack;
     }
 
@@ -73,7 +77,8 @@ public class PackedCriteria {
 
     public static long withPayload(long criteria, int payload1){
         long newCriteria = criteria & (~0xffffffffL);
-        newCriteria = newCriteria | ((long) payload1);
+        long payload1Long = Integer.toUnsignedLong(payload1);
+        newCriteria = newCriteria | (payload1Long);
 
         return newCriteria;
     }
