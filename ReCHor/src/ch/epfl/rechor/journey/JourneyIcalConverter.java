@@ -35,7 +35,7 @@ public class JourneyIcalConverter {
                 .add(IcalBuilder.Name.DTSTAMP, LocalDateTime.now().format(formatter))
                 .add(IcalBuilder.Name.DTSTART, journey.depTime().format(formatter))
                 .add(IcalBuilder.Name.DTEND, journey.arrTime().format(formatter))
-                .add(IcalBuilder.Name.SUMMARY, journey.depStop().toString() + " → " + journey.arrStop().toString())
+                .add(IcalBuilder.Name.SUMMARY, journey.depStop().name().toString() + " → " + journey.arrStop().name().toString())
                 .add(IcalBuilder.Name.DESCRIPTION, joiner.toString())
                 .end().end();
 
