@@ -14,12 +14,12 @@ public class PackedCriteria {
 
     public static boolean hasDepMins(long criteria){
         long hasDep = criteria >>> 51;
-        return hasDep >= (4095 - 3119) && hasDep <= 4095;
+        return hasDep > 0;
     }
 
     public static int depMins(long criteria){
         long dep = criteria >>> 51;
-        Preconditions.checkArgument(dep >= (4095 - 3119) && dep <= 4095);
+        Preconditions.checkArgument(dep > 0);
 
         return (int) (-dep + 4095 - 240);
     }
@@ -42,8 +42,14 @@ public class PackedCriteria {
     }
 
     public static boolean dominatesOrIsEqual(long criteria1, long criteria2){
-        //à faire
-        return true;
+        Preconditions.checkArgument(hasDepMins(criteria1) == hasDepMins(criteria2));
+
+        boolean dominates = (arrMins(criteria1) <= arrMins(criteria2)) & (changes(criteria1) <= changes(criteria2));
+
+        if(hasDepMins(criteria1)) {
+            dominates = dominates & (depMins(criteria1) <= depMins(criteria2));
+        }
+        return dominates;
     }
 
     public static long withoutDepMins(long criteria){

@@ -21,4 +21,5 @@ public class Bits32_24_8 {
         int bits8 = bits32 & 255;
         return bits8;
     }
+
 }

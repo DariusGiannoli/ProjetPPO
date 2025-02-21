@@ -12,7 +12,7 @@ public class JourneyIcalConverter {
     private JourneyIcalConverter() {
     }
 
-    public String toIcalendar(Journey journey){
+    public static String toIcalendar(Journey journey){
 
         IcalBuilder builder = new IcalBuilder();
 
