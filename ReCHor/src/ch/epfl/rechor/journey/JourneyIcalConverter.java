@@ -4,43 +4,54 @@ import ch.epfl.rechor.FormatterFr;
 import ch.epfl.rechor.IcalBuilder;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.StringJoiner;
 import java.util.UUID;
 
-public class JourneyIcalConverter {
+/**
+ * Classe utilitaire (non instanciable) permettant de convertir un Journey
+ * en un événement au format iCalendar.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
+public final class JourneyIcalConverter {
 
-    private JourneyIcalConverter() {
-    }
+    //Constructeur privé pour empêcher l'instanciation.
+    private JourneyIcalConverter() {}
 
+    /**
+     * Convertit le journey donné en un événement iCalendar (VCALENDAR + VEVENT)
+     * @param journey le voyage à convertir
+     * @return une chaîne de caractères au format iCalendar
+     */
     public static String toIcalendar(Journey journey){
 
-        IcalBuilder builder = new IcalBuilder();
-
+        // Construction de la description : une étape par ligne, séparées par \n
         StringJoiner joiner = new StringJoiner("\\n");
-
-
-        for(int i = 0; i < journey.legs().size(); i++) {
-            switch (journey.legs().get(i)) {
-                case Journey.Leg.Foot f -> joiner.add(FormatterFr.formatLeg(f));
-                case Journey.Leg.Transport t -> joiner.add(FormatterFr.formatLeg(t));
+        for (Journey.Leg leg : journey.legs()) {
+            switch (leg) {
+                case Journey.Leg.Foot foot ->
+                        joiner.add(FormatterFr.formatLeg(foot));
+                case Journey.Leg.Transport transport ->
+                        joiner.add(FormatterFr.formatLeg(transport));
             }
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
-
-        builder.begin(IcalBuilder.Component.VCALENDAR).add(IcalBuilder.Name.VERSION, "2.0")
-                .add(IcalBuilder.Name.PRODID, "ReCHor").begin(IcalBuilder.Component.VEVENT)
+        // Création du builder iCalendar
+        IcalBuilder builder = new IcalBuilder();
+        builder.begin(IcalBuilder.Component.VCALENDAR)
+                .add(IcalBuilder.Name.VERSION, "2.0")
+                .add(IcalBuilder.Name.PRODID, "ReCHor")
+                .begin(IcalBuilder.Component.VEVENT)
                 .add(IcalBuilder.Name.UID, UUID.randomUUID().toString())
-                .add(IcalBuilder.Name.DTSTAMP, LocalDateTime.now().format(formatter))
-                .add(IcalBuilder.Name.DTSTART, journey.depTime().format(formatter))
-                .add(IcalBuilder.Name.DTEND, journey.arrTime().format(formatter))
-                .add(IcalBuilder.Name.SUMMARY, journey.depStop().name().toString() + " → " + journey.arrStop().name().toString())
+                .add(IcalBuilder.Name.DTSTAMP, LocalDateTime.now())
+                .add(IcalBuilder.Name.DTSTART, journey.depTime())
+                .add(IcalBuilder.Name.DTEND, journey.arrTime())
+                .add(IcalBuilder.Name.SUMMARY,
+                        journey.depStop().name() + " → " + journey.arrStop().name())
                 .add(IcalBuilder.Name.DESCRIPTION, joiner.toString())
-                .end().end();
-
-
-
+                .end()  // VEVENT
+                .end(); // VCALENDAR
         return builder.build();
     }
 }

@@ -44,8 +44,6 @@ public record Journey(List<Leg> legs) {
                 // 4) L'arrêt de départ est identique à l'arrêt d'arrivée de la précédente
                 checkArgument(current.depStop().equals(previous.arrStop()));
             }
-
-
         }
     }
 
@@ -92,7 +90,7 @@ public record Journey(List<Leg> legs) {
          * @param arrTime la date/heure d'arrivée à l'arrêt.
          * @param depTime la date/heure de départ de l'arrêt.
          */
-        public record IntermediateStop(Stop stop, LocalDateTime arrTime, LocalDateTime depTime) {
+         record IntermediateStop(Stop stop, LocalDateTime arrTime, LocalDateTime depTime) {
 
             /**
              * Constructeur, qui vérifie que stop n'est pas null et que la date/heure de départ n'est pas antérieure à celle d'arrivée.
@@ -115,7 +113,7 @@ public record Journey(List<Leg> legs) {
          * @param route le nom de la ligne sur laquelle circule le véhicule.
          * @param destination le nom de la destination finale du véhicule utilisé pour cette étape.
          */
-        public record Transport(Stop depStop, LocalDateTime depTime,  Stop arrStop, LocalDateTime arrTime, List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination) implements Leg {
+        record Transport(Stop depStop, LocalDateTime depTime,  Stop arrStop, LocalDateTime arrTime, List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination) implements Leg {
 
             /**
              *Le constructeur, qui vérifie avec requireNonNull qu'aucun des arguments ne soit null (sauf pour intermediateStops), sinon une NullPointerException est lancée par la methode requireNonNull.
@@ -146,7 +144,7 @@ public record Journey(List<Leg> legs) {
          * @param arrStop l'arrêt d'arrivée de l'étape.
          * @param arrTime la date/heure d'arrivée de l'étape.
          */
-        public record Foot(Stop depStop, LocalDateTime depTime, Stop arrStop, LocalDateTime arrTime) implements Leg{
+        record Foot(Stop depStop, LocalDateTime depTime, Stop arrStop, LocalDateTime arrTime) implements Leg{
 
             /**
              * Le constructeur de Foot, qui vérifie avec requireNonNull qu'aucun des arguments ne soit null, sinon une NullPointerException est lancée par la methode requireNonNull.

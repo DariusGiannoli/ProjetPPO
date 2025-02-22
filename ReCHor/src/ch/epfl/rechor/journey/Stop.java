@@ -13,6 +13,7 @@ import java.util.Objects;
  * @param longitude la longitude de la position de l'arrêt, en degrés.
  * @param latitude la latitude de la position de l'arrêt, en degrés.
  */
+
 public record Stop(String name, String platformName, double longitude, double latitude) {
 
     /**

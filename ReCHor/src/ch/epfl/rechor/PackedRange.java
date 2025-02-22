@@ -1,37 +1,53 @@
 package ch.epfl.rechor;
 
+/**
+ * Classe utilitaire (non instanciable) permettant de manipuler des intervalles
+ * d'entiers empaquetés dans un int. La borne inférieure occupe 24 bits et la longueur
+ * de l'intervalle occupe 8 bits
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
 
+public final class PackedRange {
 
-public class PackedRange {
+    //Constructeur privé pour empêcher l’instanciation.
+    private PackedRange() {}
 
-    private PackedRange() {
-    }
-
+    /**
+     * Empaquète l'intervalle d'entiers dans in int
+     * @param startInclusive borne inférieure (incluse)
+     * @param endExclusive  borne supérieure (exclue)
+     * @return l'entier 32 bits représentant l'intervalle empaqueté
+     */
     public static int pack(int startInclusive, int endExclusive){
-
         int length = endExclusive - startInclusive;
-        int inter = Bits32_24_8.pack(startInclusive, length);
-        return inter;
+        return Bits32_24_8.pack(startInclusive, length);
     }
 
+    /**
+     * Retourne la longueur de l'intervalle empaqueté
+     * @param interval  l'intervalle empaqueté
+     * @return la longueur de l'intervalle
+     */
     public static int length(int interval){
-        int length = Bits32_24_8.unpack8(interval);
-
-        return length;
+        return Bits32_24_8.unpack8(interval);
     }
 
+    /**
+     * Retourne la borne inférieure (incluse) de l'intervalle empaqueté
+     * @param interval l'intervalle empaqueté
+     * @return  la borne inférieure, incluse
+     */
     public static int startInclusive(int interval){
-        int start = Bits32_24_8.unpack24(interval);
-
-        return start;
+        return Bits32_24_8.unpack24(interval);
     }
 
+    /**
+     * Retourne la borne supérieure (exclue) de l'intervalle empaqueté
+     * @param interval  l'intervalle empaqueté
+     * @return  la borne supérieure, exclue
+     */
     public static int endExclusive(int interval){
-        int length = Bits32_24_8.unpack8(interval);
-        int start = Bits32_24_8.unpack24(interval);
-
-        int end = start + length;
-
-        return end;
+        return startInclusive(interval)+ length(interval);
     }
 }

@@ -31,6 +31,7 @@ public class MyPackedCriteriaTest {
         });
     }
 
+    /**
     @Test
     void testPack() {
 
@@ -46,7 +47,27 @@ public class MyPackedCriteriaTest {
         long expected =  payload | changes << 32 | arrMins << 39;
         long value = PackedCriteria.pack(arrMinsInt, changesInt, payloadInt);
 
+        System.out.println("Expected: " + Long.toBinaryString(expected));
+        System.out.println("Actual:   " + Long.toBinaryString(value));
+
         assertEquals(Long.toBinaryString(expected), Long.toBinaryString(value));
+    }
+*/
+    @Test
+    void testPack() {
+        // Suppose these are well within range
+        int arrMinsInt = 0b010010101001; // 12 bits
+        int changesInt = 0b1010100;      // 7 bits
+        int payloadInt = 0xFFFFFFFF;
+
+        // Build the "expected" using the same bit manipulation
+        long expected = ((long) (arrMinsInt + 240) << 39)
+                | ((long) changesInt << 32)
+                | Integer.toUnsignedLong(payloadInt);
+
+        long actual = PackedCriteria.pack(arrMinsInt, changesInt, payloadInt);
+
+        assertEquals(Long.toBinaryString(expected), Long.toBinaryString(actual));
     }
 
     @Test
@@ -154,5 +175,224 @@ public class MyPackedCriteriaTest {
         int expected = 0b11 << 30;
         assertEquals(expected, value);
     }
+
+    @Test
+    void testPackValid() {
+        // Test de base pour pack : on passe des valeurs valides.
+        // arrMins est en minutes réelles [-240, 2880), ici 0 par exemple.
+        int arrMins = 0; // heure réelle = 0, stockée = 0 + 240 = 240
+        int changes = 50; // valide (<128)
+        int payload = 0x12345678; // payload quelconque (32 bits)
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+
+        long expected = (((long)(arrMins + 240)) << 39)
+                | (((long) changes) << 32)
+                | Integer.toUnsignedLong(payload);
+        assertEquals(Long.toBinaryString(expected), Long.toBinaryString(criteria));
+    }
+
+    @Test
+    void testPackEdgeValues() {
+        // Test avec les valeurs extrêmes de arrMins et changes.
+        int arrMinsMin = -240;  // => stored = -240 + 240 = 0
+        int arrMinsMax = 2879;  // => stored = 2879 + 240 = 3119 (<4096)
+        int changesMin = 0;
+        int changesMax = 127;
+        int payload = 0; // payload simple
+
+        long criteriaMin = PackedCriteria.pack(arrMinsMin, changesMin, payload);
+        long expectedMin = (((long)(arrMinsMin + 240)) << 39)
+                | (((long) changesMin) << 32)
+                | Integer.toUnsignedLong(payload);
+        assertEquals(Long.toBinaryString(expectedMin), Long.toBinaryString(criteriaMin));
+
+        long criteriaMax = PackedCriteria.pack(arrMinsMax, changesMax, payload);
+        long expectedMax = (((long)(arrMinsMax + 240)) << 39)
+                | (((long) changesMax) << 32)
+                | Integer.toUnsignedLong(payload);
+        assertEquals(Long.toBinaryString(expectedMax), Long.toBinaryString(criteriaMax));
+    }
+
+    @Test
+    void testPackInvalidArrMins() {
+        // arrMins hors intervalle : inférieur à -240 ou >= 2880
+        int validChanges = 0;
+        int validPayload = 0;
+        int invalidLow = -241;
+        int invalidHigh = 2880;
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedCriteria.pack(invalidLow, validChanges, validPayload);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedCriteria.pack(invalidHigh, validChanges, validPayload);
+        });
+    }
+
+    @Test
+    void testPackInvalidChanges() {
+        // changes >= 128
+        int arrMins = 0;
+        int invalidChanges = 128;
+        int payload = 0;
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedCriteria.pack(arrMins, invalidChanges, payload);
+        });
+    }
+
+    @Test
+    void testArrMinsUnpack() {
+        // Vérifie que la méthode arrMins renvoie bien la valeur d'origine.
+        int originalArrMins = 100; // valeur réelle
+        int changes = 10;
+        int payload = 12345;
+        long criteria = PackedCriteria.pack(originalArrMins, changes, payload);
+        assertEquals(originalArrMins, PackedCriteria.arrMins(criteria));
+    }
+
+    @Test
+    void testChangesUnpack() {
+        int arrMins = 0;
+        int originalChanges = 75;
+        int payload = 0;
+        long criteria = PackedCriteria.pack(arrMins, originalChanges, payload);
+        assertEquals(originalChanges, PackedCriteria.changes(criteria));
+    }
+
+    @Test
+    void testPayloadUnpack() {
+        int arrMins = 0;
+        int changes = 0;
+        int payload = 0xDEADBEEF;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        assertEquals(payload, PackedCriteria.payload(criteria));
+    }
+
+    @Test
+    void testWithDepMinsValid() {
+        // Test de withDepMins : on ajoute une heure de départ valide et on vérifie
+        int arrMins = 50;
+        int changes = 20;
+        int payload = 0xCAFEBABE;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        int depMins = 120; // heure de départ réelle
+        long newCriteria = PackedCriteria.withDepMins(criteria, depMins);
+        assertTrue(PackedCriteria.hasDepMins(newCriteria));
+        assertEquals(depMins, PackedCriteria.depMins(newCriteria));
+    }
+
+    @Test
+    void testWithDepMinsInvalid() {
+        // Test avec des heures de départ hors intervalle
+        int arrMins = 0;
+        int changes = 0;
+        int payload = 0;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        int invalidDepLow = -241;
+        int invalidDepHigh = 2880;
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedCriteria.withDepMins(criteria, invalidDepLow);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedCriteria.withDepMins(criteria, invalidDepHigh);
+        });
+    }
+
+    @Test
+    void TtestWithoutDepMins() {
+        // Test que withoutDepMins supprime l'heure de départ.
+        int arrMins = 100;
+        int changes = 10;
+        int payload = 54321;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        long criteriaWithDep = PackedCriteria.withDepMins(criteria, 150);
+        assertTrue(PackedCriteria.hasDepMins(criteriaWithDep));
+        long criteriaCleared = PackedCriteria.withoutDepMins(criteriaWithDep);
+        assertFalse(PackedCriteria.hasDepMins(criteriaCleared));
+    }
+
+    @Test
+    void testDominatesOrIsEqualWithoutDep() {
+        // Cas sans heure de départ
+        int arrMins1 = 0;   // correspond à une arrivée traduite = 240
+        int arrMins2 = 50;
+        int changes1 = 5;
+        int changes2 = 10;
+        int payload = 0;
+        long criteria1 = PackedCriteria.pack(arrMins1, changes1, payload);
+        long criteria2 = PackedCriteria.pack(arrMins2, changes2, payload);
+        // On veut minimiser l'heure d'arrivée et les changements
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+    }
+
+    @Test
+    void testDominatesOrIsEqualWithDep() {
+        // Cas avec heure de départ
+        int arrMins1 = 100;
+        int arrMins2 = 150;
+        int changes1 = 5;
+        int changes2 = 10;
+        int payload = 0;
+        long base1 = PackedCriteria.pack(arrMins1, changes1, payload);
+        long base2 = PackedCriteria.pack(arrMins2, changes2, payload);
+        int dep1 = 200; // meilleure heure de départ (plus tard)
+        int dep2 = 150;
+        long criteria1 = PackedCriteria.withDepMins(base1, dep1);
+        long criteria2 = PackedCriteria.withDepMins(base2, dep2);
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+    }
+
+    @Test
+    void testDominatesOrIsEqualInconsistentDep() {
+        // Test qu'une incohérence (l'un a une heure de départ et pas l'autre) lève une exception
+        int arrMins = 100;
+        int changes = 5;
+        int payload = 0;
+        long criteriaWithDep = PackedCriteria.withDepMins(PackedCriteria.pack(arrMins, changes, payload), 200);
+        long criteriaWithoutDep = PackedCriteria.pack(arrMins, changes, payload);
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedCriteria.dominatesOrIsEqual(criteriaWithDep, criteriaWithoutDep);
+        });
+    }
+
+    @Test
+    void testWithAdditionalChangeValid() {
+        // Test que withAdditionalChange incrémente le nombre de changements
+        int arrMins = 0;
+        int changes = 50;
+        int payload = 0;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        long newCriteria = PackedCriteria.withAdditionalChange(criteria);
+        assertEquals(changes + 1, PackedCriteria.changes(newCriteria));
+    }
+
+    @Test
+    void testWithAdditionalChangeInvalid() {
+        // Test que l'incrémentation échoue si le nombre de changements atteint 127
+        int arrMins = 0;
+        int changes = 127;
+        int payload = 0;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedCriteria.withAdditionalChange(criteria);
+        });
+    }
+
+    @Test
+    void testWithPayload() {
+        // Test que withPayload remplace correctement le payload
+        int arrMins = 0;
+        int changes = 10;
+        int payload = 0x12345678;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        int newPayload = 0xDEADBEEF;
+        long newCriteria = PackedCriteria.withPayload(criteria, newPayload);
+        assertEquals(newPayload, PackedCriteria.payload(newCriteria));
+    }
+
+
+
+
 
 }
