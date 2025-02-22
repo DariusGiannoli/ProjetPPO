@@ -11,12 +11,12 @@ import ch.epfl.rechor.Preconditions;
  */
 
 
-/**
- * Bits [62..51] : heure de départ (dite complémentée) ou 0 si pas d’heure,
- * Bits [50..39] : heure d’arrivée (12bits),
- * Bits [38..32] : nombre de changements (7bits),
- * Bits [31..0] : charge utile (payload) sur 32bits.
- */
+
+//Bits [62..51] : heure de départ (dite complémentée) ou 0 si pas d’heure,
+//Bits [50..39] : heure d’arrivée (12bits),
+//Bits [38..32] : nombre de changements (7bits),
+//Bits [31..0] : charge utile (payload) sur 32bits.
+
 public final class PackedCriteria {
 
 
