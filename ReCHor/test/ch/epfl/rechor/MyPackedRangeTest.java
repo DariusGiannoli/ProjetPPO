@@ -55,4 +55,24 @@ public class MyPackedRangeTest {
         assertEquals(expected, value);
     }
 
+    @Test
+    void testPackWithNegativeLength(){
+        int start = 900;
+        int end = 800;
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedRange.pack(start, end);
+        });
+    }
+
+    @Test
+    void testPackWithStartMoreThan24bits() {
+        int start = 1 << 24;
+        int end = (1 << 24) + 2 ;
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            PackedRange.pack(start, end);
+        });
+    }
+
 }
