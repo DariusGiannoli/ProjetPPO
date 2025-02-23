@@ -3,6 +3,7 @@ package ch.epfl.rechor;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -105,7 +106,8 @@ class IcalBuilderTest {
         IcalBuilder builder = new IcalBuilder();
         LocalDateTime value = LocalDateTime.now();
         String result = builder.add(IcalBuilder.Name.DTSTAMP, value).build();
-        String expected = "DTSTAMP:" + value.toString() + CRLF;
+        DateTimeFormatter ICAL_DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
+        String expected = "DTSTAMP:" + value.format(ICAL_DATE_TIME_FORMAT) + CRLF;
         assertEquals(expected, result);
     }
 

@@ -141,7 +141,7 @@ public class MyPackedCriteriaTest {
     @Test
     void testWithDepMins() {
         long criteria = 0b111111110000 << 51;
-        int depMins = 0b111111111010;
+        int depMins = -235;
         criteria = PackedCriteria.withDepMins(criteria, depMins);
         int value = PackedCriteria.depMins(criteria);
         int expected = -235;
