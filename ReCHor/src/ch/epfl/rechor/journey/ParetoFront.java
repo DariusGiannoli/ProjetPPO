@@ -217,7 +217,12 @@ public final class ParetoFront {
             return this;
         }
 
-        public void forEach(java.util.function.LongConsumer action) {
+        public boolean fullyDominates(Builder that, int depMins) {
+            // Implémentation à compléter selon les règles de domination incluant l'heure de départ.
+            return false;
+        }
+
+            public void forEach(java.util.function.LongConsumer action) {
             for (int i = 0; i < size; i++) {
                 action.accept(tuples[i]);
             }
