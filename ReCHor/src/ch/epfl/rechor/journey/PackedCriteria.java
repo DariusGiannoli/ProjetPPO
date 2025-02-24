@@ -27,6 +27,7 @@ public final class PackedCriteria {
      * Empaquète une heure d'arrivée (sur 12 bits),
      * un nombre de changements (7 bits) et un payload (32 bits)
      * dans un long, sans heure de départ.
+     * Verifie que la minute d'arrivée est comprise entre -240 et 2879, et que les changements sont compris entre 0 et 127, sinon elle envoie un IllegalArgumentException avec la methode checkArgument.
      * @param arrMins  heure d'arrivée en minutes après minuit
      * @param changes  nombre de changements
      * @param payload  payload sur 32 bits
@@ -98,7 +99,8 @@ public final class PackedCriteria {
     }
 
     /**
-     * Retourne l'heure de départ réelle (en minutes depuis minuit) stockée dans criteria
+     * Retourne l'heure de départ réelle (en minutes depuis minuit) stockée dans criteria,
+     * et verifie que la valeur donnée en argument possède bien une heure de départ, sinon lance une IllegalArgumentException avec la methode checkArgument.
      * @param criteria un entier 64 bits
      * @return  l'heure de départ réelle, en minutes depuis minuit ([-240, 2880))
      */
@@ -132,7 +134,7 @@ public final class PackedCriteria {
 
     /**
      * Retourne un nouveau critère identique à criteria, mais avec l'heure de départ
-     * fixée à depMins
+     * fixée à depMins. Verifie que lq minute de départ est comprise entre -240 et 2879, et que la nouvelle minute de départ est antérieure ou égale à la minute d'arrivée, sinon elle lance une IllegalArgumentException avec la methode checkArgument.
      * @param criteria  un entier 64 bits
      * @param depMins   l'heure de départ réelle, en minutes depuis minuit ([-240, 2880))
      * @return  un nouvel entier 64 bits avec l'heure de départ stockée
@@ -164,7 +166,7 @@ public final class PackedCriteria {
      *      //Minimiser l'heure d'arrivée : arrMins1 <= arrMins2
      *     //Minimiser le nombre de changements : changes1 <= changes2
      *     //Maximiser l'heure de départ (si présente) : depMins1 >= depMins2
-     *     //Si l'un a une heure de départ et pas l'autre, une exception est levée
+     *     //Si l'un a une heure de départ et pas l'autre, une exception IllegalArgumentException est levée par la methode checkArgument.
      *
      * @param criteria1  un entier 64 bits
      * @param criteria2  un entier 64 bits
@@ -188,6 +190,7 @@ public final class PackedCriteria {
 
     /**
      * Retourne un nouveau critère identique à criteria avec le nombre de changements incrémenté de 1.
+     * Verifie que le nombre de changements apres l'ajout de 1 est inférieur à 128, sinon elle lève une IllegalArgumentException avec la methode checkArgument.
      * @param criteria un entier de 64 bits
      * @return  un entier 64 bits avec le champ "changes" augmenté de 1
      */
