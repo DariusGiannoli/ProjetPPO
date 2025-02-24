@@ -140,7 +140,7 @@ public class MyPackedCriteriaTest {
 
     @Test
     void testWithDepMins() {
-        long criteria = 0b111111110000 << 51;
+        long criteria = 4000L << 51 | 1000L << 39;
         int depMins = -235;
         criteria = PackedCriteria.withDepMins(criteria, depMins);
         int value = PackedCriteria.depMins(criteria);
@@ -274,7 +274,7 @@ public class MyPackedCriteriaTest {
         int changes = 20;
         int payload = 0xCAFEBABE;
         long criteria = PackedCriteria.pack(arrMins, changes, payload);
-        int depMins = 120; // heure de départ réelle
+        int depMins = 20; // heure de départ réelle
         long newCriteria = PackedCriteria.withDepMins(criteria, depMins);
         assertTrue(PackedCriteria.hasDepMins(newCriteria));
         assertEquals(depMins, PackedCriteria.depMins(newCriteria));
@@ -339,6 +339,78 @@ public class MyPackedCriteriaTest {
     }
 
     @Test
+    void testDominatesOrIsEqualWithoutDepEdge() {
+        // Cas sans heure de départ
+        int arrMins1 = 0;   // correspond à une arrivée traduite = 240
+        int arrMins2 = 0;
+        int changes1 = 5;
+        int changes2 = 5;
+        int payload = 0;
+        long criteria1 = PackedCriteria.pack(arrMins1, changes1, payload);
+        long criteria2 = PackedCriteria.pack(arrMins2, changes2, payload);
+        // On veut minimiser l'heure d'arrivée et les changements
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+
+    }
+
+    @Test
+    void testDominatesOrIsEqualWithDepEdge() {
+        // Cas avec heure de départ
+        int arrMins1 = 100;
+        int arrMins2 = 100;
+        int changes1 = 5;
+        int changes2 = 5;
+        int payload = 0;
+        long base1 = PackedCriteria.pack(arrMins1, changes1, payload);
+        long base2 = PackedCriteria.pack(arrMins2, changes2, payload);
+        int dep1 = 90; // meilleure heure de départ (plus tard)
+        int dep2 = 90;
+        long criteria1 = PackedCriteria.withDepMins(base1, dep1);
+        long criteria2 = PackedCriteria.withDepMins(base2, dep2);
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+    }
+
+    @Test
+    void testDominatesOrIsEqualWithDepWithOnlyOne() {
+        // Cas avec heure de départ
+        int arrMins1 = 100;
+        int arrMins2 = 100;
+        int changes1 = 5;
+        int changes2 = 6;
+        int payload = 0;
+        long base1 = PackedCriteria.pack(arrMins1, changes1, payload);
+        long base2 = PackedCriteria.pack(arrMins2, changes2, payload);
+        int dep1 = 90; // meilleure heure de départ (plus tard)
+        int dep2 = 90;
+        long criteria1 = PackedCriteria.withDepMins(base1, dep1);
+        long criteria2 = PackedCriteria.withDepMins(base2, dep2);
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+    }
+
+    @Test
+    void testDominatesOrIsEqualWithDepNotDominateEachOther() {
+        // Cas avec heure de départ
+        int arrMins1 = 90;
+        int arrMins2 = 100;
+        int changes1 = 6;
+        int changes2 = 5;
+        int payload = 0;
+        long base1 = PackedCriteria.pack(arrMins1, changes1, payload);
+        long base2 = PackedCriteria.pack(arrMins2, changes2, payload);
+        int dep1 = 90; // meilleure heure de départ (plus tard)
+        int dep2 = 90;
+        long criteria1 = PackedCriteria.withDepMins(base1, dep1);
+        long criteria2 = PackedCriteria.withDepMins(base2, dep2);
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+    }
+
+
+
+    @Test
     void testDominatesOrIsEqualWithDep() {
         // Cas avec heure de départ
         int arrMins1 = 100;
@@ -348,8 +420,8 @@ public class MyPackedCriteriaTest {
         int payload = 0;
         long base1 = PackedCriteria.pack(arrMins1, changes1, payload);
         long base2 = PackedCriteria.pack(arrMins2, changes2, payload);
-        int dep1 = 200; // meilleure heure de départ (plus tard)
-        int dep2 = 150;
+        int dep1 = 95; // meilleure heure de départ (plus tard)
+        int dep2 = 90;
         long criteria1 = PackedCriteria.withDepMins(base1, dep1);
         long criteria2 = PackedCriteria.withDepMins(base2, dep2);
         assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
@@ -362,7 +434,7 @@ public class MyPackedCriteriaTest {
         int arrMins = 100;
         int changes = 5;
         int payload = 0;
-        long criteriaWithDep = PackedCriteria.withDepMins(PackedCriteria.pack(arrMins, changes, payload), 200);
+        long criteriaWithDep = PackedCriteria.withDepMins(PackedCriteria.pack(arrMins, changes, payload), 99);
         long criteriaWithoutDep = PackedCriteria.pack(arrMins, changes, payload);
         assertThrows(IllegalArgumentException.class, () -> {
             PackedCriteria.dominatesOrIsEqual(criteriaWithDep, criteriaWithoutDep);
