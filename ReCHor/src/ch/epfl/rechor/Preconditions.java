@@ -1,6 +1,8 @@
 package ch.epfl.rechor;
 
 
+import java.util.NoSuchElementException;
+
 /**
  * Class pour verifier une condition.
  * @author Antoine Lepin (390950)
@@ -23,4 +25,5 @@ public final class Preconditions {
             throw new IllegalArgumentException();
         }
     }
+
 }
