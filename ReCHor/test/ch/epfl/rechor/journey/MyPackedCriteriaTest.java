@@ -304,10 +304,23 @@ public class MyPackedCriteriaTest {
         int changes = 10;
         int payload = 54321;
         long criteria = PackedCriteria.pack(arrMins, changes, payload);
-        long criteriaWithDep = PackedCriteria.withDepMins(criteria, 150);
+        long criteriaWithDep = PackedCriteria.withDepMins(criteria, 100);
         assertTrue(PackedCriteria.hasDepMins(criteriaWithDep));
         long criteriaCleared = PackedCriteria.withoutDepMins(criteriaWithDep);
         assertFalse(PackedCriteria.hasDepMins(criteriaCleared));
+    }
+    @Test
+    void TestWithDepMinsExceptionIfDepSupArr() {
+        // Test que withoutDepMins supprime l'heure de départ.
+        int arrMins = 100;
+        int changes = 10;
+        int payload = 54321;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        assertThrows(IllegalArgumentException.class, () -> {
+            long criteriaWithDep = PackedCriteria.withDepMins(criteria, 101);
+
+        });
+
     }
 
     @Test
@@ -387,6 +400,29 @@ public class MyPackedCriteriaTest {
         int payload = 0x12345678;
         long criteria = PackedCriteria.pack(arrMins, changes, payload);
         int newPayload = 0xDEADBEEF;
+        long newCriteria = PackedCriteria.withPayload(criteria, newPayload);
+        assertEquals(newPayload, PackedCriteria.payload(newCriteria));
+    }
+
+    @Test
+    void testWithPayloadEdgeOriginalPayload() {
+        // Test que withPayload remplace correctement le payload
+        int arrMins = 0;
+        int changes = 10;
+        int payload = 0xffffffff;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        int newPayload = 0x1101;
+        long newCriteria = PackedCriteria.withPayload(criteria, newPayload);
+        assertEquals(newPayload, PackedCriteria.payload(newCriteria));
+    }
+    @Test
+    void testWithPayloadEdgeNewPayload() {
+        // Test que withPayload remplace correctement le payload
+        int arrMins = 0;
+        int changes = 10;
+        int payload = 0x12345678;
+        long criteria = PackedCriteria.pack(arrMins, changes, payload);
+        int newPayload = 0xffffffff;
         long newCriteria = PackedCriteria.withPayload(criteria, newPayload);
         assertEquals(newPayload, PackedCriteria.payload(newCriteria));
     }
