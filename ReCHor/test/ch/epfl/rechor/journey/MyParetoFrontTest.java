@@ -142,7 +142,7 @@ public class MyParetoFrontTest {
         assertTrue(pf.size() > 0, "Après fusion, la frontière ne doit pas être vide");
     }
 
-    @Test
+    /*@Test
     void testFullyDominatesTrue() {
         Builder b1 = new Builder();
         // T1 très bon => arrMins=100, changes=1
@@ -170,6 +170,40 @@ public class MyParetoFrontTest {
 
         // b1 ne peut pas dominer b2
         assertFalse(b1.fullyDominates(b2, 0), //impossible car il faudrait pouvoir mettre une depMin de 3855 pour avoir 12 bits de 0, car valeur inversée.
+                "b1 ne devrait pas dominer le tuple de b2 qui est meilleur");
+    }
+
+     */
+
+    @Test
+    void testFullyDominatesTrue() {
+        Builder b1 = new Builder();
+        // T1 très bon => arrMins=100, changes=1
+        long criteria = PackedCriteria.pack(100, 1, 0);
+        b1.add(PackedCriteria.withDepMins(criteria, 0));
+
+        Builder b2 = new Builder();
+        // T2 moins bon => arrMins=120, changes=2
+        b2.add(120, 2, 0);
+        b2.add(130, 1, 0);
+
+        // fullyDominates => b1 doit dominer tout b2 en fixant depMins=0
+        assertTrue(b1.fullyDominates(b2, 0),
+                "b1 devrait dominer tous les tuples de b2");
+    }
+    @Test
+    void testFullyDominatesFalse() {
+        Builder b1 = new Builder();
+        // T1 => arrMins=200, changes=2
+        long criteria = PackedCriteria.pack(200, 2, 0);
+        b1.add(PackedCriteria.withDepMins(criteria, 0));
+
+        Builder b2 = new Builder();
+        // T2 => arrMins=190, changes=2 (arrive plus tôt => meilleur)
+        b2.add(190, 2, 0);
+
+        // fullyDominates => b1 doit dominer tout b2 en fixant depMins=0
+        assertFalse(b1.fullyDominates(b2, 0),
                 "b1 ne devrait pas dominer le tuple de b2 qui est meilleur");
     }
 }
