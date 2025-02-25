@@ -142,95 +142,136 @@ public final class ParetoFront {
             return this;
         }
 
-        public Builder add(long newTuple) {
-            // 1. Recherche de la position d'insertion.
-            int insertionIndex = 0;
-            for (; insertionIndex < size; insertionIndex++) {
-                // Si l'élément courant est strictement supérieur à newTuple,
-                // c'est la première position où newTuple devrait être inséré.
-                if (tuples[insertionIndex] > newTuple) {
-                    break;
-                }
-                // Vérifier si l'élément courant domine ou est égal à newTuple.
-                // On compare les critères extraits via PackedCriteria.
+        public Builder add(long packedTuple) {
 
-                /**Problème ici ds la logique de lexicographique*/
-                if (PackedCriteria.arrMins(tuples[insertionIndex]) <= PackedCriteria.arrMins(newTuple)
-                        && PackedCriteria.changes(tuples[insertionIndex]) <= PackedCriteria.changes(newTuple)) {
-                    // newTuple est dominé ou égal ; l'ajout est abandonné.
-                    return this;
+            long adjusted = packedTuple & ~0xFFFFFFFFL;
+
+
+            int pos = 0;
+            while (pos < size && tuples[pos] < adjusted) {
+
+                if (PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
+                    return this; // ajout annulé
                 }
+                pos++;
             }
 
-            // 2. Comptage des tuples immédiatement suivants (à partir de insertionIndex)
-            // qui sont dominés par newTuple.
-            int countDominated = 0;
-            for (int i = insertionIndex; i < size; i++) {
-                if (PackedCriteria.arrMins(newTuple) <= PackedCriteria.arrMins(tuples[i])
-                        && PackedCriteria.changes(newTuple) <= PackedCriteria.changes(tuples[i])) {
-                    countDominated++;
-                } else {
-                    break;
-                }
+            if (pos < size && PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
+                return this; // ajout annulé
             }
 
-            // 3. Redimensionnement du tableau si nécessaire.
-            if (size == tuples.length) {
-                // Augmentation de la capacité d'environ 1.5 fois + 1.
-                tuples = java.util.Arrays.copyOf(tuples, tuples.length + (tuples.length >> 1) + 1);
-            }
 
-            // 4. Insertion du nouveau tuple.
-            if (countDominated > 0) {
-                // Cas : il existe au moins un tuple dominé par newTuple.
-                // Remplacer le premier tuple dominé par newTuple.
-                tuples[insertionIndex] = newTuple;
-                // Décaler les éléments suivants (au-delà du bloc dominé) vers la gauche pour combler le vide.
-                int remaining = size - (insertionIndex + countDominated);
-                if (remaining > 0) {
-                    System.arraycopy(tuples, insertionIndex + countDominated, tuples, insertionIndex + 1, remaining);
-                }
-                // Mise à jour de la taille : on retire (countDominated - 1) éléments.
-                size = size - (countDominated - 1);
+            int startDominated = pos;
+            while (startDominated < size
+                    && PackedCriteria.dominatesOrIsEqual(packedTuple, tuples[startDominated])) {
+                startDominated++;
+            }
+            int nDominated = startDominated - pos;
+
+            if (nDominated > 0) {
+
+                tuples[pos] = packedTuple;
+
+                int nbToShift = size - startDominated;
+                System.arraycopy(tuples, startDominated, tuples, pos + 1, nbToShift);
+                size = size - nDominated + 1;
             } else {
-                // Cas : aucun tuple existant n'est dominé par newTuple.
-                // Décaler les éléments à partir de insertionIndex vers la droite pour libérer une place.
-                System.arraycopy(tuples, insertionIndex, tuples, insertionIndex + 1, size - insertionIndex);
-                // Insérer newTuple à la position d'insertion.
-                tuples[insertionIndex] = newTuple;
+
+                if (size == tuples.length) {
+
+                    int newCap = (int) (tuples.length * 1.5);
+                    if (newCap == tuples.length) {
+                        newCap++; // s'assurer d'une augmentation
+                    }
+                    long[] newArray = new long[newCap];
+
+                    System.arraycopy(tuples, 0, newArray, 0, pos);
+
+                    newArray[pos] = packedTuple;
+
+                    System.arraycopy(tuples, pos, newArray, pos + 1, size - pos);
+                    tuples = newArray;
+                } else {
+
+                    System.arraycopy(tuples, pos, tuples, pos + 1, size - pos);
+                    tuples[pos] = packedTuple;
+                }
                 size++;
             }
-
-            // 5. Tri de la portion utilisée pour maintenir l'ordre lexicographique.
-            java.util.Arrays.sort(tuples, 0, size);
             return this;
         }
 
+
+        /**
+         * Ajoute un tuple (arrMins, changes, payload) dans la frontière,
+         * sans heure de départ.
+         * @return this, pour chaînage
+         */
         public Builder add(int arrMins, int changes, int payload) {
             long packed = PackedCriteria.pack(arrMins, changes, payload);
             return add(packed);
         }
 
+        /**
+         * Ajoute tous les tuples d'un autre Builder 'that' dans le builder courant,
+         * en utilisant la logique Pareto (domination).
+         * @param that l'autre builder
+         * @return this, pour chaînage
+         */
         public Builder addAll(Builder that) {
-            // Utilise la méthode forEach avec une lambda pour ajouter chaque tuple.
             that.forEach(this::add);
             return this;
         }
 
-        public boolean fullyDominates(Builder that, int depMins) {
-            // Implémentation à compléter selon les règles de domination incluant l'heure de départ.
-            return false;
-        }
-
-            public void forEach(java.util.function.LongConsumer action) {
+        /**
+         * Parcourt la frontière en cours de construction et applique action.accept(tuple)
+         * pour chacun des tuples.
+         * @param action un LongConsumer
+         */
+        public void forEach(LongConsumer action) {
             for (int i = 0; i < size; i++) {
                 action.accept(tuples[i]);
             }
         }
 
+        /**
+         * Retourne true si et seulement si tous les tuples de 'that', une fois qu'on leur
+         * a fixé l'heure de départ 'depMins', sont dominés par au moins un tuple du builder courant.
+         * @param that l'autre builder
+         * @param depMins l'heure de départ à fixer
+         * @return true si la totalité des tuples de 'that' sont dominés par un tuple du builder courant
+         */
+        public boolean fullyDominates(Builder that, int depMins) {
+
+            for (int i = 0; i < that.size; i++) {
+                long thatTuple = that.tuples[i];
+                // Fixer l'heure de départ
+                long fixedThat = PackedCriteria.withDepMins(thatTuple, depMins);
+
+                // Cherche un tuple dans 'this' qui domine ou égale 'fixedThat'
+                boolean dominatedByAtLeastOne = false;
+                for (int j = 0; j < this.size; j++) {
+
+                    if (PackedCriteria.dominatesOrIsEqual(tuples[j], fixedThat)) {
+                        dominatedByAtLeastOne = true;
+                        break;
+                    }
+                }
+                if (!dominatedByAtLeastOne) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Construit la frontière de Pareto immuable à partir du contenu du builder.
+         * Copie les tuples [0..size) pour garantir l'immuabilité.
+         * @return un ParetoFront immuable.
+         */
         public ParetoFront build() {
-            long[] result = java.util.Arrays.copyOf(tuples, size);
-            return new ParetoFront(result);
+            long[] finalArray = Arrays.copyOf(tuples, size);
+            return new ParetoFront(finalArray);
         }
 
         @Override
