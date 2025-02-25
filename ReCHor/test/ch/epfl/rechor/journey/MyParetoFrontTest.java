@@ -94,11 +94,22 @@ public class MyParetoFrontTest {
     }
 
     @Test
+    void addDominatedTuple() {
+        Builder b = new Builder();
+        // On ajoute 5 tuples mais 4 sont dominés par le premier donc pas ajoutés.
+        for (int i = 0; i < 5; i++) {
+            b.add(100 + i, 2, i);
+        }
+        ParetoFront pf = b.build();
+        assertEquals(1, pf.size(), "On devrait avoir 1 tuples distincts dans la frontière");
+    }
+
+    @Test
     void addMoreThanInitialCapacity() {
         Builder b = new Builder();
         // On ajoute 5 tuples distincts pour forcer le redimensionnement
         for (int i = 0; i < 5; i++) {
-            b.add(100 + i, 2, i);
+            b.add(100 - i, 2 + i, i); // on ajoute des elements qui ne se dominent pas entre eux en ayant un meilleur heure d'arrivée mais un moins bon nombre de changements.
         }
         ParetoFront pf = b.build();
         assertEquals(5, pf.size(), "On devrait avoir 5 tuples distincts dans la frontière");
@@ -205,5 +216,138 @@ public class MyParetoFrontTest {
         // fullyDominates => b1 doit dominer tout b2 en fixant depMins=0
         assertFalse(b1.fullyDominates(b2, 0),
                 "b1 ne devrait pas dominer le tuple de b2 qui est meilleur");
+    }
+    @Test
+    void addDominatingTupleRemovesOldOnes() {
+        Builder b = new Builder();
+        // T1 : arrMins=200, changes=2
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 3, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        // Tç : arrMins=190, changes=2 => domine T1
+        long t4 = PackedCriteria.pack(200, 4, 9999);
+        b.add(t4);
+
+        ParetoFront pf = b.build();
+        assertEquals(2, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t4, frontier[0], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t3, frontier[1], "Le tuple dominé aurait dû être supprimé");
+
+    }
+    @Test
+    void addDominatingTupleRemovesOldOne2() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 3, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        long t4 = PackedCriteria.pack(202, 2, 9999);
+        b.add(t4);
+
+        ParetoFront pf = b.build();
+        assertEquals(3, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t1, frontier[0], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t2, frontier[1], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t4, frontier[2], "Le tuple dominé aurait dû être supprimé");
+
+    }
+
+    @Test
+    void addDominatingTupleRemovesOldOneInTheMiddle() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        long t4 = PackedCriteria.pack(201, 3, 9999);
+        b.add(t4);
+
+        ParetoFront pf = b.build();
+        assertEquals(3, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t1, frontier[0], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t4, frontier[1], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t3, frontier[2], "Le tuple dominé aurait dû être supprimé");
+
+    }
+    @Test
+    void addTupleNotRemovesOldOne() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        long t4 = PackedCriteria.pack(203, 1, 9999);
+        b.add(t4);
+
+        ParetoFront pf = b.build();
+        assertEquals(4, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t1, frontier[0], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t2, frontier[1], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t3, frontier[2], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t4, frontier[3], "Le tuple dominé aurait dû être supprimé");
+
+    }
+    @Test
+    void addSingleTuple0() {
+        Builder b = new Builder();
+        assertTrue(b.isEmpty());
+
+        // Ajout d'un tuple (arrMins=100, changes=2, payload=1234)
+        b.add(-240, 0, 0);
+
+        ParetoFront pf = b.build();
+        assertFalse(b.isEmpty(), "Le builder ne doit plus être vide après un ajout");
+        assertEquals(1, pf.size(), "La frontière devrait contenir exactement 1 élément");
+
+        long[] frontier = frontierToLongArray(pf);
+        long expected = PackedCriteria.pack(-240, 0, 0);
+        assertEquals(expected, frontier[0], "Le tuple stocké n'est pas celui attendu");
+    }
+    @Test
+    void addTuple0NotRemovesOldOne() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        long t4 = PackedCriteria.pack(-240, 0, 0);
+        b.add(t4);
+
+        ParetoFront pf = b.build();
+        assertEquals(1, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t4, frontier[0], "Le tuple dominé aurait dû être supprimé");
+
+
     }
 }
