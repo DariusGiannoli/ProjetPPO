@@ -154,7 +154,7 @@ public class MyParetoFrontTest {
         b2.add(130, 1, 0);
 
         // fullyDominates => b1 doit dominer tout b2 en fixant depMins=0
-        assertTrue(b1.fullyDominates(b2, 0),
+        assertTrue(b1.fullyDominates(b2, 0), //impossible car il faudrait pouvoir mettre une depMin de 3855 pour avoir 12 bits de 0, car valeur inversée.
                 "b1 devrait dominer tous les tuples de b2");
     }
 
@@ -169,7 +169,7 @@ public class MyParetoFrontTest {
         b2.add(190, 2, 0);
 
         // b1 ne peut pas dominer b2
-        assertFalse(b1.fullyDominates(b2, 0),
+        assertFalse(b1.fullyDominates(b2, 0), //impossible car il faudrait pouvoir mettre une depMin de 3855 pour avoir 12 bits de 0, car valeur inversée.
                 "b1 ne devrait pas dominer le tuple de b2 qui est meilleur");
     }
 }

@@ -127,21 +127,40 @@ public final class ParetoFront {
             this.size = 0;
         }
 
+
+        /**
+         * retourne un nouveau bâtisseur avec les mêmes attributs que celui reçu en argument (constructeur de copie).
+         * @param that est un builder que l'on copie.
+         */
         public Builder(Builder that) {
             // On recopie uniquement les éléments effectivement utilisés
             this.tuples = Arrays.copyOf(that.tuples, that.size);
             this.size = that.size;
         }
 
+        /**
+         * @return retourne vrai si et seulement si la frontière en cours de construction est vide.
+         */
         public boolean isEmpty() {
             return size == 0;
         }
 
+        /**
+         * vide la frontière en cours de construction en supprimant tous ses éléments.
+         * @return lui même car c'est un builder.
+         */
         public Builder clear() {
             size = 0;
             return this;
         }
 
+        /**
+         * ajoute à la frontière le tuple de critères empaquetés donné;
+         * cet ajout n'est fait que si le nouveau tuple n'est pas dominé ou égal à un de la frontière,
+         * et tous les éventuels tuples existants et dominés par le nouveau en sont supprimés.
+         * @param packedTuple le nouveau tuple que l'on veut ajouter à la frontière de Pareto.
+         * @return lui même car c'est un builder.
+         */
         public Builder add(long packedTuple) {
 
             long adjusted = packedTuple & ~0xFFFFFFFFL;

@@ -501,6 +501,17 @@ public class MyPackedCriteriaTest {
 
 
 
+    @Test
+    public void testDominatesOrIsEqualEqual() {
+        long criteria1 = PackedCriteria.pack(500, 2, 100);
+        long criteria2 = PackedCriteria.pack(500, 2, 100);
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+    }
+
+
+
+
+
 
 
 }
