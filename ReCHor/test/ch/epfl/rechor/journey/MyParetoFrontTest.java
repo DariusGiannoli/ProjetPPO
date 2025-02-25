@@ -1,5 +1,6 @@
 package ch.epfl.rechor.journey;
 
+import ch.epfl.rechor.Bits32_24_8;
 import ch.epfl.rechor.Preconditions;
 import ch.epfl.rechor.journey.ParetoFront.Builder;
 import ch.epfl.rechor.journey.ParetoFront;
@@ -202,6 +203,7 @@ public class MyParetoFrontTest {
         assertTrue(b1.fullyDominates(b2, 0),
                 "b1 devrait dominer tous les tuples de b2");
     }
+
     @Test
     void testFullyDominatesFalse() {
         Builder b1 = new Builder();
@@ -217,6 +219,7 @@ public class MyParetoFrontTest {
         assertFalse(b1.fullyDominates(b2, 0),
                 "b1 ne devrait pas dominer le tuple de b2 qui est meilleur");
     }
+
     @Test
     void addDominatingTupleRemovesOldOnes() {
         Builder b = new Builder();
@@ -234,13 +237,13 @@ public class MyParetoFrontTest {
         b.add(t4);
 
         ParetoFront pf = b.build();
-        assertEquals(2, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+        assertEquals(2, pf.size());
 
         long[] frontier = frontierToLongArray(pf);
-        assertEquals(t4, frontier[0], "Le tuple dominé aurait dû être supprimé");
-        assertEquals(t3, frontier[1], "Le tuple dominé aurait dû être supprimé");
-
+        assertEquals(t4, frontier[0]);
+        assertEquals(t3, frontier[1]);
     }
+
     @Test
     void addDominatingTupleRemovesOldOne2() {
         Builder b = new Builder();
@@ -256,13 +259,12 @@ public class MyParetoFrontTest {
         b.add(t4);
 
         ParetoFront pf = b.build();
-        assertEquals(3, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+        assertEquals(3, pf.size());
 
         long[] frontier = frontierToLongArray(pf);
-        assertEquals(t1, frontier[0], "Le tuple dominé aurait dû être supprimé");
-        assertEquals(t2, frontier[1], "Le tuple dominé aurait dû être supprimé");
-        assertEquals(t4, frontier[2], "Le tuple dominé aurait dû être supprimé");
-
+        assertEquals(t1, frontier[0]);
+        assertEquals(t2, frontier[1]);
+        assertEquals(t4, frontier[2]);
     }
 
     @Test
@@ -280,14 +282,14 @@ public class MyParetoFrontTest {
         b.add(t4);
 
         ParetoFront pf = b.build();
-        assertEquals(3, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+        assertEquals(3, pf.size());
 
         long[] frontier = frontierToLongArray(pf);
-        assertEquals(t1, frontier[0], "Le tuple dominé aurait dû être supprimé");
-        assertEquals(t4, frontier[1], "Le tuple dominé aurait dû être supprimé");
-        assertEquals(t3, frontier[2], "Le tuple dominé aurait dû être supprimé");
-
+        assertEquals(t1, frontier[0]);
+        assertEquals(t4, frontier[1]);
+        assertEquals(t3, frontier[2]);
     }
+
     @Test
     void addTupleNotRemovesOldOne() {
         Builder b = new Builder();
@@ -303,15 +305,15 @@ public class MyParetoFrontTest {
         b.add(t4);
 
         ParetoFront pf = b.build();
-        assertEquals(4, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+        assertEquals(4, pf.size());
 
         long[] frontier = frontierToLongArray(pf);
-        assertEquals(t1, frontier[0], "Le tuple dominé aurait dû être supprimé");
-        assertEquals(t2, frontier[1], "Le tuple dominé aurait dû être supprimé");
-        assertEquals(t3, frontier[2], "Le tuple dominé aurait dû être supprimé");
-        assertEquals(t4, frontier[3], "Le tuple dominé aurait dû être supprimé");
-
+        assertEquals(t1, frontier[0]);
+        assertEquals(t2, frontier[1]);
+        assertEquals(t3, frontier[2]);
+        assertEquals(t4, frontier[3]);
     }
+
     @Test
     void addSingleTuple0() {
         Builder b = new Builder();
@@ -328,6 +330,7 @@ public class MyParetoFrontTest {
         long expected = PackedCriteria.pack(-240, 0, 0);
         assertEquals(expected, frontier[0], "Le tuple stocké n'est pas celui attendu");
     }
+
     @Test
     void addTuple0NotRemovesOldOne() {
         Builder b = new Builder();
@@ -343,11 +346,182 @@ public class MyParetoFrontTest {
         b.add(t4);
 
         ParetoFront pf = b.build();
-        assertEquals(1, pf.size(), "Le nouveau tuple dominant doit remplacer l'ancien");
+        assertEquals(1, pf.size());
 
         long[] frontier = frontierToLongArray(pf);
-        assertEquals(t4, frontier[0], "Le tuple dominé aurait dû être supprimé");
+        assertEquals(t4, frontier[0]);
+    }
 
+    @Test
+    void testGet() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+        long expected = (441L << 39) | (4L << 32) | 9999L;
+        ParetoFront p = b.build();
+
+        assertEquals(expected, p.get(201, 4));
+    }
+
+    @Test
+    void testGetException() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+        ParetoFront p = b.build();
+
+        assertThrows(NoSuchElementException.class, () -> {
+            p.get(202, 3);
+        });
+    }
+
+    @Test
+    void testClear() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        b.clear();
+        ParetoFront pf = b.build();
+        assertEquals(0, pf.size());
 
     }
+
+    @Test
+    void testAddAll() {
+        Builder b = new Builder();
+        Builder c = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        c.add(t3);
+
+        c.addAll(b);
+
+        ParetoFront pf = c.build();
+        assertEquals(3, pf.size());
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t1, frontier[0]);
+        assertEquals(t2, frontier[1]);
+        assertEquals(t3, frontier[2]);
+    }
+
+
+    @Test
+    void testAddAllEmptyBuilder() {
+        Builder b = new Builder();
+        Builder c = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        c.addAll(b);
+
+        ParetoFront pf = c.build();
+        assertEquals(3, pf.size());
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t1, frontier[0]);
+        assertEquals(t2, frontier[1]);
+        assertEquals(t3, frontier[2]);
+    }
+
+    @Test
+    void testAddAllEmptyBuilderAdded() {
+        Builder b = new Builder();
+        Builder c = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 4, 9999);
+        long t3 = PackedCriteria.pack(202, 2, 9999);
+
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        c.addAll(b);
+
+        ParetoFront pf = b.build();
+        assertEquals(3, pf.size());
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t1, frontier[0]);
+        assertEquals(t2, frontier[1]);
+        assertEquals(t3, frontier[2]);
+    }
+
+    @Test
+    void testAddAllDominantTuples() {
+        Builder b = new Builder();
+        Builder c = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 3, 9999);
+        long t3 = PackedCriteria.pack(200, 4, 9999);
+        long t4 = PackedCriteria.pack(202, 1, 9999);
+
+
+        b.add(t1);
+        b.add(t2);
+        c.add(t3);
+        c.add(t4);
+
+        c.addAll(b);
+
+        ParetoFront pf = c.build();
+        assertEquals(3, pf.size());
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t3, frontier[0]);
+        assertEquals(t2, frontier[1]);
+        assertEquals(t4, frontier[2]);
+    }
+    @Test
+    void testAddAllDominatedTuples() {
+        Builder b = new Builder();
+        Builder c = new Builder();
+        long t1 = PackedCriteria.pack(200, 5, 9999);
+        long t2 = PackedCriteria.pack(201, 3, 9999);
+        long t3 = PackedCriteria.pack(201, 4, 9999);
+        long t4 = PackedCriteria.pack(202, 1, 9999);
+
+
+        b.add(t1);
+        b.add(t2);
+        c.add(t3);
+        c.add(t4);
+
+        c.addAll(b);
+
+        ParetoFront pf = c.build();
+        assertEquals(3, pf.size());
+
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t1, frontier[0]);
+        assertEquals(t2, frontier[1]);
+        assertEquals(t4, frontier[2]);
+    }
+
+
 }

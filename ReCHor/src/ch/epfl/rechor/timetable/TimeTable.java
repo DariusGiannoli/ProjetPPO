@@ -94,7 +94,11 @@ public interface TimeTable{
      * @return l'index de la gare correspondante
      */
     default int stationId(int stopId) {
-        return isStationId(stopId) ? stopId : stopId - stations().size();
+
+        //return isStationId(stopId) ? stopId : stopId - stations().size();
+        //Voir laquelle des deux lignes fonctionnent.
+
+        return isStationId(stopId) ? stopId : platforms().stationId(stopId);
     }
 
     /**
