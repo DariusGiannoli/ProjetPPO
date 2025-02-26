@@ -523,5 +523,33 @@ public class MyParetoFrontTest {
         assertEquals(t4, frontier[2]);
     }
 
+    @Test
+    void testFullyDominatesEmpty() {
+        Builder b1 = new Builder();
+        // T1 => arrMins=200, changes=2
+        long criteria = PackedCriteria.pack(200, 2, 0);
+        b1.add(PackedCriteria.withDepMins(criteria, 0));
+
+        Builder b2 = new Builder();
+        // T2 => arrMins=190, changes=2 (arrive plus tôt => meilleur)
+
+        // fullyDominates => b1 doit dominer tout b2 en fixant depMins=0
+        assertTrue(b1.fullyDominates(b2, 0));
+    }
+
+    @Test
+    void testFullyDominatesEmptyB2() {
+        Builder b1 = new Builder();
+        // T1 => arrMins=200, changes=2
+        long criteria = PackedCriteria.pack(200, 2, 0);
+        b1.add(criteria);
+
+        Builder b2 = new Builder();
+        // T2 => arrMins=190, changes=2 (arrive plus tôt => meilleur)
+
+        // fullyDominates => b1 doit dominer tout b2 en fixant depMins=0
+        assertFalse(b2.fullyDominates(b1, 0));
+    }
+
 
 }
