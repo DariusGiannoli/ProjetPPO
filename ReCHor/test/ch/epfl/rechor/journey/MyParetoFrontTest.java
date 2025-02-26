@@ -526,30 +526,80 @@ public class MyParetoFrontTest {
     @Test
     void testFullyDominatesEmpty() {
         Builder b1 = new Builder();
-        // T1 => arrMins=200, changes=2
         long criteria = PackedCriteria.pack(200, 2, 0);
         b1.add(PackedCriteria.withDepMins(criteria, 0));
 
         Builder b2 = new Builder();
-        // T2 => arrMins=190, changes=2 (arrive plus tôt => meilleur)
 
-        // fullyDominates => b1 doit dominer tout b2 en fixant depMins=0
         assertTrue(b1.fullyDominates(b2, 0));
     }
 
     @Test
     void testFullyDominatesEmptyB2() {
         Builder b1 = new Builder();
-        // T1 => arrMins=200, changes=2
         long criteria = PackedCriteria.pack(200, 2, 0);
         b1.add(criteria);
 
         Builder b2 = new Builder();
-        // T2 => arrMins=190, changes=2 (arrive plus tôt => meilleur)
 
-        // fullyDominates => b1 doit dominer tout b2 en fixant depMins=0
         assertFalse(b2.fullyDominates(b1, 0));
     }
+
+    @Test
+    void testFullyDominatesWithMoreElementsFalse() {
+        Builder b1 = new Builder();
+        long criteria = PackedCriteria.pack(200, 2, 0);
+        b1.add(PackedCriteria.withDepMins(criteria, 0));
+
+        Builder b2 = new Builder();
+        b2.add(190, 2, 0);
+        b2.add(210, 2, 0);
+
+        assertFalse(b1.fullyDominates(b2, 0));
+    }
+
+    @Test
+    void testFullyDominatesWithMoreElementsFalse2() {
+        Builder b1 = new Builder();
+        long criteria = PackedCriteria.pack(100, 1, 0);
+        b1.add(PackedCriteria.withDepMins(criteria, 0));
+
+        Builder b2 = new Builder();
+        b2.add(120, 2, 0);
+        b2.add(90, 1, 0);
+
+        assertFalse(b1.fullyDominates(b2, 0));
+    }
+
+    @Test
+    void testFullyDominatesWithMoreElementsTrue() {
+        Builder b1 = new Builder();
+        long criteria = PackedCriteria.pack(100, 1, 0);
+        b1.add(PackedCriteria.withDepMins(criteria, 0));
+        long criteria2 = PackedCriteria.pack(125, 1, 0);
+        b1.add(PackedCriteria.withDepMins(criteria2, 0));
+
+        Builder b2 = new Builder();
+        b2.add(120, 2, 0);
+        b2.add(130, 1, 0);
+
+        assertTrue(b1.fullyDominates(b2, 0));
+    }
+
+    @Test
+    void testFullyDominatesOnlyOneElementFalse() {
+        Builder b1 = new Builder();
+        long criteria = PackedCriteria.pack(100, 2, 0);
+        b1.add(PackedCriteria.withDepMins(criteria, 0));
+
+        Builder b2 = new Builder();
+        b2.add(120, 1, 0);
+        b2.add(130, 2, 0);
+
+        assertFalse(b1.fullyDominates(b2, 0));
+    }
+
+
 
 
 }
