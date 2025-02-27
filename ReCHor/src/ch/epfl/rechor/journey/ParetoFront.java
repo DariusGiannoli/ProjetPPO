@@ -112,6 +112,13 @@ public final class ParetoFront {
     /////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    /**
+     * @author Antoine Lepin (390950)
+     * @author Darius Giannoli (380759)
+     *
+     * Bâtisseur de la frontière de Pareto.
+     */
     public static final class Builder {
 
         private long[] tuples;
@@ -293,6 +300,9 @@ public final class ParetoFront {
             return new ParetoFront(finalArray);
         }
 
+        /**
+         * @return retourne la frontière de Pareto sous forme de chaine de caractère pour que cela soit plus lisible.
+         */
         @Override
         public String toString() {
             if (size == 0) {

@@ -507,6 +507,135 @@ public class MyPackedCriteriaTest {
         long criteria2 = PackedCriteria.pack(500, 2, 100);
         assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
     }
+    @Test
+    void testPack_ValidValues_CE() {
+        int arrMins = 100;
+        int changes = 5;
+        int payload = 123456;
+        long result = PackedCriteria.pack(arrMins, changes, payload);
+        assertEquals((Integer.toUnsignedLong(arrMins + 240) << 39) | (Integer.toUnsignedLong(changes) << 32) | Integer.toUnsignedLong(payload), result);
+    }
+
+    @Test
+    void testPack_InvalidArrMins_CE() {
+        assertThrows(IllegalArgumentException.class, () -> PackedCriteria.pack(-241, 5, 123456));
+        assertThrows(IllegalArgumentException.class, () -> PackedCriteria.pack(2880, 5, 123456));
+    }
+
+    @Test
+    void testPack_InvalidChanges_CE() {
+        assertThrows(IllegalArgumentException.class, () -> PackedCriteria.pack(100, 128, 123456));
+    }
+
+    @Test
+    void testHasDepMins_CE() {
+        long criteriaWithDepMins = 1L << 51;
+        long criteriaWithoutDepMins = 0L;
+        assertTrue(PackedCriteria.hasDepMins(criteriaWithDepMins));
+        assertFalse(PackedCriteria.hasDepMins(criteriaWithoutDepMins));
+    }
+
+    @Test
+    void testDepMins_Invalid_CE() {
+        assertThrows(IllegalArgumentException.class, () -> PackedCriteria.depMins(0L));
+    }
+
+    @Test
+    void testArrMins_CE() {
+        long criteria = PackedCriteria.pack(300, 5, 123456);
+        assertEquals(300, PackedCriteria.arrMins(criteria));
+    }
+
+    @Test
+    void testChanges_CE() {
+        long criteria = PackedCriteria.pack(300, 5, 123456);
+        assertEquals(5, PackedCriteria.changes(criteria));
+    }
+
+    @Test
+    void testPayload_CE() {
+        long criteria = PackedCriteria.pack(300, 5, 123456);
+        assertEquals(123456, PackedCriteria.payload(criteria));
+    }
+
+    @Test
+    void testDominatesOrIsEqual_CE() {
+        long criteria1 = PackedCriteria.pack(200, 3, 10000);
+        long criteria2 = PackedCriteria.pack(100, 5, 20000);
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria1));
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+    }
+
+    @Test
+    void testDominatesOrIsEqualWithDepTime_CE() {
+        long criteria1 = PackedCriteria.pack(200, 3, 10000);
+        long criteria2 = PackedCriteria.pack(200, 3, 20000);
+        criteria1 = PackedCriteria.withDepMins(criteria1, 100);
+        criteria2 = PackedCriteria.withDepMins(criteria2, 0);
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria1));
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+    }
+    @Test
+    void testWithoutDepMins_CE() {
+        long criteria = PackedCriteria.withDepMins(0L, -240);
+        assertFalse(PackedCriteria.hasDepMins(PackedCriteria.withoutDepMins(criteria)));
+    }
+
+
+    @Test
+    void testWithAdditionalChange_CE() {
+        long criteria = PackedCriteria.pack(100, 3, 123456);
+        long updatedCriteria = PackedCriteria.withAdditionalChange(criteria);
+        assertEquals(3 + 1, PackedCriteria.changes(updatedCriteria));
+    }
+
+    @Test
+    void testWithAdditionalChanges_CE() {
+        long criteria = PackedCriteria.pack(100, 3, 123456);
+        long updatedCriteria = PackedCriteria.withAdditionalChange(criteria);
+        assertEquals(4, PackedCriteria.changes(updatedCriteria));
+        updatedCriteria = PackedCriteria.withAdditionalChange(updatedCriteria);
+        assertEquals(5, PackedCriteria.changes(updatedCriteria));
+        updatedCriteria = PackedCriteria.withAdditionalChange(updatedCriteria);
+        assertEquals(6, PackedCriteria.changes(updatedCriteria));
+        updatedCriteria = PackedCriteria.withAdditionalChange(updatedCriteria);
+        updatedCriteria = PackedCriteria.withAdditionalChange(updatedCriteria);
+        assertEquals(8, PackedCriteria.changes(updatedCriteria));
+    }
+
+    @Test
+    void testWithPayload_CE() {
+        long criteria = PackedCriteria.pack(100, 3, 123456);
+        long updatedCriteria = PackedCriteria.withPayload(criteria, 654321);
+        assertEquals(654321, PackedCriteria.payload(updatedCriteria));
+    }
+
+    @Test
+    void testThrowCompare_CE() {
+        long criteria1 = PackedCriteria.pack(230, 8, 4554);
+        long criteria2 = PackedCriteria.pack(331, 110, 1);
+        assertThrows(IllegalArgumentException.class, () -> PackedCriteria.dominatesOrIsEqual(criteria1, PackedCriteria.withDepMins(criteria2, 334)));
+    }
+
+    @Test
+    void totalChangeTest_CE() {
+        long criteria1 = PackedCriteria.pack(1023, 72, 11334);
+        criteria1 = PackedCriteria.withDepMins(criteria1, 892);
+        criteria1 = PackedCriteria.withAdditionalChange(criteria1);
+        criteria1 = PackedCriteria.withPayload(criteria1, 55345);
+        criteria1 = PackedCriteria.withDepMins(criteria1, 4);
+        criteria1 = PackedCriteria.withPayload(criteria1, -9221);
+        criteria1 = PackedCriteria.withAdditionalChange(criteria1);
+        criteria1 = PackedCriteria.withAdditionalChange(criteria1);
+        assertEquals(PackedCriteria.payload(criteria1), -9221);
+        criteria1 = PackedCriteria.withPayload(criteria1, -221);
+        criteria1 = PackedCriteria.withPayload(criteria1, 0);
+        criteria1 = PackedCriteria.withPayload(criteria1, -99208);
+        assertEquals(PackedCriteria.payload(criteria1), -99208);
+    }
+
 
 
 
