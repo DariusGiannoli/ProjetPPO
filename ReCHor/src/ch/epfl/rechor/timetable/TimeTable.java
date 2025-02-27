@@ -109,7 +109,8 @@ public interface TimeTable{
      * @return le nom de la plateforme ou null si l'arrêt est une gare
      */
     default String platformName(int stopId) {
-        return isPlatformId(stopId) ? platforms().name(stopId - stations().size()) : null;
+        //return isPlatformId(stopId) ? platforms().name(stopId - stations().size()) : null;
+        return isPlatformId(stopId) ? platforms().name(stopId) : null;
     }
 
 
