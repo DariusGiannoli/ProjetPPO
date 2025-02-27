@@ -309,19 +309,6 @@ public class MyPackedCriteriaTest {
         long criteriaCleared = PackedCriteria.withoutDepMins(criteriaWithDep);
         assertFalse(PackedCriteria.hasDepMins(criteriaCleared));
     }
-    @Test
-    void TestWithDepMinsExceptionIfDepSupArr() {
-        // Test que withoutDepMins supprime l'heure de départ.
-        int arrMins = 100;
-        int changes = 10;
-        int payload = 54321;
-        long criteria = PackedCriteria.pack(arrMins, changes, payload);
-        assertThrows(IllegalArgumentException.class, () -> {
-            long criteriaWithDep = PackedCriteria.withDepMins(criteria, 101);
-
-        });
-
-    }
 
     @Test
     void testDominatesOrIsEqualWithoutDep() {

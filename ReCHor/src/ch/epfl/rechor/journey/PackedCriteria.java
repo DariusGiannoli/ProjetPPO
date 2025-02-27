@@ -141,7 +141,6 @@ public final class PackedCriteria {
      */
     public static long withDepMins(long criteria, int depMins) {
         Preconditions.checkArgument(depMins >= -240 && depMins < 2880);
-        Preconditions.checkArgument(depMins <= arrMins(criteria));
         int depComplement = 4095 - (depMins + 240);
         Preconditions.checkArgument(depComplement >= 0 && depComplement < 4096);
         long cleared = withoutDepMins(criteria);
