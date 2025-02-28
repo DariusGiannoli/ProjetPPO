@@ -1,6 +1,7 @@
 package ch.epfl.rechor;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestTemplate;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -11,10 +12,6 @@ class IcalBuilderTest {
 
     // Même terminaison de ligne que dans IcalBuilder
     private static final String CRLF = "\r\n";
-
-    // ----------------------------------------------------
-    // Tests pour la méthode textAdd (gestion du pliage)
-    // ----------------------------------------------------
 
     @Test
     void testTextAddEmptyValue() {
@@ -119,7 +116,6 @@ class IcalBuilderTest {
         });
     }
 
-
     @Test
     void checkArgumentThrowsForEndingEmptyBd() {
         assertThrows(IllegalArgumentException.class, () -> {
@@ -128,7 +124,6 @@ class IcalBuilderTest {
                     .build();
         });
     }
-
 
     @Test
     void checkWorksForLongAssNamesBd() {
@@ -143,10 +138,11 @@ class IcalBuilderTest {
         System.out.println(ical);
     }
 
-
-
-
-
-
-
+    @Test
+    void testDate() {
+        IcalBuilder builder = new IcalBuilder();
+        LocalDateTime dateTime = LocalDateTime.of(2024, 2, 27, 13, 24, 56);
+        builder.add(IcalBuilder.Name.DTSTART, dateTime);
+        assertEquals("DTSTART:20240227T132456" + CRLF, builder.build());
+    }
 }

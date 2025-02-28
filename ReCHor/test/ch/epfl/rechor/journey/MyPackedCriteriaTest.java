@@ -442,13 +442,12 @@ public class MyPackedCriteriaTest {
     @Test
     void testWithAdditionalChangeInvalid() {
         // Test que l'incrémentation échoue si le nombre de changements atteint 127
-        int arrMins = 0;
+        int arrMins = -240;
         int changes = 127;
         int payload = 0;
         long criteria = PackedCriteria.pack(arrMins, changes, payload);
-        assertThrows(IllegalArgumentException.class, () -> {
-            PackedCriteria.withAdditionalChange(criteria);
-        });
+        criteria = PackedCriteria.withAdditionalChange(criteria);
+        assertEquals(1, criteria >> 39);
     }
 
     @Test

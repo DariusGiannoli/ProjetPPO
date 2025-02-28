@@ -113,7 +113,8 @@ public final class IcalBuilder {
      */
     public IcalBuilder begin(Component component) {
         String componentString = component.toString();
-        ICalString.append("BEGIN:").append(componentString).append(CRLF);
+        //ICalString.append("BEGIN:").append(componentString).append(CRLF);
+        add(Name.BEGIN, componentString);
         begunComponents.add(component);
         return this;
     }
@@ -126,7 +127,8 @@ public final class IcalBuilder {
     public IcalBuilder end(){
         Preconditions.checkArgument(!begunComponents.isEmpty());
         int listSize = begunComponents.size();
-        ICalString.append("END:").append((begunComponents.get(listSize-1)).toString()).append(CRLF);
+        //ICalString.append("END:").append((begunComponents.get(listSize-1)).toString()).append(CRLF);
+        add(Name.END, begunComponents.get(listSize-1).toString());
         begunComponents.remove(listSize - 1);
         return this;
     }

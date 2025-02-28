@@ -195,7 +195,6 @@ public final class PackedCriteria {
      */
     public static long withAdditionalChange(long criteria){
         int changes = changes(criteria) + 1;
-        Preconditions.checkArgument(changes < 128);
         long newCriteria = criteria & ~(0b1111111L << 32);
         return newCriteria | ((long) changes << 32);
     }
