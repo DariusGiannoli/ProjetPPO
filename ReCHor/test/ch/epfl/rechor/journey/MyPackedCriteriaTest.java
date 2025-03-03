@@ -622,11 +622,20 @@ public class MyPackedCriteriaTest {
         assertEquals(PackedCriteria.payload(criteria1), -99208);
     }
 
-
-
-
-
-
-
-
+    @Test
+    void testDominatesOrIsEqual() {
+        int arrMins1 = 100;
+        int arrMins2 = 100;
+        int changes1 = 5;
+        int changes2 = 5;
+        int payload = 0;
+        long base1 = PackedCriteria.pack(arrMins1, changes1, payload);
+        long base2 = PackedCriteria.pack(arrMins2, changes2, payload);
+        int dep1 = 90;
+        int dep2 = 100;
+        long criteria1 = PackedCriteria.withDepMins(base1, dep1);
+        long criteria2 = PackedCriteria.withDepMins(base2, dep2);
+        assertFalse(PackedCriteria.dominatesOrIsEqual(criteria1, criteria2));
+        assertTrue(PackedCriteria.dominatesOrIsEqual(criteria2, criteria1));
+    }
 }

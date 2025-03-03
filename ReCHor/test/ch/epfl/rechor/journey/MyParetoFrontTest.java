@@ -599,7 +599,119 @@ public class MyParetoFrontTest {
         assertFalse(b1.fullyDominates(b2, 0));
     }
 
+    @Test
+    void testAddSameValues() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(201, 4, 9998);
+        long t2 = PackedCriteria.pack(200, 5, 9999);
+        long t3 = PackedCriteria.pack(203, 4, 9997);
 
+        b.add(t1);
+        b.add(t2);
+        b.add(t3);
+
+        ParetoFront pf = b.build();
+        assertEquals(2, pf.size());
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(t1, frontier[1]);
+        assertEquals(t2, frontier[0]);
+    }
+
+    @Test
+    void testAddWithDepMinsOrder() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(201, 4, 9998);
+        long t2 = PackedCriteria.pack(200, 5, 9999);
+        long t3 = PackedCriteria.pack(201, 4, 9997);
+
+        b.add(PackedCriteria.withDepMins(t1, 240));
+        b.add(PackedCriteria.withDepMins(t2, 240));
+        b.add(PackedCriteria.withDepMins(t3, 250));
+
+        ParetoFront pf = b.build();
+        assertEquals(2, pf.size());
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(PackedCriteria.withDepMins(t3, 250), frontier[0]);
+        assertEquals(PackedCriteria.withDepMins(t2, 240), frontier[1]);
+    }
+
+
+    @Test
+    void testAddWithDepMinsOrder2() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(201, 3, 9998);
+        long t2 = PackedCriteria.pack(201, 5, 9999);
+        long t3 = PackedCriteria.pack(201, 4, 9997);
+
+        b.add(PackedCriteria.withDepMins(t1, 240));
+        b.add(PackedCriteria.withDepMins(t2, 240));
+        b.add(PackedCriteria.withDepMins(t3, 250));
+
+        ParetoFront pf = b.build();
+        assertEquals(2, pf.size());
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(PackedCriteria.withDepMins(t3, 250), frontier[0]);
+        assertEquals(PackedCriteria.withDepMins(t1, 240), frontier[1]);
+    }
+
+    @Test
+    void testAddWithDepMinsOrder3() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(201, 3, 9998);
+        long t2 = PackedCriteria.pack(200, 5, 9999);
+        long t3 = PackedCriteria.pack(201, 4, 9997);
+        long t4 = PackedCriteria.pack(200, 5, 9997);
+
+        b.add(PackedCriteria.withDepMins(t1, 240));
+        b.add(PackedCriteria.withDepMins(t2, 240));
+        b.add(PackedCriteria.withDepMins(t3, 250));
+        b.add(PackedCriteria.withDepMins(t4, 260));
+
+        ParetoFront pf = b.build();
+        assertEquals(3, pf.size());
+        long[] frontier = frontierToLongArray(pf);
+        assertEquals(PackedCriteria.withDepMins(t4, 260), frontier[0]);
+        assertEquals(PackedCriteria.withDepMins(t3, 250), frontier[1]);
+        assertEquals(PackedCriteria.withDepMins(t1, 240), frontier[2]);
+    }
+
+
+
+    @Test
+    void testAddWithDepMinsError() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(201, 4, 9998);
+        //long t2 = PackedCriteria.pack(200, 5, 9999);
+        long t3 = PackedCriteria.pack(201, 4, 9997);
+
+        b.add(PackedCriteria.withDepMins(t1, 240));
+        //b.add(PackedCriteria.withDepMins(t2, 240));
+        b.add(PackedCriteria.withDepMins(t3, 250));
+
+        ParetoFront pf = b.build();
+        assertEquals(1, pf.size());
+        long[] frontier = frontierToLongArray(pf);
+        //assertEquals(PackedCriteria.withDepMins(t2, 240), frontier[1]);
+        assertEquals(PackedCriteria.withDepMins(t3, 250), frontier[0]);
+    }
+
+    @Test
+    void testAddWithDepMins() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(201, 4, 9998);
+        long t2 = PackedCriteria.pack(202, 3, 9999);
+        long t3 = PackedCriteria.pack(201, 4, 9997);
+
+        b.add(PackedCriteria.withDepMins(t1, 240));
+        b.add(PackedCriteria.withDepMins(t2, 240));
+        b.add(PackedCriteria.withDepMins(t3, 250));
+
+        ParetoFront pf = b.build();
+        assertEquals(2, pf.size());
+        long[] frontier = frontierToLongArray(pf);
+        //assertEquals(PackedCriteria.withDepMins(t2, 240), frontier[1]);
+        assertEquals(PackedCriteria.withDepMins(t3, 250), frontier[0]);
+    }
 
 
 }

@@ -161,6 +161,18 @@ public final class ParetoFront {
             return this;
         }
 
+
+        private int compact(long[] array, long packedTuple, int pos) {
+            int dst = 0;
+            for (int src = 0; src < size-pos; src += 1) {
+                if (PackedCriteria.dominatesOrIsEqual(packedTuple, array[src])) continue;
+                if (dst != src) array[dst] = array[src];
+                dst += 1;
+            }
+            return dst;
+        }
+
+
         /**
          * ajoute à la frontière le tuple de critères empaquetés donné;
          * cet ajout n'est fait que si le nouveau tuple n'est pas dominé ou égal à un de la frontière,
@@ -187,24 +199,28 @@ public final class ParetoFront {
             }
 
 
-            int startDominated = pos;
-            while (startDominated < size
-                    && PackedCriteria.dominatesOrIsEqual(packedTuple, tuples[startDominated])) {
-                startDominated++;
-            }
-            int nDominated = startDominated - pos;
+//            int startDominated = pos;
+//            while (startDominated < size
+//                    && PackedCriteria.dominatesOrIsEqual(packedTuple, tuples[startDominated])) {
+//                startDominated++;
+//            }
 
-            if (nDominated > 0) {
+            long[] arrayCopy = new long[size - pos];
+            System.arraycopy(tuples, pos, arrayCopy, 0, size-pos);
+            int notDominated = compact(arrayCopy, packedTuple, pos);
+            int dominated = size - pos - notDominated;
+
+
+            if (dominated > 0) {
 
                 tuples[pos] = packedTuple;
 
-                int nbToShift = size - startDominated;
-                System.arraycopy(tuples, startDominated, tuples, pos + 1, nbToShift);
-                size = size - nDominated + 1;
+                //int nbToShift = size - startDominated;
+                System.arraycopy(arrayCopy, 0, tuples, pos + 1, notDominated);
+                size = pos + notDominated + 1;
             } else {
 
                 if (size == tuples.length) {
-
                     int newCap = (int) (tuples.length * 1.5);
                     if (newCap == tuples.length) {
                         newCap++; // s'assurer d'une augmentation
