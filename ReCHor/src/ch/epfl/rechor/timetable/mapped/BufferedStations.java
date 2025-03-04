@@ -5,6 +5,11 @@ import ch.epfl.rechor.timetable.Stations;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+/**
+ * Permet d'accéder à un tableau de gares représentées de manière aplatie, et implémente l'interface Stations.
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
 public final class BufferedStations implements Stations {
 
     private static final int NAME_ID = 0;
@@ -22,6 +27,12 @@ public final class BufferedStations implements Stations {
     private final List<String> stringTable;
     private final StructuredBuffer structuredBuffer;
 
+    /**
+     * Construit une instance donnant accès aux données aplaties disponibles dans le tableau buffer,
+     * en utilisant la table de chaînes stringTable pour déterminer la valeur des chaînes référencées par ces données
+     * @param stringTable tableau de String référencées par les données de buffer.
+     * @param buffer tableau de données aplaties auxquelles on veut avoir accès.
+     */
     public BufferedStations(List<String> stringTable, ByteBuffer buffer){
         this.stringTable = stringTable;
         this.structuredBuffer = new StructuredBuffer(STATION_STRUCTURE, buffer);

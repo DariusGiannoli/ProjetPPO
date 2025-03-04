@@ -5,6 +5,11 @@ import ch.epfl.rechor.timetable.Platforms;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+/**
+ * Permet d'accéder à un tableau de voies ou quais représentée de manière aplatie, et implémente l'interface Platforms.
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
 public final class BufferedPlatforms implements Platforms {
 
     private static final int NAME_ID = 0;
@@ -18,6 +23,12 @@ public final class BufferedPlatforms implements Platforms {
     private final List<String> stringTable;
     private final StructuredBuffer structuredBuffer;
 
+    /**
+     * Construit une instance donnant accès aux données aplaties disponibles dans le tableau buffer,
+     * en utilisant la table de chaînes stringTable pour déterminer la valeur des chaînes référencées par ces données.
+     * @param stringTable tableau de String référencées par les données de buffer.
+     * @param buffer tableau de données aplaties.
+     */
     public BufferedPlatforms(List<String> stringTable, ByteBuffer buffer) {
         this.stringTable = stringTable;
         this.structuredBuffer = new StructuredBuffer(PLATFORM_STRUCTURE, buffer);
