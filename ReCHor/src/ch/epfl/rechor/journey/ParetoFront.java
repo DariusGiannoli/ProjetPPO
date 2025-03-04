@@ -180,6 +180,8 @@ public final class ParetoFront {
          * @param packedTuple le nouveau tuple que l'on veut ajouter à la frontière de Pareto.
          * @return lui même car c'est un builder.
          */
+
+        // A vérifier
         public Builder add(long packedTuple) {
 
             long adjusted = packedTuple & ~0xFFFFFFFFL;

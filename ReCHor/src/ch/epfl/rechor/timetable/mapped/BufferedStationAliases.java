@@ -13,6 +13,7 @@ import java.util.List;
  */
 public final class BufferedStationAliases implements StationAliases {
 
+
     private static final int ALIAS_ID = 0;
     private static final int STATION_NAME_ID = 1;
 
