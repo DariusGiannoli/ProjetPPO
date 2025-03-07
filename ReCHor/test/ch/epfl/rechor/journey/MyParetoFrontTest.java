@@ -7,13 +7,10 @@ import ch.epfl.rechor.journey.ParetoFront;
 import ch.epfl.rechor.journey.PackedCriteria;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.ls.LSOutput;
-import java.util.Arrays;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -712,6 +709,199 @@ public class MyParetoFrontTest {
         //assertEquals(PackedCriteria.withDepMins(t2, 240), frontier[1]);
         assertEquals(PackedCriteria.withDepMins(t3, 250), frontier[0]);
     }
+    @Test
+    void testAddWithDepMinsClear() {
+        Builder b = new Builder();
+        long t1 = PackedCriteria.pack(201, 4, 9998);
+        long t2 = PackedCriteria.pack(202, 3, 9999);
+        long t3 = PackedCriteria.pack(201, 4, 9997);
+        long t4 = PackedCriteria.pack(202, 2, 9997);
+        long t44 = PackedCriteria.pack(202, 1, 9997);
+
+        b.add(PackedCriteria.withDepMins(t1, 240));
+        b.add(PackedCriteria.withDepMins(t2, 240));
+        b.add(PackedCriteria.withDepMins(t3, 250));
+        b.add(PackedCriteria.withDepMins(t4, 240));
+        b.add(PackedCriteria.withDepMins(t44, 240));
+        b.clear();
+
+        long t5 = PackedCriteria.pack(203, 4, 9998);
+        long t6 = PackedCriteria.pack(204, 3, 9999);
+        b.add(PackedCriteria.withDepMins(t5, 230));
+        b.add(PackedCriteria.withDepMins(t6, 230));
+        ParetoFront pf = b.build();
+        assertEquals(2, pf.size());
+        long[] frontier = frontierToLongArray(pf);
+        //assertEquals(PackedCriteria.withDepMins(t2, 240), frontier[1]);
+        assertEquals(PackedCriteria.withDepMins(t5, 230), frontier[0]);
+        assertEquals(PackedCriteria.withDepMins(t6, 230), frontier[1]);
+    }
+
+    @Test
+    void removeManyBd() {
+        Builder builder = new Builder();
+        for (int i = 1; i <= 100; i++) {
+            long t = PackedCriteria.pack(100-i, i, 0);
+            builder.add(t);
+            ParetoFront paretoFront = builder.build();
+            assertEquals(i, paretoFront.size());
+        }
+        long t = PackedCriteria.pack(0, 0, 0);
+        builder.add(t);
+        ParetoFront paretoFront = builder.build();
+        assertEquals(1, paretoFront.size());
+    }
+
+
+    @Test
+    void repetitionsAreNotOkayBd() {
+        Builder builder = new Builder();
+        for (int i = 1; i <= 100; i++) {
+            long t = PackedCriteria.pack(1, 1, 0);
+            builder.add(t);
+            ParetoFront paretoFront = builder.build();
+            assertEquals(1, paretoFront.size());
+        }
+        long t = PackedCriteria.pack(0, 0, 0);
+    }
+
+
+    @Test
+    void waitIsThatSoloLevelingBd() {
+        Builder builder = new Builder();
+        for (int i = 10; i>= 1; i--) {
+            for (int j = 1; j <= 10; j++) {
+                long t = PackedCriteria.pack(10*i + 10-j, 10*i + j, 0);
+                builder.add(t);
+                ParetoFront paretoFront = builder.build();
+                assertEquals(j, paretoFront.size());
+            }
+        }
+    }
+
+
+    @Test
+    void killingChainBd() {
+        Builder builder = new Builder();
+        for (int i = 1000; i >= 1; i--) {
+            long t = PackedCriteria.pack(i, 1, 0);
+            builder.add(t);
+            ParetoFront paretoFront = builder.build();
+            assertEquals(1, paretoFront.size());
+        }
+    }
+
+
+    @Test
+    void aThousandUselessTriesBd() {
+        Builder builder = new Builder();
+        long t0 = PackedCriteria.pack(-240, 0, 0);
+        builder.add(t0);
+        Random random = new Random(0);
+        for (int i = 0; i <= 1000; i++) {
+            long t = PackedCriteria.pack(random.nextInt(2280+240) - 240, random.nextInt(127), 0);
+            builder.add(t);
+            ParetoFront paretoFront = builder.build();
+            assertEquals(1, paretoFront.size());
+        }
+    }
+
+
+    @Test
+    void outputInjection0Bd() {
+        Builder builder = new Builder();
+        Random random = new Random(0);
+        long[] expectedValues = {22643067584512L, 335930867056640L, 1031917432471552L};
+        int expectedLength = 3;
+        for (int i = 0; i <= 10; i++) {
+            long t = PackedCriteria.pack(random.nextInt(2280+240) - 240, random.nextInt(127), 0);
+            builder.add(t);
+        }
+
+
+//        System.out.println(builder);
+
+
+        ParetoFront paretoFront = builder.build();
+        assertEquals(expectedLength, paretoFront.size());
+        long[] frontier = frontierToLongArray(paretoFront);
+        for (int i = 0; i < expectedLength; i++) {
+            assertEquals(expectedValues[i], frontier[i]);
+        }
+    }
+
+
+    @Test
+    void outputInjection1Bd() {
+        Builder builder = new Builder();
+        Random random = new Random(1);
+        long[] expectedValues = {69831873265664L, 559651418537984L};
+        int expectedLength = 2;
+        for (int i = 0; i <= 10; i++) {
+            long t = PackedCriteria.pack(random.nextInt(2280+240) - 240, random.nextInt(127), 0);
+            builder.add(t);
+        }
+
+
+//        System.out.println(builder);
+
+
+        ParetoFront paretoFront = builder.build();
+        assertEquals(expectedLength, paretoFront.size());
+        long[] frontier = frontierToLongArray(paretoFront);
+        for (int i = 0; i < expectedLength; i++) {
+            assertEquals(expectedValues[i], frontier[i]);
+        }
+    }
+
+
+    @Test
+    void outputInjection2Bd() {
+        Builder builder = new Builder();
+        Random random = new Random(2);
+        long[] expectedValues = {110015587287040L, 900555857723392L};
+        int expectedLength = 2;
+        for (int i = 0; i <= 10; i++) {
+            long t = PackedCriteria.pack(random.nextInt(2280+240) - 240, random.nextInt(127), 0);
+            builder.add(t);
+        }
+
+
+//        System.out.println(builder);
+
+
+        ParetoFront paretoFront = builder.build();
+        assertEquals(expectedLength, paretoFront.size());
+        long[] frontier = frontierToLongArray(paretoFront);
+        for (int i = 0; i < expectedLength; i++) {
+            assertEquals(expectedValues[i], frontier[i]);
+        }
+    }
+
+
+    @Test
+    void outputInjection3Bd() {
+        Builder builder = new Builder();
+        Random random = new Random(3);
+        long[] expectedValues = {91800630984704L, 92547955294208L, 799387903066112L};
+        int expectedLength = 3;
+        for (int i = 0; i <= 10; i++) {
+            long t = PackedCriteria.pack(random.nextInt(2280+240) - 240, random.nextInt(127), 0);
+            builder.add(t);
+        }
+
+
+//        System.out.println(builder);
+
+
+        ParetoFront paretoFront = builder.build();
+        assertEquals(expectedLength, paretoFront.size());
+        long[] frontier = frontierToLongArray(paretoFront);
+        for (int i = 0; i < expectedLength; i++) {
+            assertEquals(expectedValues[i], frontier[i]);
+        }
+    }
+
 
 
 }
