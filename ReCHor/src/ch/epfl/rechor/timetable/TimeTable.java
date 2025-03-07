@@ -95,10 +95,10 @@ public interface TimeTable{
      */
     default int stationId(int stopId) {
 
-        //return isStationId(stopId) ? stopId : stopId - stations().size();
+        return isStationId(stopId) ? stopId : platforms().stationId(stopId - stations().size());
         //Voir laquelle des deux lignes fonctionne.
 
-        return isStationId(stopId) ? stopId : platforms().stationId(stopId);
+        //return isStationId(stopId) ? stopId : platforms().stationId(stopId);
     }
 
     /**
@@ -109,8 +109,8 @@ public interface TimeTable{
      * @return le nom de la plateforme ou null si l'arrêt est une gare
      */
     default String platformName(int stopId) {
-        //return isPlatformId(stopId) ? platforms().name(stopId - stations().size()) : null;
-        return isPlatformId(stopId) ? platforms().name(stopId) : null;
+        return isPlatformId(stopId) ? platforms().name(stopId - stations().size()) : null;
+        //return isPlatformId(stopId) ? platforms().name(stopId) : null;
     }
 
 
