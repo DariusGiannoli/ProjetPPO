@@ -53,6 +53,4 @@ public final class BufferedStationAliases implements StationAliases {
         return structuredBuffer.size();
     }
 
-
-
 }

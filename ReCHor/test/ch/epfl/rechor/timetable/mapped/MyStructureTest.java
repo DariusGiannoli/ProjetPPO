@@ -26,9 +26,8 @@ public class MyStructureTest {
         stringStationList.add("  ");
         stringStationList.add("Zurich");
 
-        ByteBuffer buffer = ByteBuffer.allocate(100);
         byte[] tableauBytes = {0x00, 0x04, 0x04, (byte) 0xb6, (byte) 0xca, 0x14, 0x21, 0x14, 0x1f, (byte) 0xa1, 0x00, 0x06, 0x04, (byte) 0xdc, (byte) 0xcc, 0x12, 0x21, 0x18, (byte) 0xda, 0x03};
-        buffer.put(tableauBytes);
+        ByteBuffer buffer = ByteBuffer.wrap(tableauBytes);
 
 
         BufferedStations stations = new BufferedStations(stringStationList, buffer);
