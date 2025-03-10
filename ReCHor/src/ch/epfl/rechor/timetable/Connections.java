@@ -74,5 +74,4 @@ public interface Connections extends Indexed{
      * @return l'index de la liaison suivante
      */
     int nextConnectionId(int id);
-
 }
