@@ -360,5 +360,53 @@ public class MyStructureTest {
             }
         }
     }
+    @Test
+    void testFieldWithNoFieldType(){
+        assertThrows(NullPointerException.class, () -> field(1, null));
+    }
 
-}
+
+    @Test
+    void testSize(){
+        Structure.Field field1 = field(0, Structure.FieldType.U8);
+        Structure.Field field2 = field(1, Structure.FieldType.U16);
+        Structure.Field field3 = field(2, Structure.FieldType.S32);
+        Structure structure = new Structure(field1, field2, field3);
+        assertEquals(1 + 2 + 4, structure.totalSize());
+    }
+
+
+    @Test
+    void testInvalidIndex(){
+        Structure.Field field1 = field(0, Structure.FieldType.U8);
+        Structure.Field field2 = field(1, Structure.FieldType.U16);
+        Structure.Field field3 = field(2, Structure.FieldType.S32);
+        Structure structure = new Structure(field1, field2, field3);
+        assertThrows(IndexOutOfBoundsException.class, ()-> structure.offset(-1, 3));
+        assertThrows(IndexOutOfBoundsException.class, ()-> structure.offset(3, (structure.totalSize()+1)));
+        assertThrows(IndexOutOfBoundsException.class, ()-> structure.offset(3, -1));
+    }
+
+
+    @Test
+    void testUnorderedFields(){
+        Structure.Field field1 = field(0, Structure.FieldType.U8);
+        Structure.Field field2 = field(1, Structure.FieldType.U16);
+        Structure.Field field3 = field(2, Structure.FieldType.S32);
+        assertThrows(IllegalArgumentException.class, ()-> new Structure(field1, field3, field2));
+    }
+
+
+    @Test
+    void testValidOffSet() {
+        Structure.Field f1 = new Structure.Field(0, Structure.FieldType.U8);
+        Structure.Field f2 = new Structure.Field(1, Structure.FieldType.U16);
+        Structure structure = new Structure(f1, f2);
+
+
+        assertEquals(0, structure.offset(0, 0));
+        assertEquals(1, structure.offset(1, 0));
+    }
+
+
+    }
