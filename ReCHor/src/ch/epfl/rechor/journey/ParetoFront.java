@@ -217,7 +217,6 @@ public final class ParetoFront {
 
                 tuples[pos] = packedTuple;
 
-                //int nbToShift = size - startDominated;
                 System.arraycopy(arrayCopy, 0, tuples, pos + 1, notDominated);
                 size = pos + notDominated + 1;
             } else {

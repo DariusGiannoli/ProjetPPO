@@ -26,7 +26,7 @@ public final class Structure {
         /**
          * @return retourne la taille du champ en nombre d'octets.
          */
-        public int size() {
+        private int size() {
             return size;
         }
 
@@ -102,7 +102,7 @@ public final class Structure {
     /**
      * @param fieldIndex index du champ.
      * @param elementIndex index de l'élément.
-     * @return tourne l'index, dans le tableau d'octets contenant les données aplaties, du premier octet du champ d'index fieldIndex de l'élément d'index elementIndex.
+     * @return retourne l'index, dans le tableau d'octets contenant les données aplaties, du premier octet du champ d'index fieldIndex de l'élément d'index elementIndex.
      */
     // offset d'un champ = somme de la taille de tous les champs qui le précèdent dans l'enregistrement
     public int offset(int fieldIndex, int elementIndex) {
