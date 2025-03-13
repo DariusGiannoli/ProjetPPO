@@ -8,7 +8,7 @@ import java.util.List;
 public final  class BufferedRoutes implements Routes {
 
     private static final int NAME_ID = 0; // U16 : index de chaîne du nom de la ligne
-    private static final int KIND = 1; // U8  : type de véhicule desservant la ligne
+    private static final int KIND = 1; // U8 : type de véhicule desservant la ligne
 
     // Définition de la structure d'une ligne (route) aplatie
     private static final Structure ROUTE_STRUCTURE = new Structure(
