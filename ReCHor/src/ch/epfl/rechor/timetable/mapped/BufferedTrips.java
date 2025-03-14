@@ -4,6 +4,12 @@ import ch.epfl.rechor.timetable.Trips;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+/**
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
+
+
 public final class BufferedTrips implements Trips {
 
     // Définition des indices des champs dans la structure de course.

@@ -9,6 +9,9 @@ import java.nio.IntBuffer;
  * La classe BufferedConnections permet d'accéder à une table de liaisons représentée de manière aplatie.
  * Elle implémente l'interface Connections et se charge de fournir les informations sur les liaisons
  * (départs, arrivées, cours, positions) ainsi que l'index de la liaison suivante via une table auxiliaire.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
  */
 public final class BufferedConnections implements Connections {
 

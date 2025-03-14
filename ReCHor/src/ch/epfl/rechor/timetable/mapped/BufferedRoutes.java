@@ -5,6 +5,11 @@ import ch.epfl.rechor.journey.Vehicle;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+/**
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
+
 public final  class BufferedRoutes implements Routes {
 
     private static final int NAME_ID = 0; // U16 : index de chaîne du nom de la ligne

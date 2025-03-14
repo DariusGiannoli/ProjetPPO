@@ -10,6 +10,9 @@ import java.util.NoSuchElementException;
  * La classe BufferedTransfers permet d'accéder à une table de changements représentée de manière aplatie.
  * Elle implémente l'interface Transfers (qui étend Indexed) et pré-calcule, dans son constructeur,
  * une table associant à chaque gare d'arrivée l'intervalle empaqueté (selon PackedRange) des index des changements.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
  */
 public final class BufferedTransfers implements Transfers {
 
