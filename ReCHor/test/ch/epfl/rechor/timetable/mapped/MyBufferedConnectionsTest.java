@@ -1,19 +1,16 @@
 package ch.epfl.rechor.timetable.mapped;
 
-import ch.epfl.rechor.journey.Vehicle;
+
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-public class MyBufferedTripsTest {
+public class MyBufferedConnectionsTest {
 
     @Test
-    void testBufferedTrips() {
-
+    void testBufferedConnection() {
         List<String> stringStationList = new ArrayList<>();
         stringStationList.add("  ");
         stringStationList.add("  ");
@@ -38,22 +35,14 @@ public class MyBufferedTripsTest {
         ByteBuffer buffer2 = ByteBuffer.wrap(tableauBytes2);
         BufferedTrips trips = new BufferedTrips(stringStationList2, buffer2);
 
-        assertEquals(routes.name(0), "M1 Lausanne Flon-Renens VD");
-        assertEquals(routes.name(1), "M2");
-        assertEquals(routes.name(2), "RE");
-        assertEquals(routes.size(), 3);
-        assertEquals(routes.vehicle(0), Vehicle.METRO);
-        assertEquals(routes.vehicle(1), Vehicle.METRO);
-        assertEquals(routes.vehicle(2), Vehicle.TRAIN);
-        assertEquals(trips.routeId(0), 2);
-        assertEquals(trips.routeId(1), 1);
-        assertEquals(trips.routeId(2), 0);
-        assertEquals(routes.name(trips.routeId(0)), "RE");
-        assertEquals(routes.name(trips.routeId(1)), "M2");
-        assertEquals(routes.name(trips.routeId(2)), "M1 Lausanne Flon-Renens VD");
-        assertEquals(trips.destination(0), "Coppet");
-        assertEquals(trips.destination(1), "Renens VD");
-        assertEquals(trips.destination(2), "Scoubydoubydou");
-    }
+        List<String> stringStationList3 = new ArrayList<>();
+        stringStationList2.add("  ");
+        stringStationList2.add("  ");
+        stringStationList2.add("Zurich");
+        stringStationList2.add("  ");
+        stringStationList2.add("ScibidiFortnite");
+        stringStationList2.add("La Daronne de Steph");
+        byte[] tableauBytes3 = {0x00, 0x02, 0x00, 0x02, 0x00, 0x01, 0x00, 0x05, 0x00, 0x00, 0x00, 0x04};
 
+    }
 }

@@ -17,8 +17,15 @@ public final class Structure {
         U16(2),
         S32(4);
 
+        /**
+         * Taille de chaques champs en nombre de bytes.
+         */
         private final int size;
 
+        /**
+         * Constructeur du type énuméré.
+         * @param size taille du champs en nombre de bytes.
+         */
         FieldType(int size) {
             this.size = size;
         }
