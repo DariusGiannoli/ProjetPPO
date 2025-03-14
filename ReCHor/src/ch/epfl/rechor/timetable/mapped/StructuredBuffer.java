@@ -39,7 +39,7 @@ public final class StructuredBuffer {
      * @return retourne l'entier U8 correspondant au champ d'index fieldIndex de l'élément d'index elementIndex du tableau.
      */
     public int getU8(int fieldIndex, int elementIndex) {
-        checkIndices(fieldIndex, elementIndex);
+        //checkIndices(fieldIndex, elementIndex);
         int offset = structure.offset(fieldIndex, elementIndex);
         byte b = buffer.get(offset);
         return Byte.toUnsignedInt(b);
@@ -51,7 +51,7 @@ public final class StructuredBuffer {
      * @return retourne l'entier U16 correspondant au champ d'index fieldIndex de l'élément d'index elementIndex du tableau.
      */
     public int getU16(int fieldIndex, int elementIndex) {
-        checkIndices(fieldIndex, elementIndex);
+        //checkIndices(fieldIndex, elementIndex);
         int offset = structure.offset(fieldIndex, elementIndex);
         short s = buffer.getShort(offset);
         return Short.toUnsignedInt(s);
@@ -63,19 +63,19 @@ public final class StructuredBuffer {
      * @return retourne l'entier S32 correspondant au champ d'index fieldIndex de l'élément d'index elementIndex du tableau.
      */
     public int getS32(int fieldIndex, int elementIndex) {
-        checkIndices(fieldIndex, elementIndex);
+        //checkIndices(fieldIndex, elementIndex);
         int offset = structure.offset(fieldIndex, elementIndex);
         return buffer.getInt(offset);
     }
 
     //pour la modularisation du code : pour ne pas réecrire du code
-    private void checkIndices(int fieldIndex, int elementIndex) {
-        if (fieldIndex < 0 || fieldIndex >= structure.fieldCount()) {
-            throw new IndexOutOfBoundsException("Index out fo bounds");
-        }
-        if (elementIndex < 0 || elementIndex >= elementCount) {
-            throw new IndexOutOfBoundsException("Index out of bound");
-        }
-    }
+//    private void checkIndices(int fieldIndex, int elementIndex) {
+//        if (fieldIndex < 0 || fieldIndex >= structure.fieldCount()) {
+//            throw new IndexOutOfBoundsException("Index out fo bounds");
+//        }
+//        if (elementIndex < 0 || elementIndex >= elementCount) {
+//            throw new IndexOutOfBoundsException("Index out of bound");
+//        }
+//    }
 
 }
