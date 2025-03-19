@@ -15,6 +15,19 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Enregistrement qui permet d'obtenir les tableaux d'octets stockés dans des fichiers, pour manipuler les différents éléments de l'horaire aplati à partir de fichiers.
+ * @param directory est le chemin d'accès au dossier contenant les fichiers des données horaires.
+ * @param stringTable est la table des chaînes de caractères.
+ * @param stations sont les gares.
+ * @param stationAliases sont les noms alternatifs des gares.
+ * @param platforms sont les voies/quai.
+ * @param routes sont les lignes.
+ * @param transfers les changements.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
 public record FileTimeTable(Path directory, List<String> stringTable, Stations stations, StationAliases stationAliases, Platforms platforms, Routes routes, Transfers transfers) implements TimeTable {
 
     private static final String pathPlatforms = "platforms.bin";
@@ -24,6 +37,11 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
     private static final String pathTransfers = "transfers.bin";
     private static final String pathFile = "strings.txt";
 
+    /**
+     * @param directory est le chemin d'accès au dossier contenant les fichiers des données horaires.
+     * @return retourne une nouvelle instance de FileTimeTable dont les données aplaties ont été obtenues à partir des fichiers se trouvant dans le dossier dont le chemin d'accès est donné.
+     * @throws IOException est levée en cas d'erreur d'entrée/sortie.
+     */
     public static TimeTable in(Path directory) throws IOException {
         Path strings = directory.resolve(pathFile);
         Charset charset = StandardCharsets.ISO_8859_1;
