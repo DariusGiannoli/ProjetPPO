@@ -64,7 +64,6 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
         BufferedTransfers bufferedTransfers = new BufferedTransfers(transfersByteBuffer);
 
         return new FileTimeTable(directory, list, bufferedStations, bufferedAliases, bufferedPlatforms, bufferedRoutes, bufferedTransfers);
-
     }
 
     private static ByteBuffer bufferExtractor(Path directory, String path) throws IOException {
@@ -76,8 +75,7 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
     @Override
     public Trips tripsFor(LocalDate date) {
         try {
-            Path path = Path.of(date.toString());
-            ByteBuffer tripsByteBuffer = bufferExtractor(path, "trips.bin");
+            ByteBuffer tripsByteBuffer = bufferExtractor(directory.resolve(date.toString()), "trips.bin");
             BufferedTrips bufferedTrips = new BufferedTrips(stringTable, tripsByteBuffer);
             return bufferedTrips;
         } catch (IOException e) {
@@ -90,8 +88,8 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
     public Connections connectionsFor(LocalDate date) {
         try {
             Path path = Path.of(date.toString());
-            ByteBuffer connectionsByteBuffer = bufferExtractor(path, "connections.bin");
-            ByteBuffer connectionsSuccByteBuffer = bufferExtractor(path, "connections-succ.bin");
+            ByteBuffer connectionsByteBuffer = bufferExtractor(directory.resolve(date.toString()), "connections.bin");
+            ByteBuffer connectionsSuccByteBuffer = bufferExtractor(directory.resolve(date.toString()), "connections-succ.bin");
             BufferedConnections bufferedConnections = new BufferedConnections(connectionsByteBuffer, connectionsSuccByteBuffer);
 
             return bufferedConnections;
