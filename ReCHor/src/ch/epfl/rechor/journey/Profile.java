@@ -98,6 +98,19 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId, Lis
         }
 
         /**
+         * @param tripId est l'index de la course dont on veut le bâtisseur de la frontière de Pareto.
+         * @return retourne le bâtisseur de la frontière de Pareto pour la course d'index donné, qui est null si aucun appel à setForStation n'a été fait précédemment pour cette gare.
+         * @throws IndexOutOfBoundsException est levée si l'index donné est invalide.
+         */
+        public ParetoFront.Builder forTrip(int tripId) {
+            if(tripId >= tripsParetoFront.length){
+                throw new IndexOutOfBoundsException();
+            } else {
+                return tripsParetoFront[tripId];
+            }
+        }
+
+        /**
          * Associe le bâtisseur de frontière de Pareto donné à la gare d'index donné.
          * @param stationId index de la gare que l'on veut associer.
          * @param builder index du bâtisseur de frontière de Pareto que l'on veut associer.
