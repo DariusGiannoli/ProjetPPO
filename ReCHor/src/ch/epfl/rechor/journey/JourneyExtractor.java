@@ -1,5 +1,6 @@
 package ch.epfl.rechor.journey;
 
+import ch.epfl.rechor.Bits32_24_8;
 import ch.epfl.rechor.timetable.Connections;
 import ch.epfl.rechor.timetable.TimeTable;
 import ch.epfl.rechor.timetable.Trips;
@@ -35,15 +36,11 @@ public final class JourneyExtractor {
         ParetoFront pf = profile.forStation(depStationId);
 
         pf.forEach(criteria -> {
-            try {
                 List<Journey.Leg> legs = new ArrayList<>();
                 extractLegs(profile, depStationId, criteria, legs);
                 if (!legs.isEmpty()) {
                     journeys.add(new Journey(legs));
                 }
-            } catch (Exception e) {
-                // Ignorer les erreurs d'extraction
-            }
         });
 
         journeys.sort(Comparator
@@ -58,7 +55,7 @@ public final class JourneyExtractor {
         Connections connections = profile.connections();
         Trips trips = profile.trips();
 
-        int connectionId = PackedCriteria.payload(criteria);
+        int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(criteria));
         int changes = PackedCriteria.changes(criteria);
         int currentStationId = depStationId;
 
