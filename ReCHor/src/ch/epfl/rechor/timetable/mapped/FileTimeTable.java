@@ -36,6 +36,10 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
     private static final String pathStations = "stations.bin";
     private static final String pathTransfers = "transfers.bin";
     private static final String pathFile = "strings.txt";
+    private static final String pathConnections = "connections.bin";
+    private static final String pathconnectionssuc = "connections-succ.bin";
+    private static final String pathTrips = "trips.bin";
+
 
     /**
      * @param directory est le chemin d'accès au dossier contenant les fichiers des données horaires.
@@ -75,7 +79,7 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
     @Override
     public Trips tripsFor(LocalDate date) {
         try {
-            ByteBuffer tripsByteBuffer = bufferExtractor(directory.resolve(date.toString()), "trips.bin");
+            ByteBuffer tripsByteBuffer = bufferExtractor(directory.resolve(date.toString()), pathTrips);
             BufferedTrips bufferedTrips = new BufferedTrips(stringTable, tripsByteBuffer);
             return bufferedTrips;
         } catch (IOException e) {
@@ -88,8 +92,8 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
     public Connections connectionsFor(LocalDate date) {
         try {
             Path path = Path.of(date.toString());
-            ByteBuffer connectionsByteBuffer = bufferExtractor(directory.resolve(date.toString()), "connections.bin");
-            ByteBuffer connectionsSuccByteBuffer = bufferExtractor(directory.resolve(date.toString()), "connections-succ.bin");
+            ByteBuffer connectionsByteBuffer = bufferExtractor(directory.resolve(date.toString()), pathConnections);
+            ByteBuffer connectionsSuccByteBuffer = bufferExtractor(directory.resolve(date.toString()), pathconnectionssuc);
             BufferedConnections bufferedConnections = new BufferedConnections(connectionsByteBuffer, connectionsSuccByteBuffer);
 
             return bufferedConnections;

@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
+ * Implémente l'interface Trips et permet d'accéder à une table de courses représentée de manière aplatie
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */

@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
+ * Permet d'accéder à une table de lignes représentée de manière aplatie et implémente l'interface Routes.
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
