@@ -75,7 +75,7 @@ public final class JourneyExtractor {
                 Stop arrStop = createStop(timeTable, depStopId);
 
                 LocalDateTime arrDateTime = createDateTime(profile.date(), depMinutes);
-                LocalDateTime depDateTime = arrDateTime.minusMinutes(5);
+                LocalDateTime depDateTime = arrDateTime.minusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, timeTable.stationId(depStopId)));
 
                 legs.add(new Journey.Leg.Foot(depStation, depDateTime, arrStop, arrDateTime));
             }
@@ -118,7 +118,7 @@ public final class JourneyExtractor {
 
                     // Ajouter une étape à pied (changement)
                     Stop nextDepStop = createStop(timeTable, nextDepStopId);
-//                    LocalDateTime nextDepDateTime = createDateTime(profile.date(), nextDepMinutes);
+//                  LocalDateTime nextDepDateTime = createDateTime(profile.date(), nextDepMinutes);
                     LocalDateTime nextTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(nextStationId, timeTable.stationId(connections.depStopId(nextConnectionId))));
 
                     legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, nextDepStop, nextTime));
