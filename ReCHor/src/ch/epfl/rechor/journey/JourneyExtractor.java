@@ -148,7 +148,8 @@ public final class JourneyExtractor {
     }
 
     private static LocalDateTime createDateTime(LocalDate date, int minutes) {
-        return LocalDateTime.of(date, LocalTime.of(minutes / 60, minutes % 60));
+        return LocalDateTime.of(date, LocalTime.MIDNIGHT).plusMinutes(minutes);
+//        LocalTime.of(minutes / 60, minutes % 60)
     }
 
     private static Stop createStop(TimeTable timeTable, int stopId) {

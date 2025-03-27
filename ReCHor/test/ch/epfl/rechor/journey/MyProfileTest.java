@@ -69,8 +69,13 @@ class MyProfileTest {
         LocalDate date = LocalDate.of(2025, Month.MARCH, 18);
         Profile p = readProfile(t, date, 11486);
         List<Journey> js = JourneyExtractor.journeys(p, 7872);
-        String j = JourneyIcalConverter.toIcalendar(js.get(32));
-        System.out.println(j);
+
+        for(int i = 0; i < js.size(); i++) {
+            String j = JourneyIcalConverter.toIcalendar(js.get(i));
+            System.out.println(j);
+        }
+//        String j = JourneyIcalConverter.toIcalendar(js.get(32));
+//        System.out.println(j);
 
     }
 
@@ -79,13 +84,28 @@ class MyProfileTest {
         TimeTable t = FileTimeTable.in(Path.of("timetable"));
         LocalDate date = LocalDate.of(2025, Month.MARCH, 18);
         Profile p = readProfile(t, date, 11486);
-        List<Journey> js = JourneyExtractor.journeys(p, 7872);
+        List<Journey> js = JourneyExtractor.journeys(p, 7874);
         String j = JourneyIcalConverter.toIcalendar(js.get(32));
         System.out.println(j);
     }
 
-
     @Test
+    void barbatruc() throws IOException {
+
+
+        TimeTable t = FileTimeTable.in(Path.of("timetable"));
+        Profile.Builder profileB = new Profile.Builder(t, LocalDate.of(2025, 03, 18), 7874);
+        ParetoFront.Builder frontB = new ParetoFront.Builder();
+        frontB.add(1488, 0, Bits32_24_8.pack(5328, 0));
+        profileB.setForStation(7860, frontB);
+        Profile p = profileB.build();
+        List<Journey> js = JourneyExtractor.journeys(p, 7860);
+        String j = JourneyIcalConverter.toIcalendar(js.get(0));
+        System.out.println(j);
+    }
+
+
+        @Test
     void timeTableTest() {
     }
 
