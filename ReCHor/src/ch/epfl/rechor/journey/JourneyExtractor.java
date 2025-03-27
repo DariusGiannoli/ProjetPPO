@@ -138,7 +138,7 @@ public final class JourneyExtractor {
             } else if (nextStationId != profile.arrStationId()) {
                 // Dernière étape, mais pas à la destination
                 Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(5);
+                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(nextStationId, profile.arrStationId()));
 
                 legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));
             }
