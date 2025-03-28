@@ -80,8 +80,15 @@ public final class JourneyExtractor {
                 legs.add(new Journey.Leg.Foot(depStation, depDateTime, arrStop, arrDateTime));
             }
 
+            List<Journey.Leg.IntermediateStop> inter = new ArrayList<>();
             for(int j = 0; j < interStops; j++){
                 connectionId = connections.nextConnectionId(connectionId);
+
+                Stop interStop = createStop(timeTable, arrStopId);
+                LocalDateTime depDateTime = createDateTime(profile.date(), connections.depMins(connectionId));
+                LocalDateTime arrDateTime = createDateTime(profile.date(), arrMinutes);
+                inter.add(new Journey.Leg.IntermediateStop(interStop, arrDateTime, depDateTime));
+
                 arrStopId = connections.arrStopId(connectionId);
                 arrMinutes = connections.arrMins(connectionId);
             }
@@ -100,7 +107,7 @@ public final class JourneyExtractor {
 
             legs.add(new Journey.Leg.Transport(
                     depStop, depDateTime, arrStop, arrDateTime,
-                    List.of(), vehicle, routeName, destination));
+                    inter, vehicle, routeName, destination));
 
             // Préparer la prochaine étape
             int nextStationId = timeTable.stationId(arrStopId);

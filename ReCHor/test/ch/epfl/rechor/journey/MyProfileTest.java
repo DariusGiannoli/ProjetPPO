@@ -85,6 +85,7 @@ class MyProfileTest {
         LocalDate date = LocalDate.of(2025, Month.MARCH, 18);
         Profile p = readProfile(t, date, 11486);
         List<Journey> js = JourneyExtractor.journeys(p, 7874);
+        System.out.println(js.get(32).legs().get(1).intermediateStops().get(1).stop().name());
         String j = JourneyIcalConverter.toIcalendar(js.get(32));
         System.out.println(j);
     }
