@@ -97,7 +97,7 @@ class MyProfileTest {
         TimeTable t = FileTimeTable.in(Path.of("timetable"));
         Profile.Builder profileB = new Profile.Builder(t, LocalDate.of(2025, 3, 18), 7874);
         ParetoFront.Builder frontB = new ParetoFront.Builder();
-        frontB.add(1488, 0, Bits32_24_8.pack(5328, 0));
+        frontB.add(PackedCriteria.withDepMins(PackedCriteria.pack(1488, 0, Bits32_24_8.pack(5328, 0)), 1486));
         profileB.setForStation(7860, frontB);
         Profile p = profileB.build();
         List<Journey> js = JourneyExtractor.journeys(p, 7860);

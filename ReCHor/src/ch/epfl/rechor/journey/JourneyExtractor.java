@@ -60,6 +60,7 @@ public final class JourneyExtractor {
         int changes = PackedCriteria.changes(criteria);
         int currentStationId = depStationId;
         int endMins = PackedCriteria.arrMins(criteria);
+        int depTime = PackedCriteria.depMins(criteria);
 
         for (int i = 0; i <= changes; i++) {
             // Obtenir les informations de la connexion
@@ -74,8 +75,8 @@ public final class JourneyExtractor {
                 Stop depStation = createStationStop(timeTable, currentStationId);
                 Stop arrStop = createStop(timeTable, depStopId);
 
-                LocalDateTime arrDateTime = createDateTime(profile.date(), depMinutes);
-                LocalDateTime depDateTime = arrDateTime.minusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, timeTable.stationId(depStopId)));
+                LocalDateTime depDateTime = createDateTime(profile.date(), depTime);
+                LocalDateTime arrDateTime = depDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, timeTable.stationId(depStopId)));
 
                 legs.add(new Journey.Leg.Foot(depStation, depDateTime, arrStop, arrDateTime));
             }
