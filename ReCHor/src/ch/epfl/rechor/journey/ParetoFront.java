@@ -129,7 +129,7 @@ public final class ParetoFront {
         /**
          * Vérifie si la frontière en cours de construction est vide.
          *
-         * @return true si vide, false sinon
+         * @return true si vide et false sinon
          */
         public boolean isEmpty() {
             return size == 0;
