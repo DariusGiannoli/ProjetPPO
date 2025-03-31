@@ -11,7 +11,7 @@ import java.util.Objects;
  * Représente un voyage composé d’une liste d’étapes (legs).
  * Le voyage est valide si :
  * <ul>
- *   <li>la liste d’étapes n’est pas vide,</li>
+ *   <li>la liste d’étapes n’est pas vide</li>
  *   <li>les étapes à pied et en transport public alternent,</li>
  *   <li>pour chaque étape (sauf la première), l’instant de départ n’est pas antérieur à celui d’arrivée de l’étape précédente,</li>
  *   <li>pour chaque étape (sauf la première), l’arrêt de départ est identique à l’arrêt d’arrivée de l’étape précédente.</li>
