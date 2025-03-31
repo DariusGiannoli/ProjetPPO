@@ -4,194 +4,196 @@ import ch.epfl.rechor.Preconditions;
 
 /**
  * Classe utilitaire (non instanciable) permettant de manipuler
- * des critères d'optimisation empaquetés dans un entier 64 bits
+ * des critères d'optimisation empaquetés dans un entier 64 bits.
+ * La représentation sur 64 bits est la suivante :
+ * <ul>
+ *   <li>Bits [62..51] : heure de départ complémentée (ou 0 si absente)</li>
+ *   <li>Bits [50..39] : heure d’arrivée (12 bits)</li>
+ *   <li>Bits [38..32] : nombre de changements (7 bits)</li>
+ *   <li>Bits [31..0]  : charge utile (32 bits)</li>
+ * </ul>
+ *
+ * Les heures (départ ou arrivée) sont exprimées en minutes depuis minuit,
+ * mais traduites pour être toujours positives (ajout de 240 minutes).
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-
-
-
-//Bits [62..51] : heure de départ (dite complémentée) ou 0 si pas d’heure,
-//Bits [50..39] : heure d’arrivée (12bits),
-//Bits [38..32] : nombre de changements (7bits),
-//Bits [31..0] : charge utile (payload) sur 32bits.
-
 public final class PackedCriteria {
 
+    // Constantes pour les heures et vérifications
+    private static final int MIN_MINUTES = -240;
+    private static final int MAX_MINUTES = 2880; // minutes < 2880
+    private static final int MINUTES_OFFSET = 240; // translation pour rendre les minutes positives
 
-    //Constructeur privé pour empêcher l'instanciation.
+    // Déplacements et masques pour le packing
+    private static final int SHIFT_DEP = 51;
+    private static final int SHIFT_ARR = 39;
+    private static final int SHIFT_CHANGES = 32;
+    private static final int BITS_12_MASK = 0xFFF;
+    private static final long BITS_12_MASK_LONG = 0xFFFL;// 12 bits (4095) long
+    private static final int BITS_7_MASK = 0x7F;    // 7 bits (127)
+    private static final long BITS_7_MASK_LONG = 0x7FL;    // 7 bits (127) long
+    private static final long BITS_32_MASK = 0xFFFFFFFFL; // 32 bits
+
+    /**
+     * Constructeur privé pour empêcher l'instanciation.
+     */
     private PackedCriteria() {}
 
     /**
-     * Empaquète une heure d'arrivée (sur 12 bits),
-     * un nombre de changements (7 bits) et un payload (32 bits)
-     * dans un long, sans heure de départ.
-     * Verifie que la minute d'arrivée est comprise entre -240 et 2879, et que les changements sont compris entre 0 et 127, sinon elle envoie un IllegalArgumentException avec la methode checkArgument.
-     * @param arrMins  heure d'arrivée en minutes après minuit
-     * @param changes  nombre de changements
-     * @param payload  payload sur 32 bits
+     * Empaquète une heure d'arrivée, un nombre de changements et un payload dans un long,
+     * sans heure de départ.
+     *
+     * @param arrMins heure d'arrivée en minutes depuis minuit (entre -240 et 2879)
+     * @param changes nombre de changements (entre 0 et 127)
+     * @param payload charge utile sur 32 bits
      * @return un long conforme à la structure
      * @throws IllegalArgumentException si arrMins ou changes ne respectent pas les limites
      */
     public static long pack(int arrMins, int changes, int payload){
 
-        // Vérifications de base, nécessaire ?
-        Preconditions.checkArgument(arrMins >= -240 && arrMins < 2880);
+        Preconditions.checkArgument(arrMins >= MIN_MINUTES && arrMins < MAX_MINUTES);
         Preconditions.checkArgument(changes >= 0 && changes < 128);
 
-        //On translate arrMins => [0..3120)
-        int storedArr = arrMins + 240;
-        Preconditions.checkArgument(storedArr < 4096);
-
-        long arrField = ((long) storedArr) << 39;
-        long changesField = ((long) changes) << 32;
+        // Translation de l'heure d'arrivée pour obtenir une valeur positive
+        int storedArr = arrMins + MINUTES_OFFSET;
+        long arrField = ((long) storedArr) << SHIFT_ARR;
+        long changesField = ((long) changes) << SHIFT_CHANGES;
         long payloadField = Integer.toUnsignedLong(payload);
 
         return arrField | changesField | payloadField;
-
-
-
     }
 
     /**
-     * Retourne l'heure d'arrivée réelle (en minutes depuis minuit) stockée dans criteria
-     * @param criteria  un entier 64 bits représentant les critères
-     * @return  l'heure d'arrivée réelle, en minutes depuis minuit ([-240, 2880))
+     * Retourne l'heure d'arrivée réelle (en minutes depuis minuit) stockée dans criteria.
+     *
+     * @param criteria un entier 64 bits représentant les critères
+     * @return l'heure d'arrivée réelle (entre -240 et 2879)
      */
     public static int arrMins(long criteria){
-        long storedArr = (criteria >>> 39) & 4095;
-        return (int) (storedArr - 240);
+        long storedArr = (criteria >>> SHIFT_ARR) & BITS_12_MASK;
+        return (int) (storedArr - MINUTES_OFFSET);
     }
 
     /**
-     *Retourne le nombre de changements stocké dans criteria
-     * @param criteria  un entier 64 bits
-     * @return  le nombre de changements (entre 0 et 127)
+     * Retourne le nombre de changements stocké dans criteria.
+     *
+     * @param criteria un entier 64 bits
+     * @return le nombre de changements (entre 0 et 127)
      */
     public static int changes(long criteria){
-        return (int) ((criteria >>>32) & 127);
+        return (int) ((criteria >>>SHIFT_CHANGES) & BITS_7_MASK);
     }
 
     /**
      * Retourne la charge utile (payload) stockée dans criteria.
-     * @param criteria  un entier 64 bits
-     * @return  un entier 32 bits représentant le payload
+     *
+     * @param criteria un entier 64 bits
+     * @return un entier 32 bits représentant le payload
      */
     public static int payload(long criteria){
-        return (int) (criteria & 0xFFFFFFFFL);
+        return (int) (criteria & BITS_32_MASK);
     }
 
     /**
-     * Indique si une heure de départ est présente dans criteria
-     * @param criteria  un entier 64 bits
-     * @return  true si l’heure de départ est présente, sinon false
+     * Indique si une heure de départ est présente dans criteria.
+     *
+     * @param criteria un entier 64 bits
+     * @return true si l'heure de départ est présente, false sinon
      */
     public static boolean hasDepMins(long criteria){
-        long depComplement = (criteria >>> 51) & 0xFFF;
+        long depComplement = (criteria >>> SHIFT_DEP) & BITS_12_MASK;
         return depComplement != 0;
     }
 
     /**
-     * Retourne l'heure de départ réelle (en minutes depuis minuit) stockée dans criteria,
-     * et verifie que la valeur donnée en argument possède bien une heure de départ, sinon lance une IllegalArgumentException avec la methode checkArgument.
+     * Retourne l'heure de départ réelle (en minutes depuis minuit) stockée dans criteria.
+     *
      * @param criteria un entier 64 bits
-     * @return  l'heure de départ réelle, en minutes depuis minuit ([-240, 2880))
+     * @return l'heure de départ réelle (entre -240 et 2879)
+     * @throws IllegalArgumentException si criteria ne contient pas d'heure de départ
      */
     public static int depMins(long criteria){
-        long depComplement = (criteria >>> 51) & 0xFFF;
+        long depComplement = (criteria >>> SHIFT_DEP) & BITS_12_MASK;
         Preconditions.checkArgument(depComplement != 0);
-        return (int) (4095 - depComplement - 240);
+        return (int) (BITS_12_MASK - depComplement - MINUTES_OFFSET);
     }
 
-
     /**
-     * Retourne un nouveau critère identique à criteria, mais sans heure de départ
-     * @param criteria  un entier 64 bits
-     * @return  la valeur 64 bits sans heure de départ
+     * Retourne un nouveau critère identique à criteria, mais sans heure de départ.
+     *
+     * @param criteria un entier 64 bits
+     * @return un entier 64 bits sans heure de départ
      */
     public static long withoutDepMins(long criteria) {
-        return criteria & ~(0xFFFL << 51);
+        return criteria & ~(BITS_12_MASK_LONG << SHIFT_DEP);
     }
 
     /**
-     * Retourne un nouveau critère identique à criteria, mais avec l'heure de départ
-     * fixée à depMins. Verifie que lq minute de départ est comprise entre -240 et 2879, et que la nouvelle minute de départ est antérieure ou égale à la minute d'arrivée, sinon elle lance une IllegalArgumentException avec la methode checkArgument.
-     * @param criteria  un entier 64 bits
-     * @param depMins   l'heure de départ réelle, en minutes depuis minuit ([-240, 2880))
-     * @return  un nouvel entier 64 bits avec l'heure de départ stockée
+     * Retourne un nouveau critère identique à criteria, mais avec l'heure de départ fixée à depMins.
+     * Vérifie que depMins est compris entre -240 et 2879 et qu'il est antérieur ou égal à l'heure d'arrivée.
+     *
+     * @param criteria un entier 64 bits
+     * @param depMins l'heure de départ réelle (entre -240 et 2879)
+     * @return un nouvel entier 64 bits avec l'heure de départ stockée
+     * @throws IllegalArgumentException si depMins n'est pas dans les limites ou est postérieure à l'heure d'arrivée
      */
     public static long withDepMins(long criteria, int depMins) {
-        Preconditions.checkArgument(depMins >= -240 && depMins < 2880);
-        int depComplement = 4095 - (depMins + 240);
+        Preconditions.checkArgument(depMins >= MIN_MINUTES && depMins < MAX_MINUTES);
+        Preconditions.checkArgument(depMins <= arrMins(criteria));
+        int depComplement = BITS_12_MASK - (depMins + MINUTES_OFFSET);
         long cleared = withoutDepMins(criteria);
-        return cleared | ((long) depComplement << 51);
+        return cleared | ((long) depComplement << SHIFT_DEP);
     }
-
-
 
     /**
      * Indique si criteria1 domine ou est égal à criteria2 selon les règles d'optimisation.
-     *      //Minimiser l'heure d'arrivée : arrMins1 <= arrMins2
-     *     //Minimiser le nombre de changements : changes1 <= changes2
-     *     //Maximiser l'heure de départ (si présente) : depMins1 >= depMins2
-     *     //Si l'un a une heure de départ et pas l'autre, une exception IllegalArgumentException est levée par la methode checkArgument.
+     * (Minimiser l'heure d'arrivée et le nombre de changements, maximiser l'heure de départ)
      *
-     * @param criteria1  un entier 64 bits
-     * @param criteria2  un entier 64 bits
-     * @return  true si criteria1 domine ou est égal à criteria2, false sinon
+     * @param criteria1 un entier 64 bits
+     * @param criteria2 un entier 64 bits
+     * @return true si criteria1 domine ou est égal à criteria2, false sinon
+     * @throws IllegalArgumentException si l'un des critères possède une heure de départ et pas l'autre
      */
     public static boolean dominatesOrIsEqual(long criteria1, long criteria2){
 
-        //Check
         boolean hasDep1 = hasDepMins(criteria1);
         boolean hasDep2 = hasDepMins(criteria2);
         Preconditions.checkArgument(hasDep1 == hasDep2);
 
         boolean result = (arrMins(criteria1) <= arrMins(criteria2))
                 && (changes(criteria1) <= changes(criteria2));
-
-        if(hasDepMins(criteria1)) {
-            result &=  (depMins(criteria1) >= depMins(criteria2));
+        if(hasDep1) {
+            result &= (depMins(criteria1) >= depMins(criteria2));
         }
         return result;
     }
 
     /**
      * Retourne un nouveau critère identique à criteria avec le nombre de changements incrémenté de 1.
-     * Verifie que le nombre de changements apres l'ajout de 1 est inférieur à 128, sinon elle lève une IllegalArgumentException avec la methode checkArgument.
-     * @param criteria un entier de 64 bits
-     * @return  un entier 64 bits avec le champ "changes" augmenté de 1
+     *
+     * @param criteria un entier 64 bits
+     * @return un entier 64 bits avec le champ "changes" augmenté de 1
+     * @throws IllegalArgumentException si le nombre de changements atteint sa limite
      */
     public static long withAdditionalChange(long criteria){
-        int changes = changes(criteria) + 1;
-        long newCriteria = criteria & ~(0b1111111L << 32);
-        return newCriteria | ((long) changes << 32);
+        int currentChanges = changes(criteria);
+        int newChanges = currentChanges + 1;
+        long newCriteria = criteria & ~(BITS_7_MASK_LONG << SHIFT_CHANGES);
+        return newCriteria | ((long) newChanges << SHIFT_CHANGES);
     }
 
     /**
-     * Retourne un nouveau critère identique à criteria avec un payload
-     * remplacé par payload
-     * @param criteria un entier de 64 bits
-     * @param payload le nouveau payload (32 bits)
-     * @return  un entier 64 bits avec le payload mis à jour
+     * Retourne un nouveau critère identique à criteria avec un payload remplacé par payload.
+     *
+     * @param criteria un entier 64 bits
+     * @param payload  le nouveau payload (32 bits)
+     * @return un entier 64 bits avec le payload mis à jour
      */
     public static long withPayload(long criteria, int payload){
-        long newCriteria = criteria & ~0xffffffffL;
+        long newCriteria = criteria & ~BITS_32_MASK;
         long payloadLong = Integer.toUnsignedLong(payload);
         return newCriteria | payloadLong;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
