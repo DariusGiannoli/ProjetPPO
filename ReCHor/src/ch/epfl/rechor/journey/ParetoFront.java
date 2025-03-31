@@ -8,24 +8,26 @@ import java.util.NoSuchElementException;
 import java.util.function.LongConsumer;
 
 /**
+ * Représente une frontière de Pareto immuable des critères d'optimisation.
+ * Les tuples (paires ou triplets de critères) sont empaquetés sous forme de longs dans un tableau trié
+ * selon l'ordre lexicographique (basé sur l'heure d'arrivée et le nombre de changements).
+ * Cette structure est utilisée pour optimiser la recherche de voyages optimaux.
+ * Les instances de ParetoFront sont immuables. La seule façon de les construire est via le bâtisseur
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
- *
- * Représentation immuable de la frontière de Pareto des critères d'optimisation. Les tuples de critères
- * sont empaquetés dans un tableau de type long[]
  */
 public final class ParetoFront {
 
-    // Tableau privé contenant les tuples empaquetés.
+    // Tableau final contenant les tuples empaquetés de la frontière
     private final long[] tuples;
 
-    /**
-     * Instance publique, statique et finale représentant une frontière de Pareto vide.
-     */
+    //Frontière de Pareto vide
     public static final ParetoFront EMPTY = new ParetoFront(new long[0]);
 
     /**
-     * Constructeur privé recevant un tableau de tuples empaquetés.
+     * Constructeur privé recevant un tableau trié de tuples.
+     * Le tableau ne doit pas être modifié après construction pour garantir l'immuabilité.
      *
      * @param tuples le tableau de tuples empaquetés
      */
@@ -36,45 +38,34 @@ public final class ParetoFront {
     /**
      * Retourne le nombre de tuples présents dans la frontière.
      *
-     * @return le nombre de tuples
+     * @return la taille de la frontière
      */
     public int size() {
         return tuples.length;
     }
 
     /**
-     * Retourne le tuple empaqueté dont l'heure d'arrivée et le nombre de changements
+     * Recherche et retourne le tuple dont l'heure d'arrivée et le nombre de changements
      * correspondent aux valeurs données.
      *
-     * @param arrMins l'heure d'arrivée réelle, en minutes après minuit
+     * @param arrMins l'heure d'arrivée réelle (en minutes après minuit)
      * @param changes le nombre de changements
-     * @return le tuple empaqueté correspondant aux critères
+     * @return le tuple empaqueté correspondant
      * @throws NoSuchElementException si aucun tuple ne correspond aux critères
      */
     public long get(int arrMins, int changes) {
-        long foundTuple = 0;
-        boolean found = false;
-
         for (long tuple : tuples) {
-            if (PackedCriteria.arrMins(tuple) == arrMins
-                    && PackedCriteria.changes(tuple) == changes) {
-                foundTuple = tuple;
-                found = true;
-                break;
+            if (PackedCriteria.arrMins(tuple) == arrMins && PackedCriteria.changes(tuple) == changes) {
+                return tuple;
             }
         }
-
-        if (!found) {
-            throw new NoSuchElementException();
-        }
-
-        return foundTuple;
+        throw new NoSuchElementException();
     }
 
     /**
-     * Parcourt tous les tuples de la frontière et applique l'action donnée à chacun d'eux.
+     * Parcourt tous les tuples de la frontière et applique l'action spécifiée à chacun d'eux.
      *
-     * @param action l'action à appliquer à chaque tuple (un LongConsumer)
+     * @param action l'action à appliquer à chaque tuple
      */
     public void forEach(LongConsumer action) {
         for (long tuple : tuples) {
@@ -83,8 +74,8 @@ public final class ParetoFront {
     }
 
     /**
-     * Retourne une représentation textuelle lisible de la frontière de Pareto.
-     * Chaque tuple est affiché avec son heure d'arrivée et son nombre de changements.
+     * Retourne une représentation textuelle lisible de la frontière de Pareto,
+     * indiquant pour chaque tuple l'heure d'arrivée et le nombre de changements.
      *
      * @return une chaîne représentant la frontière
      */
@@ -105,62 +96,54 @@ public final class ParetoFront {
         return sb.toString();
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////////////////////////////////////
-
-
     /**
-     * @author Antoine Lepin (390950)
-     * @author Darius Giannoli (380759)
-     *
      * Bâtisseur de la frontière de Pareto.
+     * Permet d'insérer des tuples empaquetés tout en maintenant l'ordre lexicographique
+     * et en éliminant les tuples dominés.
      */
     public static final class Builder {
 
+        //Tableau dynamique interne stockant les tuples
         private long[] tuples;
-
+        //Nombre d'éléments effectivement présents dans le tableau
         int size;
 
         /**
-         * Constructeur public qui retourne un bâtisseur dont la frontière
-         * en cours de construction est vide.
+         * Construit un nouveau Builder avec une frontière vide
          */
         public Builder() {
             this.tuples = new long[2];
             this.size = 0;
         }
 
-
         /**
-         * retourne un nouveau bâtisseur avec les mêmes attributs que celui reçu en argument (constructeur de copie).
-         * @param that est un builder que l'on copie.
+         * Constructeur de copie.
+         *
+         * @param that le Builder à copier
          */
         public Builder(Builder that) {
-            // On recopie uniquement les éléments effectivement utilisés
             this.tuples = Arrays.copyOf(that.tuples, that.size);
             this.size = that.size;
         }
 
         /**
-         * @return retourne vrai si et seulement si la frontière en cours de construction est vide.
+         * Vérifie si la frontière en cours de construction est vide.
+         *
+         * @return true si vide, false sinon
          */
         public boolean isEmpty() {
             return size == 0;
         }
 
         /**
-         * vide la frontière en cours de construction en supprimant tous ses éléments.
-         * @return lui même car c'est un builder.
+         * Vide la frontière en cours de construction.
+         *
+         * @return this pour chaîner les appels
          */
         public Builder clear() {
             size = 0;
             return this;
         }
-
 
         private int compact(long[] array, long packedTuple, int pos) {
             int dst = 0;
