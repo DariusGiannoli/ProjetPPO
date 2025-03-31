@@ -51,12 +51,6 @@ public final class PackedCriteria {
         return arrField | changesField | payloadField;
 
 
-        //long arrMinsLong = Integer.toUnsignedLong(arrMins);
-        //long changesLong = Integer.toUnsignedLong(changes);
-        //long payloadLong = Integer.toUnsignedLong(payload);
-        //Preconditions.checkArgument((changes >>> 7) == 0 && (arrMins >>> 12) == 0);
-        //long pack = (arrMinsLong << 39) | (changesLong << 32) | payloadLong;
-        //return pack;
 
     }
 
@@ -110,18 +104,6 @@ public final class PackedCriteria {
         return (int) (4095 - depComplement - 240);
     }
 
-    //
-    //     public static long withoutDepMins(long criteria) {
-    //      long newCriteria = criteria & (~((0b111111111111L) << 51));
-    //      return newCriteria;
-    //     }
-    //
-    //     public static long withDepMins(long criteria, int depMins1) {
-    //      long newCriteria = withoutDepMins(criteria);
-    //      newCriteria = newCriteria | (((long) depMins1) << 51);
-    //      return newCriteria;
-    //     }
-    //
 
     /**
      * Retourne un nouveau critère identique à criteria, mais sans heure de départ
@@ -146,17 +128,6 @@ public final class PackedCriteria {
         return cleared | ((long) depComplement << 51);
     }
 
-
-     //public static boolean dominatesOrIsEqual(long criteria1, long criteria2){
-         //Preconditions.checkArgument(hasDepMins(criteria1) == hasDepMins(criteria2));
-
-         //boolean dominates = (arrMins(criteria1) <= arrMins(criteria2)) & (changes(criteria1) <= changes(criteria2));
-
-        // if(hasDepMins(criteria1)) {
-        // dominates = dominates & (depMins(criteria1) <= depMins(criteria2));
-         //}
-        // return dominates;
-    // }
 
 
     /**

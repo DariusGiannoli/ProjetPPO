@@ -201,12 +201,6 @@ public final class ParetoFront {
             }
 
 
-//            int startDominated = pos;
-//            while (startDominated < size
-//                    && PackedCriteria.dominatesOrIsEqual(packedTuple, tuples[startDominated])) {
-//                startDominated++;
-//            }
-
             long[] arrayCopy = new long[size - pos];
             System.arraycopy(tuples, pos, arrayCopy, 0, size-pos);
             int notDominated = compact(arrayCopy, packedTuple, pos);

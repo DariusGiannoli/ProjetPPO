@@ -1,6 +1,8 @@
 package ch.epfl.rechor.journey;
 
 import ch.epfl.rechor.Bits32_24_8;
+import ch.epfl.rechor.timetable.Connections;
+import ch.epfl.rechor.timetable.Stations;
 import ch.epfl.rechor.timetable.TimeTable;
 import ch.epfl.rechor.timetable.Trips;
 import ch.epfl.rechor.timetable.mapped.FileTimeTable;
@@ -52,9 +54,9 @@ class MyProfileTest {
 
        ParetoFront front = profile.forStation(0);
        int i = Bits32_24_8.unpack24(PackedCriteria.payload(front.get(22*60+59,4)));
-        int i2 = Bits32_24_8.unpack8(PackedCriteria.payload(front.get(22*60+59,4)));
-       System.out.println(i);
-       System.out.println(i2);
+       int i2 = Bits32_24_8.unpack8(PackedCriteria.payload(front.get(22*60+59,4)));
+//       System.out.println(i);
+//       System.out.println(i2);
 
        Trips trips = profile.trips();
        for(int j = 0; j < trips.size(); j++) {
@@ -84,8 +86,7 @@ class MyProfileTest {
         TimeTable t = FileTimeTable.in(Path.of("timetable"));
         LocalDate date = LocalDate.of(2025, Month.MARCH, 18);
         Profile p = readProfile(t, date, 11486);
-        List<Journey> js = JourneyExtractor.journeys(p, 7874);
-        System.out.println(js.get(32).legs().get(1).intermediateStops().get(1).stop().name());
+        List<Journey> js = JourneyExtractor.journeys(p, 7872);
         String j = JourneyIcalConverter.toIcalendar(js.get(32));
         System.out.println(j);
     }
