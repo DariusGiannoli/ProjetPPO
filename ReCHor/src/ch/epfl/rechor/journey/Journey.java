@@ -1,25 +1,35 @@
 package ch.epfl.rechor.journey;
 
+import static ch.epfl.rechor.Preconditions.checkArgument;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.time.Duration;
 import java.util.Objects;
 
-import static ch.epfl.rechor.Preconditions.checkArgument;
-
-
 /**
- * Journey est un voyage.
+ * Représente un voyage composé d’une liste d’étapes (legs).
+ * Le voyage est valide si :
+ * <ul>
+ *   <li>la liste d’étapes n’est pas vide,</li>
+ *   <li>les étapes à pied et en transport public alternent,</li>
+ *   <li>pour chaque étape (sauf la première), l’instant de départ n’est pas antérieur à celui d’arrivée de l’étape précédente,</li>
+ *   <li>pour chaque étape (sauf la première), l’arrêt de départ est identique à l’arrêt d’arrivée de l’étape précédente.</li>
+ * </ul>
+ *
+ * @param legs la liste des étapes du voyage.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
- * @param legs la liste des étapes du voyage.
  */
 public record Journey(List<Leg> legs) {
 
-    /**Constructeur de Journey. Il vérifie que la liste legs n'est pas vide, que les étapes à pied alternent avec celles en transport, que pour toutes les étapes(sauf la première), l'instant
-     * de départ ne précède pas celui d'arrivée de la précédente, et que pour toutes les étapes(sauf la première), l'arrêt de départ est identique à l'arrêt d'arrivée de la précédente.
-     * Si une de ces conditions n'est pas respectée, elle lance une exception IllegalArgumentException.
+    /**
+     * Constructeur compact de Journey.
+     * Copie la liste des étapes afin d’assurer l’immuabilité et vérifie l’ensemble des préconditions.
+     *
      * @param legs la liste des étapes du voyage.
+     * @throws IllegalArgumentException si les conditions de validité ne sont pas respectées.
      */
     public Journey {
         checkArgument(!(legs.isEmpty()));
@@ -34,121 +44,204 @@ public record Journey(List<Leg> legs) {
             if (i > 0) {
                 Leg previous = legs.get(i - 1);
 
-                // 2) Alternance pied/transport
+                // Vérifie l'alternance pied/transport
                 checkArgument(!((previous instanceof Leg.Foot && current instanceof Leg.Foot)
                         || (previous instanceof Leg.Transport && current instanceof Leg.Transport)));
 
-                // 3) L’instant de départ ne précède pas celui d’arrivée de la précédente
-                checkArgument(!(current.depTime().isBefore(previous.arrTime())));
+                // Vérifie que l’instant de départ ne précède pas celui d’arrivée de la précédente
+                checkArgument(!current.depTime().isBefore(previous.arrTime()));
 
-                // 4) L'arrêt de départ est identique à l'arrêt d'arrivée de la précédente
+                // Vérifie que l'arrêt de départ est identique à l'arrêt d'arrivée de la précédente
                 checkArgument(current.depStop().equals(previous.arrStop()));
             }
         }
     }
 
     /**
-     * Représente une étape du voyage.
+     * Retourne l’arrêt de départ du voyage, correspondant à celui de la première étape.
+     *
+     * @return le stop de départ.
+     */
+    public Stop depStop(){
+        return legs.getFirst().depStop();
+    }
+
+    /**
+     * Retourne l’arrêt d’arrivée du voyage, correspondant à celui de la dernière étape.
+     *
+     * @return le stop d’arrivée.
+     */
+    public Stop arrStop(){
+        return legs.getLast().arrStop();
+    }
+
+    /**
+     * Retourne la date/heure de départ du voyage, correspondant à celle de la première étape.
+     *
+     * @return la date/heure de départ.
+     */
+    public LocalDateTime depTime(){
+        return legs.getFirst().depTime();
+    }
+
+    /**
+     * Retourne la date/heure d’arrivée du voyage, correspondant à celle de la dernière étape.
+     *
+     * @return la date/heure d’arrivée.
+     */
+    public LocalDateTime arrTime(){
+        return legs.getLast().arrTime();
+    }
+
+    /**
+     * Retourne la durée totale du voyage.
+     *
+     * @return la durée totale.
+     */
+    public Duration duration() {
+        return Duration.between(depTime(), arrTime());
+    }
+
+    /**
+     * Interface scellée représentant une étape du voyage.
+     * Seules les étapes à pied et en transport public (Foot et Transport) peuvent l’implémenter.
      */
     public sealed interface Leg {
 
         /**
-         * @return retourne l'arrêt de départ de l'étape.
+         * Retourne l’arrêt de départ de l’étape.
+         *
+         * @return le stop de départ.
          */
         Stop depStop();
 
         /**
-         * @return retourne l'arrêt d'arrivée de l'étape.
+         * Retourne l’arrêt d’arrivée de l’étape.
+         *
+         * @return le stop d’arrivée.
          */
         Stop arrStop();
 
         /**
-         * @return retourne la date/heure de départ de l'étape.
+         * Retourne la date/heure de départ de l’étape.
+         *
+         * @return la date/heure de départ.
          */
         LocalDateTime depTime();
 
         /**
-         * @return retourne la date/heure d'arrivée de l'étape.
+         * Retourne la date/heure d’arrivée de l’étape.
+         *
+         * @return la date/heure d’arrivée.
          */
         LocalDateTime arrTime();
 
         /**
-         * @return retourne la durée de l'étape.
+         * Retourne la durée de l’étape.
+         *
+         * @return la durée de l’étape.
          */
         default Duration duration() {
             return Duration.between(depTime(), arrTime());
         }
 
         /**
-         * @return retourne la liste des arrêts intermédiaires de l'étape.
+         * Retourne la liste des arrêts intermédiaires de l’étape.
+         *
+         * @return la liste des arrêts intermédiaires.
          */
         List<IntermediateStop> intermediateStops();
 
         /**
-         * Est un arrêt intermédiaire d'une étape.
-         * @param stop l'arrêt intermédiaire en question.
-         * @param arrTime la date/heure d'arrivée à l'arrêt.
-         * @param depTime la date/heure de départ de l'arrêt.
+         * Enregistrement représentant un arrêt intermédiaire d’une étape.
+         *
+         * @param stop    l’arrêt intermédiaire.
+         * @param arrTime la date/heure d’arrivée à cet arrêt.
+         * @param depTime la date/heure de départ de cet arrêt.
          */
          record IntermediateStop(Stop stop, LocalDateTime arrTime, LocalDateTime depTime) {
 
             /**
-             * Constructeur, qui vérifie que stop n'est pas null et que la date/heure de départ n'est pas antérieure à celle d'arrivée.
+             * Constructeur compact qui valide les arguments.
+             *
+             * @param stop    l’arrêt intermédiaire (non nul).
+             * @param arrTime la date/heure d’arrivée.
+             * @param depTime la date/heure de départ (ne doit pas précéder arrTime).
+             * @throws NullPointerException     si stop est nul.
+             * @throws IllegalArgumentException si depTime est antérieur à arrTime.
              */
             public IntermediateStop {
                 Objects.requireNonNull(stop, "Le stop ne peut pas être null.");
-
-                checkArgument(!(depTime.isBefore(arrTime)));
+                checkArgument(!depTime.isBefore(arrTime));
             }
         }
 
         /**
-         * Transport est une étape effectuée en transport public.
-         * @param depStop l'arrêt de départ de l'étape.
-         * @param depTime la date/heure de départ de l'étape.
-         * @param arrStop l'arrêt d'arrivée de l'étape.
-         * @param arrTime la date/heure d'arrivée de l'étape.
-         * @param intermediateStops les éventuels arrêts intermédiaires de l'étape.
-         * @param vehicle le type de véhicule utilisé pour cette étape.
-         * @param route le nom de la ligne sur laquelle circule le véhicule.
-         * @param destination le nom de la destination finale du véhicule utilisé pour cette étape.
+         * Enregistrement représentant une étape effectuée en transport public.
+         *
+         * @param depStop           l’arrêt de départ.
+         * @param depTime           la date/heure de départ.
+         * @param arrStop           l’arrêt d’arrivée.
+         * @param arrTime           la date/heure d’arrivée.
+         * @param intermediateStops la liste des arrêts intermédiaires.
+         * @param vehicle           le type de véhicule utilisé.
+         * @param route             le nom de la ligne.
+         * @param destination       la destination finale.
          */
-        record Transport(Stop depStop, LocalDateTime depTime,  Stop arrStop, LocalDateTime arrTime, List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination) implements Leg {
+        record Transport(Stop depStop, LocalDateTime depTime,  Stop arrStop, LocalDateTime arrTime,
+                         List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination)
+                implements Leg {
 
             /**
-             *Le constructeur, qui vérifie avec requireNonNull qu'aucun des arguments ne soit null (sauf pour intermediateStops), sinon une NullPointerException est lancée par la methode requireNonNull.
-             * Il vérifie aussi que la date/heure d'arrivée n'est pas antérieure à celle de départ, sinon il lance une IllegalArgumentException.
+             * Constructeur compact qui valide l’ensemble des arguments.
+             *
+             * @param depStop           l’arrêt de départ (non nul).
+             * @param depTime           la date/heure de départ (non nul).
+             * @param arrStop           l’arrêt d’arrivée (non nul).
+             * @param arrTime           la date/heure d’arrivée (non nul et ne doit pas précéder depTime).
+             * @param intermediateStops la liste des arrêts intermédiaires (copiée pour garantir l’immuabilité).
+             * @param vehicle           le véhicule utilisé (non nul).
+             * @param route             le nom de la ligne (non nul).
+             * @param destination       la destination (non nul).
+             * @throws NullPointerException     si un argument requis est nul.
+             * @throws IllegalArgumentException si arrTime précède depTime.
              */
             public Transport{
                 Objects.requireNonNull(depStop,       "depStop ne peut pas être null.");
                 Objects.requireNonNull(depTime,       "depTime ne peut pas être null.");
                 Objects.requireNonNull(arrStop,       "arrStop ne peut pas être null.");
                 Objects.requireNonNull(arrTime,       "arrTime ne peut pas être null.");
-                //Pas nécessaire cf conseils
-                //Objects.requireNonNull(intermediateStops, "intermediateStops ne peut pas etre null.");
                 Objects.requireNonNull(vehicle,       "vehicle ne peut pas être null.");
-                Objects.requireNonNull(route,          "type ne peut pas être null.");
+                Objects.requireNonNull(route,          "route ne peut pas être null.");
                 Objects.requireNonNull(destination,   "destination ne peut pas être null.");
 
-                checkArgument(!(arrTime.isBefore(depTime)));
+                checkArgument(!arrTime.isBefore(depTime));
+
+                // Copie défensive pour garantir l'immuabilité
                 intermediateStops = List.copyOf(intermediateStops);
-
             }
-
         }
 
         /**
-         * Foot est une étape effectuée à pied.
-         * @param depStop l'arrêt de départ de l'étape.
-         * @param depTime la date/heure de départ de l'étape.
-         * @param arrStop l'arrêt d'arrivée de l'étape.
-         * @param arrTime la date/heure d'arrivée de l'étape.
+         * Enregistrement représentant une étape effectuée à pied.
+         *
+         * @param depStop l’arrêt de départ.
+         * @param depTime la date/heure de départ.
+         * @param arrStop l’arrêt d’arrivée.
+         * @param arrTime la date/heure d’arrivée.
          */
-        record Foot(Stop depStop, LocalDateTime depTime, Stop arrStop, LocalDateTime arrTime) implements Leg{
+        record Foot(Stop depStop, LocalDateTime depTime, Stop arrStop, LocalDateTime arrTime)
+                implements Leg{
 
             /**
-             * Le constructeur de Foot, qui vérifie avec requireNonNull qu'aucun des arguments ne soit null, sinon une NullPointerException est lancée par la methode requireNonNull.
-             * Il vérifie aussi que la date/heure d'arrivée n'est pas antérieure à celle de départ, sinon il lance une IllegalArgumentException.
+             * Constructeur compact qui valide les arguments.
+             *
+             * @param depStop l’arrêt de départ (non nul).
+             * @param depTime la date/heure de départ (non nul).
+             * @param arrStop l’arrêt d’arrivée (non nul).
+             * @param arrTime la date/heure d’arrivée (non nul et ne doit pas précéder depTime).
+             * @throws NullPointerException     si un argument requis est nul.
+             * @throws IllegalArgumentException si arrTime précède depTime.
              */
             public Foot{
                 Objects.requireNonNull(depStop, "depStop ne peut pas être null.");
@@ -160,7 +253,9 @@ public record Journey(List<Leg> legs) {
             }
 
             /**
-             * @return retourne une liste vide, car une étape à pied ne comporte jamais d'arrêts intermédiaires.
+             * Une étape à pied ne comporte jamais d’arrêts intermédiaires.
+             *
+             * @return une liste vide.
              */
             @Override
             public List<IntermediateStop> intermediateStops() {
@@ -168,49 +263,14 @@ public record Journey(List<Leg> legs) {
             }
 
             /**
-             * @return retourne vrai si et seulement si l'étape est un changement au sein de la même gare,
-             * donc vérifie si le nom de l'arrêt de départ est le même que celui d'arrivée.
+             * Indique si l’étape représente un changement au sein de la même gare,
+             * c’est-à-dire si le nom de l’arrêt de départ est identique à celui d’arrivée.
+             *
+             * @return true s’il s’agit d’un changement, false sinon.
              */
             public boolean isTransfer() {
                 return depStop.name().equals(arrStop.name());
             }
         }
     }
-
-    /**
-     * @return retourne l'arrêt de départ du voyage.
-     */
-    public Stop depStop(){
-        return legs.getFirst().depStop();
-    }
-
-    /**
-     * @return retourne l'arrêt d'arrivée du voyage.
-     */
-    public Stop arrStop(){
-        return legs.getLast().arrStop();
-    }
-
-    /**
-     * @return retourne la date/heure de début du voyage.
-     */
-    public LocalDateTime depTime(){
-        return legs.getFirst().depTime();
-    }
-
-    /**
-     * @return retourne la date/heure de fin du voyage.
-     */
-    public LocalDateTime arrTime(){
-        return legs.getLast().arrTime();
-    }
-
-    /**
-     * @return retourne la durée totale du voyage.
-     */
-    public Duration duration() {
-        return Duration.between(depTime(), arrTime());
-    }
-
-
 }
