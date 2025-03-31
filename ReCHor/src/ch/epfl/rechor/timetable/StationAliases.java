@@ -17,7 +17,6 @@ public interface StationAliases extends Indexed {
      * @return le nom alternatif
      * @throws IndexOutOfBoundsException si l'index est invalide
      */
-
     String alias(int id);
 
     /**
