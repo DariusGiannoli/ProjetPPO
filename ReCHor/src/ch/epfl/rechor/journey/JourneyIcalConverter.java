@@ -10,6 +10,7 @@ import java.util.UUID;
 /**
  * Classe utilitaire (non instanciable) permettant de convertir un Journey
  * en un événement au format iCalendar.
+ * Le résultat est construit en respectant la structure iCalendar demandée.
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
@@ -20,13 +21,14 @@ public final class JourneyIcalConverter {
     private JourneyIcalConverter() {}
 
     /**
-     * Convertit le journey donné en un événement iCalendar (VCALENDAR + VEVENT)
+     * Convertit le voyage donné en un événement iCalendar (VCALENDAR contenant un VEVENT).
+     *
      * @param journey le voyage à convertir
      * @return une chaîne de caractères au format iCalendar
      */
     public static String toIcalendar(Journey journey){
 
-        // Construction de la description : une étape par ligne, séparées par \n
+        // Construction de la description : une étape par ligne, séparées par un saut de ligne
         StringJoiner joiner = new StringJoiner("\\n");
         for (Journey.Leg leg : journey.legs()) {
             switch (leg) {
@@ -50,8 +52,8 @@ public final class JourneyIcalConverter {
                 .add(IcalBuilder.Name.SUMMARY,
                         journey.depStop().name() + " → " + journey.arrStop().name())
                 .add(IcalBuilder.Name.DESCRIPTION, joiner.toString())
-                .end()  // VEVENT
-                .end(); // VCALENDAR
+                .end()  // Fermeture du VEVENT
+                .end(); // Fermeture du VCALENDAR
         return builder.build();
     }
 }
