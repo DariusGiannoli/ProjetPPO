@@ -6,7 +6,14 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * Permet d'accéder à un tableau de voies ou quais représentée de manière aplatie, et implémente l'interface Platforms.
+ * Fournit un accès aux voies ou quais stockées de manière aplatie.
+ * Implémente l'interface Platforms.
+ * Chaque enregistrement comporte deux champs (U16) :
+ * <ul>
+ *   <li>Index de chaîne pour le nom</li>
+ *   <li>Index de la gare parente</li>
+ * </ul>
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
@@ -24,10 +31,10 @@ public final class BufferedPlatforms implements Platforms {
     private final StructuredBuffer structuredBuffer;
 
     /**
-     * Construit une instance donnant accès aux données aplaties disponibles dans le tableau buffer,
-     * en utilisant la table de chaînes stringTable pour déterminer la valeur des chaînes référencées par ces données.
-     * @param stringTable tableau de String référencées par les données de buffer.
-     * @param buffer tableau de données aplaties.
+     * Construit une instance d'accès aux voies/quais.
+     *
+     * @param stringTable table des chaînes de caractères
+     * @param buffer      tampon contenant les données aplaties
      */
     public BufferedPlatforms(List<String> stringTable, ByteBuffer buffer) {
         this.stringTable = stringTable;

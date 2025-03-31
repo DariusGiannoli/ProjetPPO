@@ -3,54 +3,52 @@ package ch.epfl.rechor.timetable.mapped;
 import ch.epfl.rechor.Preconditions;
 
 /**
- * Class qui sert à faciliter la description de la structure des données aplaties.
+ Facilite la description de la structure des données aplaties.
+ * Cette classe permet de définir des champs (Field) avec un type (FieldType) et de calculer
+ * rapidement les offsets des champs dans une donnée aplatie.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
 public final class Structure {
 
     /**
-     * Un type énuméré représentant les trois types de champs possibles, à savoir U8 (un octet), U16 (deux octets) et S32 (quatre octets).
+     * Types de champs supportés avec leur taille en octets.
      */
     public enum FieldType {
         U8(1),
         U16(2),
         S32(4);
 
-        /**
-         * Taille de chaques champs en nombre de bytes.
-         */
         private final int size;
 
-        /**
-         * Constructeur du type énuméré.
-         * @param size taille du champs en nombre de bytes.
-         */
+        //Constructeur
         FieldType(int size) {
             this.size = size;
         }
 
         /**
-         * @return retourne la taille du champ en nombre d'octets.
+         * Retourne la taille (en octets) du type.
+         *
+         * @return la taille en octets
          */
         private int size() {
             return size;
         }
-
     }
 
     /**
-     * Enregistrement qui représente un champ.
-     * @param index l'index du champ dans la structure.
-     * @param type le type du champ.
+     * Enregistrement représentant un champ de la structure.
+     *
+     * @param index l'indice du champ (doit être 0 pour le premier, 1 pour le second, etc.)
+     * @param type  le type du champ (non nul)
      */
-    //constructeur compact
     public record Field(int index, FieldType type) {
+
         /**
          * Constructeur compact qui lève une NullPointerException si et seulement si type est null.
          */
         public Field {
-            // Vérification pour s’assurer que type n’est pas null
             if (type == null) {
                 throw new NullPointerException("FieldType ne doit pas être null");
             }
@@ -58,9 +56,11 @@ public final class Structure {
     }
 
     /**
-     * @param index l'index du champ dans la structure.
-     * @param type le type du champ.
-     * @return retourne une instance de Field avec les attributs donnés.
+     * Méthode utilitaire pour créer un Field sans avoir à écrire le mot-clé new.
+     *
+     * @param index l'indice du champ
+     * @param type  le type du champ
+     * @return un Field avec les attributs spécifiés
      */
     public static Field field(int index, FieldType type) {
             return new Field(index, type);
@@ -68,16 +68,15 @@ public final class Structure {
 
 
     private final Field[] fields;
-    // Tableau des offsets (en octets) de chaque champ dans la structure
     private final int[] fieldOffsets;
-    // Taille totale (en octets) d'un enregistrement de cette structure
     private final int totalSize;
 
 
     /**
-     * Constructeur de Structure, retourne une structure dont les champs sont ceux donnés,
-     * ou lève une IllegalArgumentException si ces champs ne sont pas donnés dans l'ordre.
-     * @param fields est la description des différents champs de la structure.
+     * Construit une structure en vérifiant que les champs sont donnés dans l'ordre.
+     *
+     * @param fields les champs décrivant la structure
+     * @throws IllegalArgumentException si l'ordre des indices n'est pas correct
      */
     public Structure(Field... fields) {
 
@@ -85,11 +84,10 @@ public final class Structure {
             Preconditions.checkArgument(fields[i].index() == i);
         }
 
-        // On clone le tableau pour éviter les modifications extérieures
+        // Copie défensive pour préserver l'immuabilité
         this.fields = fields.clone();
 
-        // pré-calcule les offsets (positions) de chaque champ pour accélérer les accès ultérieurs.
-
+        // Calcul des offsets et de la taille totale en octets
         this.fieldOffsets = new int[fields.length];
         int currentOffset = 0;
         for (int i = 0; i < fields.length; i++) {
@@ -100,25 +98,30 @@ public final class Structure {
     }
 
     /**
-     * @return retourne la taille totale, en nombre d'octets, de la structure.
+     * Retourne la taille totale (en octets) d'un enregistrement de cette structure.
+     *
+     * @return la taille totale en octets
      */
     public int totalSize() {
         return totalSize;
     }
 
     /**
-     * @param fieldIndex index du champ.
-     * @param elementIndex index de l'élément.
-     * @return retourne l'index, dans le tableau d'octets contenant les données aplaties, du premier octet du champ d'index fieldIndex de l'élément d'index elementIndex.
+     * Calcule l'offset dans le tableau d'octets pour un champ donné d'un élément donné.
+     *
+     * @param fieldIndex   l'indice du champ
+     * @param elementIndex l'indice de l'élément
+     * @return l'offset correspondant dans le tableau d'octets
      */
-    // offset d'un champ = somme de la taille de tous les champs qui le précèdent dans l'enregistrement
     public int offset(int fieldIndex, int elementIndex) {
         // L'accès à fieldOffsets[fieldIndex] déclenchera une IndexOutOfBoundsException si fieldIndex est hors limites
         return elementIndex * totalSize + fieldOffsets[fieldIndex];
     }
 
     /**
-     * @return retourne le nombre de champs dans la Structure.
+     * Retourne le nombre de champs dans la structure.
+     *
+     * @return le nombre de champs
      */
     public int fieldCount() {
         return fields.length;

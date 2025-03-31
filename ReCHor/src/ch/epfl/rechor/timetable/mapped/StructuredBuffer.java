@@ -4,7 +4,9 @@ import java.nio.ByteBuffer;
 import ch.epfl.rechor.Preconditions;
 
 /**
- * Représente un tableau d'octets structuré.
+ * Représente un tableau d'octets structuré selon une Structure.
+ * Permet d'accéder aux champs (U8, U16, S32) stockés dans un ByteBuffer.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
@@ -15,9 +17,11 @@ public final class StructuredBuffer {
     private final int elementCount;
 
     /**
-     * Construit un tableau structuré dont les éléments ont la structure donnée, et dont les octets sont stockés dans le «tableau» buffer.
-     * @param structure est la structure des éléments du tableau.
-     * @param buffer est le tableau dans lequel on place les éléments de structure.
+     * Construit un StructuredBuffer à partir d'une structure et d'un ByteBuffer.
+     *
+     * @param structure la structure des éléments
+     * @param buffer    le tampon contenant les données aplaties
+     * @throws IllegalArgumentException si la capacité du buffer n'est pas un multiple de la taille totale de la structure
      */
     public StructuredBuffer(Structure structure, ByteBuffer buffer){
         this.structure = structure;
@@ -27,55 +31,49 @@ public final class StructuredBuffer {
     }
 
     /**
-     * @return retourne le nombre d'éléments que contient le tableau buffer.
+     * Retourne le nombre d'éléments présents dans le buffer.
+     *
+     * @return le nombre d'éléments
      */
     public int size(){
         return elementCount;
     }
 
     /**
-     * @param fieldIndex est l'index du champ.
-     * @param elementIndex l'index de l'élément dans le tableau.
-     * @return retourne l'entier U8 correspondant au champ d'index fieldIndex de l'élément d'index elementIndex du tableau.
+     * Accède à un entier non signé sur 8 bits à partir du buffer.
+     *
+     * @param fieldIndex   l'indice du champ
+     * @param elementIndex l'indice de l'élément
+     * @return la valeur U8 en entier positif
      */
     public int getU8(int fieldIndex, int elementIndex) {
-        //checkIndices(fieldIndex, elementIndex);
         int offset = structure.offset(fieldIndex, elementIndex);
         byte b = buffer.get(offset);
         return Byte.toUnsignedInt(b);
     }
 
     /**
-     * @param fieldIndex est l'index du champ.
-     * @param elementIndex l'index de l'élément dans le tableau.
-     * @return retourne l'entier U16 correspondant au champ d'index fieldIndex de l'élément d'index elementIndex du tableau.
+     * Accède à un entier non signé sur 16 bits à partir du buffer.
+     *
+     * @param fieldIndex   l'indice du champ
+     * @param elementIndex l'indice de l'élément
+     * @return la valeur U16 en entier positif
      */
     public int getU16(int fieldIndex, int elementIndex) {
-        //checkIndices(fieldIndex, elementIndex);
         int offset = structure.offset(fieldIndex, elementIndex);
         short s = buffer.getShort(offset);
         return Short.toUnsignedInt(s);
     }
 
     /**
-     * @param fieldIndex est l'index du champ.
-     * @param elementIndex l'index de l'élément dans le tableau.
-     * @return retourne l'entier S32 correspondant au champ d'index fieldIndex de l'élément d'index elementIndex du tableau.
+     * Accède à un entier signé sur 32 bits à partir du buffer.
+     *
+     * @param fieldIndex   l'indice du champ
+     * @param elementIndex l'indice de l'élément
+     * @return la valeur S32
      */
     public int getS32(int fieldIndex, int elementIndex) {
-        //checkIndices(fieldIndex, elementIndex);
         int offset = structure.offset(fieldIndex, elementIndex);
         return buffer.getInt(offset);
     }
-
-    //pour la modularisation du code : pour ne pas réecrire du code
-//    private void checkIndices(int fieldIndex, int elementIndex) {
-//        if (fieldIndex < 0 || fieldIndex >= structure.fieldCount()) {
-//            throw new IndexOutOfBoundsException("Index out fo bounds");
-//        }
-//        if (elementIndex < 0 || elementIndex >= elementCount) {
-//            throw new IndexOutOfBoundsException("Index out of bound");
-//        }
-//    }
-
 }

@@ -1,13 +1,18 @@
 package ch.epfl.rechor.timetable.mapped;
 
-
 import ch.epfl.rechor.timetable.StationAliases;
-
 import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * Class qui permet d'accéder à un tableau de noms alternatifs de gares représentées de manière aplatie, et implémente l'interface StationAliases.
+ * Fournit un accès aux noms alternatifs de gares stockées de manière aplatie.
+ * Implémente l'interface StationAliases
+ * Chaque enregistrement comporte deux champs (U16) :
+ * <ul>
+ *   <li>Alias de la gare</li>
+ *   <li>Nom de la gare d'origine</li>
+ * </ul>
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
@@ -24,12 +29,11 @@ public final class BufferedStationAliases implements StationAliases {
     private final List<String> stringTable;
     private final StructuredBuffer structuredBuffer;
 
-
     /**
-     * Construit une instance donnant accès aux données aplaties disponibles dans le tableau buffer,
-     * en utilisant la table de chaînes stringTable pour déterminer la valeur des chaînes référencées par ces données
-     * @param stringTable tableau de String référencées par les données de buffer.
-     * @param buffer tableau de données aplaties.
+     * Construit une instance d'accès aux noms alternatifs des gares.
+     *
+     * @param stringTable table des chaînes de caractères
+     * @param buffer      tampon contenant les données aplaties
      */
     public BufferedStationAliases(List<String> stringTable, ByteBuffer buffer){
         this.stringTable = stringTable;
@@ -52,5 +56,4 @@ public final class BufferedStationAliases implements StationAliases {
     public int size() {
         return structuredBuffer.size();
     }
-
 }

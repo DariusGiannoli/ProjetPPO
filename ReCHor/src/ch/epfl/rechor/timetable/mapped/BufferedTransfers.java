@@ -2,6 +2,7 @@ package ch.epfl.rechor.timetable.mapped;
 
 import ch.epfl.rechor.timetable.Transfers;
 import ch.epfl.rechor.PackedRange;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.NoSuchElementException;

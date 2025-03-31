@@ -1,20 +1,28 @@
 package ch.epfl.rechor.timetable.mapped;
 
 import ch.epfl.rechor.timetable.Stations;
-
 import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * Permet d'accéder à un tableau de gares représentées de manière aplatie, et implémente l'interface Stations.
+ * Fournit un accès aux gares stockées de manière aplatie.
+ * Implémente l'interface Stations
+ * Chaque gare est représentée par un enregistrement composé de 3 champs :
+ * <ul>
+ *  <li>Index de chaîne pour le nom (U16)</li>
+ *  <li>Longitude (S32)</li>
+ *  <li>Latitude (S32)</li>
+ * </ul>
+ * Les longitudes et latitudes sont converties en degrés à l'aide d'un facteur défini.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
 public final class BufferedStations implements Stations {
 
     private static final int NAME_ID = 0;
-    private static final int LON      = 1;
-    private static final int LAT      = 2;
+    private static final int LON = 1;
+    private static final int LAT = 2;
 
     private static final Structure STATION_STRUCTURE = new Structure(
             Structure.field(NAME_ID, Structure.FieldType.U16),
@@ -28,10 +36,10 @@ public final class BufferedStations implements Stations {
     private final StructuredBuffer structuredBuffer;
 
     /**
-     * Construit une instance donnant accès aux données aplaties disponibles dans le tableau buffer,
-     * en utilisant la table de chaînes stringTable pour déterminer la valeur des chaînes référencées par ces données
-     * @param stringTable tableau de String référencées par les données de buffer.
-     * @param buffer tableau de données aplaties auxquelles on veut avoir accès.
+     * Construit une instance d'accès aux gares aplaties.
+     *
+     * @param stringTable table des chaînes de caractères
+     * @param buffer      tampon contenant les données aplaties des gares
      */
     public BufferedStations(List<String> stringTable, ByteBuffer buffer){
         this.stringTable = stringTable;
@@ -60,6 +68,4 @@ public final class BufferedStations implements Stations {
     public int size() {
         return structuredBuffer.size();
     }
-
-
 }
