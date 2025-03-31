@@ -20,5 +20,4 @@ public enum Vehicle {
      * Liste de tous les véhicules.
      */
     public static final List<Vehicle> ALL = List.of(Vehicle.values());
-
 }

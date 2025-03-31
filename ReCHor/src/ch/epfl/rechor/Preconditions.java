@@ -1,29 +1,26 @@
 package ch.epfl.rechor;
 
-
-import java.util.NoSuchElementException;
-
 /**
- * Class pour verifier une condition.
+ * Classe utilitaire pour vérifier les préconditions des méthodes.
+ * Cette classe est non instanciable et ne sert qu’à contenir des méthodes statiques.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
 public final class Preconditions {
-    /**
-     * Constructeur de Preconditions, en privé pour qu'on ne puisse pas créer d'instance de
-     * cette classe.
-     */
-    private Preconditions() {
-    }
+
+    //Constructeur privé pour empêcher l'instanciation.
+    private Preconditions() {}
 
     /**
-     * @param shouldBeTrue la condition qui doit être respectée.
-     * @throws IllegalArgumentException lancée si la condition donnée en argument est fausse.
+     * Vérifie que la condition donnée est vraie.
+     *
+     * @param shouldBeTrue la condition à vérifier
+     * @throws IllegalArgumentException si la condition est fausse
      */
     public static void checkArgument(boolean shouldBeTrue){
         if(!shouldBeTrue) {
             throw new IllegalArgumentException();
         }
     }
-
 }
