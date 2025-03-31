@@ -58,6 +58,7 @@ public final class PackedCriteria {
 
         // Translation de l'heure d'arrivée pour obtenir une valeur positive
         int storedArr = arrMins + MINUTES_OFFSET;
+
         long arrField = ((long) storedArr) << SHIFT_ARR;
         long changesField = ((long) changes) << SHIFT_CHANGES;
         long payloadField = Integer.toUnsignedLong(payload);
