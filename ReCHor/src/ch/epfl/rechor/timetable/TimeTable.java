@@ -3,12 +3,12 @@ package ch.epfl.rechor.timetable;
 import java.time.LocalDate;
 
 /**
+ * L'interface TimeTable représente un horaire de transport public.
+ * Elle regroupe l'ensemble des composants indexés et offre des méthodes
+ * pour accéder aux données actives pour une date donnée.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
- *
- * L'interface TimeTable représente un horaire de transport public.
- * Elle regroupe l'ensemble des composants indexés de l'horaire et offre des méthodes
- * pour accéder aux données actives pour une date donnée.
  */
 public interface TimeTable{
 
@@ -51,67 +51,56 @@ public interface TimeTable{
      * Retourne les courses indexées de l'horaire actives le jour donné.
      *
      * @param date la date du voyage
-     * @return les courses actives à la date indiquée
+     * @return les courses actives
      */
     Trips tripsFor(LocalDate date);
 
     /**
-     * Retourne les liaisons indexées de l'horaire actives le jour donné.
+     * Retourne les liaisons actives pour la date donnée.
      *
      * @param date la date du voyage
-     * @return les liaisons actives à la date indiquée
+     * @return les liaisons actives
      */
     Connections connectionsFor(LocalDate date);
 
     /**
-     * Retourne vrai si et seulement si l'index d'arrêt donné correspond à une gare.
-     * Cela est déterminé en comparant l'index avec la taille des stations.
+     * Vérifie si l'index d'arrêt correspond à une gare.
      *
      * @param stopId l'index d'arrêt
-     * @return vrai si stopId est un index de gare
+     * @return true si c'est une gare, false sinon
      */
     default boolean isStationId(int stopId) {
         return stopId < stations().size();
     }
 
     /**
-     * Retourne vrai si et seulement si l'index d'arrêt donné correspond à une voie ou un quai.
-     * En effet, si l'index est supérieur ou égal au nombre de gares, il désigne une voie/quai.
+     * Vérifie si l'index d'arrêt correspond à une voie ou un quai.
      *
      * @param stopId l'index d'arrêt
-     * @return vrai si stopId est un index de voie ou quai
+     * @return true si c'est une voie/quai, false sinon
      */
     default boolean isPlatformId(int stopId) {
         return stopId >= stations().size();
     }
 
     /**
-     * Retourne l'index de la gare correspondant à l'index d'arrêt donné.
-     * Si l'arrêt correspond déjà à une gare, il est renvoyé tel quel.
-     * Sinon, il faut soustraire le nombre total de gares.
+     * Retourne l'index de la gare correspondant à l'index d'arrêt.
      *
      * @param stopId l'index d'arrêt
-     * @return l'index de la gare correspondante
+     * @return l'index de la gare
      */
     default int stationId(int stopId) {
-
         return isStationId(stopId) ? stopId : platforms().stationId(stopId - stations().size());
-
     }
 
     /**
-     * Retourne le nom de la voie ou du quai correspondant à l'index d'arrêt donné.
-     * Si l'index correspond à une gare, la méthode retourne null.
+     * Retourne le nom de la plateforme correspondant à l'index d'arrêt.
+     * Si l'index correspond à une gare, retourne null.
      *
      * @param stopId l'index d'arrêt
-     * @return le nom de la plateforme ou null si l'arrêt est une gare
+     * @return le nom de la plateforme ou null
      */
     default String platformName(int stopId) {
         return isPlatformId(stopId) ? platforms().name(stopId - stations().size()) : null;
     }
-
-
-
-
-
 }

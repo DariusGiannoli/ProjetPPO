@@ -1,22 +1,21 @@
 package ch.epfl.rechor.timetable;
 
 /**
- * @author Antoine Lepin (390950)
- * @author Darius Giannoli (380759)
- *
- * L'interface Trips représente des courses de transport public indexées.
+ * L'interface Trips représente les courses de transport public indexées.
  * Elle étend l'interface Indexed et fournit des méthodes pour accéder aux informations
  * d'une course.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
  */
 public interface Trips extends Indexed{
 
-    // IL faut lever les IndexOutOfBounds exceptions !!!!!!
-
     /**
-     * Retourne l'index de la ligne à laquelle appartient la course d'index donné.
+     * Retourne l'index de la ligne associée à la course d'index donné.
      *
      * @param id l'index de la course
-     * @return l'index de la ligne associée
+     * @return l'index de la ligne
+     * @throws IndexOutOfBoundsException si l'index est invalide
      */
     int routeId(int id);
 
@@ -25,6 +24,7 @@ public interface Trips extends Indexed{
      *
      * @param id l'index de la course
      * @return le nom de la destination finale
+     * @throws IndexOutOfBoundsException si l'index est invalide
      */
     String destination(int id);
 }
