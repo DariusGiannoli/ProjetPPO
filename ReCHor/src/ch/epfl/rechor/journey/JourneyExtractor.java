@@ -15,21 +15,24 @@ import java.util.NoSuchElementException;
 
 /**
  * Classe utilitaire permettant d'extraire des voyages à partir d'un profil.
+ * Optimisée pour la concision et l'efficacité en réduisant les appels redondants et en
+ * pré-cachant les valeurs récurrentes.
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
 public final class JourneyExtractor {
 
+    // Constructeur privé pour empêcher l'instanciation
     private JourneyExtractor() {}
 
     /**
-     * Extrait tous les voyages optimaux permettant d'aller de la gare d'index donné
-     * à la gare d'arrivée du profil.
+     * Extrait tous les voyages optimaux permettant d'aller de la gare de départ donnée
+     * à la destination indiquée dans le profil.
      *
-     * @param profile le profil contenant les frontières de Pareto
-     * @param depStationId l'index de la gare de départ
-     * @return une liste de voyages triés par heure de départ puis d'arrivée
+     * @param profile     le profil contenant les frontières de Pareto
+     * @param depStationId l'indice de la gare de départ
+     * @return une liste de voyages triés par heure de départ puis par heure d'arrivée
      */
     public static List<Journey> journeys(Profile profile, int depStationId) {
         List<Journey> journeys = new ArrayList<>();

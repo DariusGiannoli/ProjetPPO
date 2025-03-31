@@ -9,136 +9,155 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Enregistrement qui représente un profil, qui est une table donnant, pour chaque gare du réseau, la frontière de Pareto des critères d'optimisation pour aller à une gare, un jour donné.
- * @param timeTable l'horaire auquel correspond le profil.
- * @param date la date à laquelle correspond le profil
- * @param arrStationId l'index de la gare d'arrivée à laquelle correspond le profil
- * @param stationFront la table des frontières de Pareto de toutes les gares, qui contient, à un index donné, la frontière de la gare de même index.
+ * Enregistrement qui représente un profil, c'est-à-dire une table donnant pour chaque gare du réseau
+ * la frontière de Pareto des critères d'optimisation permettant d'atteindre une gare (destination)
+ * à une date donnée.
+ *
+ * @param timeTable    l'horaire auquel correspond le profil.
+ * @param date         la date du profil.
+ * @param arrStationId l'index de la gare d'arrivée (destination).
+ * @param stationFront la table des frontières de Pareto pour les gares.
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-public record Profile(TimeTable timeTable, LocalDate date, int arrStationId, List<ParetoFront> stationFront) {
+public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
+                      List<ParetoFront> stationFront) {
 
     /**
-     * Constructeur de Profile, qui copie la table des frontières de Pareto afin de garantir l'immuabilité de la classe.
+     * Constructeur compact qui copie la table des frontières de Pareto afin de garantir l'immuabilité.
      */
     public Profile {
         stationFront = List.copyOf(stationFront);
     }
 
     /**
-     * @return retourne les liaisons correspondant au profil, qui sont celles de l'horaire, à la date à laquelle correspond le profil.
+     * Retourne les liaisons correspondant au profil.
+     *
+     * @return les connexions de l'horaire pour la date du profil.
      */
     public Connections connections() {
         return timeTable.connectionsFor(date);
     }
 
     /**
-     * @return retourne les courses correspondant au profil, qui sont celles de l'horaire, à la date à laquelle correspond le profil.
+     * Retourne les courses correspondant au profil.
+     *
+     * @return les trips de l'horaire pour la date du profil.
      */
-    public Trips trips(){
+    public Trips trips() {
         return timeTable.tripsFor(date);
     }
 
     /**
-     * @param stationId index de la gare dont on veut la frontière de Pareto.
-     * @return retourne la frontière de Pareto pour la gare d'index donné.
-     * @throws IndexOutOfBoundsException est lancée si cet index est invalide.
+     * Retourne la frontière de Pareto associée à la gare d'index donné.
+     *
+     * @param stationId l'indice de la gare
+     * @return la frontière de Pareto pour la gare
+     * @throws IndexOutOfBoundsException si l'indice est invalide (négatif ou hors bornes).
      */
     public ParetoFront forStation(int stationId) {
-        if(stationId >= stationFront.size()) {
+        if (stationId >= stationFront.size()) {
             throw new IndexOutOfBoundsException();
-        }else {
-            return stationFront.get(stationId);
         }
+        return stationFront.get(stationId);
     }
 
     /**
-     * La class Builder représente un bâtisseur de profil.
-     * Il représente un profil augmenté en cours de construction, mais finit par bâtir un profil simple.
+     * La classe Builder permet de construire un profil augmenté.
+     * Un profil augmenté contient, outre les frontières pour les gares, celles pour les courses.
      *
      * @author Antoine Lepin (390950)
      * @author Darius Giannoli (380759)
      */
     public static final class Builder {
 
-        private TimeTable timeTable;
-        private LocalDate date;
-        private int arrStationId;
-        private ParetoFront.Builder[] stationsParetoFront;
-        private ParetoFront.Builder[] tripsParetoFront;
+        private final TimeTable timeTable;
+        private final LocalDate date;
+        private final int arrStationId;
+        private final ParetoFront.Builder[] stationsParetoFront;
+        private final ParetoFront.Builder[] tripsParetoFront;
 
         /**
          * Construit un bâtisseur de profil pour l'horaire, la date et la gare de destination donnés.
-         * @param timeTable est l'horaire auquel correspond le profil que l'on construit.
-         * @param date est la date à laquelle correspond le profil que l'on construit.
-         * @param arrStationId est l'index de la gare d'arrivée à laquelle correspond le profil que l'on construit.
+         *
+         * @param timeTable    l'horaire associé.
+         * @param date         la date du profil.
+         * @param arrStationId l'indice de la gare d'arrivée (destination).
          */
         public Builder(TimeTable timeTable, LocalDate date, int arrStationId) {
             this.arrStationId = arrStationId;
             this.date = date;
             this.timeTable = timeTable;
-
-            stationsParetoFront = new ParetoFront.Builder[timeTable.stations().size()];
-            tripsParetoFront = new ParetoFront.Builder[timeTable.tripsFor(date).size()];
+            this.stationsParetoFront = new ParetoFront.Builder[timeTable.stations().size()];
+            this.tripsParetoFront = new ParetoFront.Builder[timeTable.tripsFor(date).size()];
         }
 
         /**
-         * @param stationId est l'index de la gare dont on veut le bâtisseur de la frontière de Pareto.
-         * @return retourne le bâtisseur de la frontière de Pareto pour la gare d'index donné, qui est null si aucun appel à setForStation n'a été fait précédemment pour cette gare.
-         * @throws IndexOutOfBoundsException est levée si l'index donné est invalide.
+         * Retourne le bâtisseur de frontière de Pareto pour la gare d'index donné.
+         *
+         * @param stationId l'indice de la gare
+         * @return le bâtisseur de la frontière ou null si non défini
+         * @throws IndexOutOfBoundsException si l'indice est invalide.
          */
-        public ParetoFront.Builder forStation(int stationId){
-            if(stationId >= stationsParetoFront.length){
+        public ParetoFront.Builder forStation(int stationId) {
+            if (stationId >= stationsParetoFront.length) {
                 throw new IndexOutOfBoundsException();
-            } else {
-                return stationsParetoFront[stationId];
             }
+            return stationsParetoFront[stationId];
         }
 
         /**
-         * @param tripId est l'index de la course dont on veut le bâtisseur de la frontière de Pareto.
-         * @return retourne le bâtisseur de la frontière de Pareto pour la course d'index donné, qui est null si aucun appel à setForStation n'a été fait précédemment pour cette gare.
-         * @throws IndexOutOfBoundsException est levée si l'index donné est invalide.
+         * Retourne le bâtisseur de frontière de Pareto pour la course d'index donné.
+         *
+         * @param tripId l'indice de la course
+         * @return le bâtisseur ou null si non défini
+         * @throws IndexOutOfBoundsException si l'indice est invalide.
          */
         public ParetoFront.Builder forTrip(int tripId) {
-            if(tripId >= tripsParetoFront.length){
+            if (tripId >= tripsParetoFront.length) {
                 throw new IndexOutOfBoundsException();
-            } else {
-                return tripsParetoFront[tripId];
             }
+            return tripsParetoFront[tripId];
         }
 
         /**
-         * Associe le bâtisseur de frontière de Pareto donné à la gare d'index donné.
-         * @param stationId index de la gare que l'on veut associer.
-         * @param builder index du bâtisseur de frontière de Pareto que l'on veut associer.
+         * Associe le bâtisseur de frontière à la gare d'index donné.
+         *
+         * @param stationId l'indice de la gare
+         * @param builder   le bâtisseur à associer
          */
-        public void setForStation(int stationId, ParetoFront.Builder builder){
+        public void setForStation(int stationId, ParetoFront.Builder builder) {
             stationsParetoFront[stationId] = builder;
         }
 
         /**
-         * Associe le bâtisseur de frontière de Pareto donné à la course d'index donné.
-         * @param tripId index de la course que l'on veut associer.
-         * @param builder index du bâtisseur de frontière de Pareto que l'on veut associer.
+         * Associe le bâtisseur de frontière à la course d'index donné.
+         *
+         * @param tripId  l'indice de la course
+         * @param builder le bâtisseur à associer
          */
-        public void setForTrip(int tripId, ParetoFront.Builder builder){
+        public void setForTrip(int tripId, ParetoFront.Builder builder) {
             tripsParetoFront[tripId] = builder;
         }
 
         /**
-         * @return retourne le profil simple, sans les frontières de Pareto correspondant aux courses, en cours de construction. Lorsque la methode rencontre un bâtisseur de gare null, met un ParetoFront.EMPTY dans le profil.
+         * Construit le profil final en copiant la frontière pour chaque gare.
+         * Si un bâtisseur n'a pas été défini, la constante ParetoFront.EMPTY est utilisée.
+         *
+         * @return le profil construit.
          */
-        public Profile build(){
+        public Profile build() {
             List<ParetoFront> stationFront = new ArrayList<>();
-            for (int i = 0; i < stationsParetoFront.length; i++) {
-                if(stationsParetoFront[i] == null) {
-                    stationFront.add(ParetoFront.EMPTY);
-                } else{
-                stationFront.add(stationsParetoFront[i].build());
-                }
+//            for (int i = 0; i < stationsParetoFront.length; i++) {
+//                if (stationsParetoFront[i] == null) {
+//                    stationFront.add(ParetoFront.EMPTY);
+//                } else {
+//                    stationFront.add(stationsParetoFront[i].build());
+//                }
+//            }
+            for (ParetoFront.Builder builder : stationsParetoFront) {
+                stationFront.add(builder == null ? ParetoFront.EMPTY : builder.build());
             }
             return new Profile(timeTable, date, arrStationId, stationFront);
         }
