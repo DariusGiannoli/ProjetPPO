@@ -96,9 +96,7 @@ public interface TimeTable{
     default int stationId(int stopId) {
 
         return isStationId(stopId) ? stopId : platforms().stationId(stopId - stations().size());
-        //Voir laquelle des deux lignes fonctionne.
 
-        //return isStationId(stopId) ? stopId : platforms().stationId(stopId);
     }
 
     /**
@@ -110,7 +108,6 @@ public interface TimeTable{
      */
     default String platformName(int stopId) {
         return isPlatformId(stopId) ? platforms().name(stopId - stations().size()) : null;
-        //return isPlatformId(stopId) ? platforms().name(stopId) : null;
     }
 
 

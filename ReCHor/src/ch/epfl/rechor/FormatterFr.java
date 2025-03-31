@@ -50,7 +50,7 @@ public final class FormatterFr {
         String hourPart = dateTime.getHour() + "h" + String.format("%02d", dateTime.getMinute());
 
 
-        return /* dateFormatter.format(dateTime) + " " + */ hourPart;
+        return hourPart;
     }
 
     /**

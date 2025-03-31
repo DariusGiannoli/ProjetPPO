@@ -1,5 +1,7 @@
 package ch.epfl.rechor.timetable;
 
+import java.util.NoSuchElementException;
+
 /**
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
