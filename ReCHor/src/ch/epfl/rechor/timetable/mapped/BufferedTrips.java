@@ -5,19 +5,20 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * Implémente l'interface Trips et permet d'accéder à une table de courses représentée de manière aplatie
+ * Implémente l'interface {@code Trips} et permet d'accéder à une table de courses représentée de manière aplatie.
+ * <p>
+ * Utilise un buffer structuré pour lire les données des courses.
+ * </p>
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-
-
 public final class BufferedTrips implements Trips {
 
-    // Définition des indices des champs dans la structure de course.
     private static final int ROUTE_ID = 0;       // Champ U16 : index de la ligne (route)
     private static final int DESTINATION_ID = 1;   // Champ U16 : index du nom de la destination finale
 
-    // Définition de la structure d'un enregistrement de course
+    // Structure d'un enregistrement de course
     private static final Structure TRIP_STRUCTURE = new Structure(
             Structure.field(ROUTE_ID, Structure.FieldType.U16),
             Structure.field(DESTINATION_ID, Structure.FieldType.U16)
@@ -27,9 +28,10 @@ public final class BufferedTrips implements Trips {
     private final StructuredBuffer structuredBuffer;
 
     /**
-     * Construit une instance de BufferedTrips.
+     * Construit une instance de {@code BufferedTrips}.
+     *
      * @param stringTable la table de chaînes utilisée pour décoder les noms (destinations)
-     * @param buffer le ByteBuffer contenant les données aplaties des courses.
+     * @param buffer      le {@code ByteBuffer} contenant les données aplaties des courses.
      */
     public BufferedTrips(List<String> stringTable, ByteBuffer buffer) {
         this.stringTable = stringTable;
@@ -38,6 +40,7 @@ public final class BufferedTrips implements Trips {
 
     /**
      * Retourne l'index de la ligne (route) associée à la course d'index donné.
+     *
      * @param id l'index de la course
      * @return l'index de la ligne associée
      */
@@ -48,6 +51,7 @@ public final class BufferedTrips implements Trips {
 
     /**
      * Retourne le nom de la destination finale de la course d'index donné.
+     *
      * @param id l'index de la course
      * @return le nom de la destination finale
      */
@@ -59,6 +63,7 @@ public final class BufferedTrips implements Trips {
 
     /**
      * Retourne le nombre total de courses présentes dans le buffer.
+     *
      * @return le nombre d'enregistrements (courses)
      */
     @Override

@@ -2,11 +2,14 @@ package ch.epfl.rechor.timetable.mapped;
 
 import ch.epfl.rechor.timetable.Routes;
 import ch.epfl.rechor.journey.Vehicle;
+
 import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- * Permet d'accéder à une table de lignes représentée de manière aplatie et implémente l'interface Routes.
+ Permet d'accéder à une table de lignes représentée de manière aplatie et implémente l'interface Routes.
+ * Cette classe utilise un buffer structuré pour accéder aux données des lignes.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
@@ -26,9 +29,10 @@ public final  class BufferedRoutes implements Routes {
     private final StructuredBuffer structuredBuffer;
 
     /**
-     * Construit une instance de BufferedRoutes.
+     * Construit une instance de {@code BufferedRoutes}.
+     *
      * @param stringTable la table de chaînes utilisée pour décoder le nom des lignes.
-     * @param buffer le ByteBuffer contenant les données aplaties des lignes.
+     * @param buffer      le {@code ByteBuffer} contenant les données aplaties des lignes.
      */
     public BufferedRoutes(List<String> stringTable, ByteBuffer buffer) {
         this.stringTable = stringTable;
@@ -37,18 +41,19 @@ public final  class BufferedRoutes implements Routes {
 
     /**
      * Retourne le type de véhicule desservant la ligne d'index donné.
+     *
      * @param id l'index de la ligne
-     * @return le type de véhicule, obtenu via l'énumération Vehicle
+     * @return le type de véhicule correspondant
      */
     @Override
     public Vehicle vehicle(int id) {
         int vehicleCode = structuredBuffer.getU8(KIND, id);
-        // On récupère le véhicule correspondant en se basant sur l'index (vehicleCode)
         return Vehicle.ALL.get(vehicleCode);
     }
 
     /**
      * Retourne le nom de la ligne d'index donné.
+     *
      * @param id l'index de la ligne
      * @return le nom de la ligne
      */
@@ -60,6 +65,7 @@ public final  class BufferedRoutes implements Routes {
 
     /**
      * Retourne le nombre total de lignes présentes dans le buffer.
+     *
      * @return le nombre d'enregistrements (lignes)
      */
     @Override
