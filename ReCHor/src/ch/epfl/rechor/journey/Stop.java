@@ -17,6 +17,12 @@ import java.util.Objects;
  */
 public record Stop(String name, String platformName, double longitude, double latitude) {
 
+    // Constantes géographiques
+    private static final double MAX_LON = 180.0;
+    private static final double MIN_LON = -180.0;
+    private static final double MAX_LAT = 90.0;
+    private static final double MIN_LAT = -90.0;
+
     /**
      * Constructeur compact de Stop.
      * Vérifie que le nom n’est pas nul et que les coordonnées sont comprises dans les limites autorisées.
@@ -30,6 +36,6 @@ public record Stop(String name, String platformName, double longitude, double la
      */
     public Stop {
         Objects.requireNonNull(name);
-        Preconditions.checkArgument(longitude >= -180 && longitude <= 180 && latitude <= 90 && latitude >= -90);
+        Preconditions.checkArgument(longitude >= MIN_LON && longitude <= MAX_LON && latitude <= MAX_LAT && latitude >= MIN_LAT);
     }
 }

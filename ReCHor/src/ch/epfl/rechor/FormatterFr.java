@@ -5,6 +5,11 @@ import ch.epfl.rechor.journey.Stop;
 import ch.epfl.rechor.journey.Journey.Leg.Foot;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.util.Objects;
+
 
 /**
  * Classe utilitaire finale pour formatter les informations relatives aux trajets.
