@@ -40,9 +40,7 @@ public final class FormatterFr {
     // Format des minutes avec deux chiffres
     private static final String MINUTE_FORMAT = "%02d";
 
-    /**
-     * Constructeur privé pour empêcher l'instanciation de cette classe utilitaire.
-     */
+    /** Constructeur privé pour empêcher l'instanciation de cette classe utilitaire.*/
     private FormatterFr() {}
 
     /**
@@ -133,16 +131,24 @@ public final class FormatterFr {
 
         StringBuilder sb = new StringBuilder(SB_CAPACITY_LARGE);
 
-        sb.append(depTime).append(SPACE).append(depStopName);
+        sb.append(depTime)
+                .append(SPACE)
+                .append(depStopName);
 
         if (!depPlatform.isEmpty()) {
-            sb.append(LEFT_PARENTHESIS).append(depPlatform).append(RIGHT_PARENTHESIS);
+            sb.append(LEFT_PARENTHESIS)
+                    .append(depPlatform)
+                    .append(RIGHT_PARENTHESIS);
         }
 
-        sb.append(ARROW).append(arrStopName).append(ARRIVAL_PREFIX).append(arrTime);
+        sb.append(ARROW)
+                .append(arrStopName)
+                .append(ARRIVAL_PREFIX)
+                .append(arrTime);
 
         if (!arrPlatform.isEmpty()) {
-            sb.append(SPACE).append(arrPlatform);
+            sb.append(SPACE)
+                    .append(arrPlatform);
         }
 
         return sb.append(RIGHT_PARENTHESIS).toString();
