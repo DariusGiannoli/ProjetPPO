@@ -23,7 +23,7 @@ import java.util.NoSuchElementException;
  */
 public final class JourneyExtractor {
 
-    // Constructeur privé pour empêcher l'instanciation
+    /**Constructeur privé pour empêcher l'instanciation*/
     private JourneyExtractor() {}
 
     /**
