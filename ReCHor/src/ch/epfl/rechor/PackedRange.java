@@ -12,7 +12,7 @@ package ch.epfl.rechor;
 
 public final class PackedRange {
 
-    //Constructeur privé pour empêcher l’instanciation.
+    /**Constructeur privé pour empêcher l’instanciation.*/
     private PackedRange() {}
 
     /**
