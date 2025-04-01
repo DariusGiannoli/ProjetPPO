@@ -41,17 +41,31 @@ public final class BufferedPlatforms implements Platforms {
         this.structuredBuffer = new StructuredBuffer(PLATFORM_STRUCTURE, buffer);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param id l'index de la voie ou du quai
+     * @return
+     */
     @Override
     public String name(int id) {
         int nameIndex = structuredBuffer.getU16(NAME_ID, id);
         return stringTable.get(nameIndex);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param id l'index de la voie ou du quai
+     * @return
+     */
     @Override
     public int stationId(int id) {
         return structuredBuffer.getU16(STATION_ID, id);
     }
 
+    /**
+     * {@inheritDoc}
+     * @return
+     */
     @Override
     public int size() {
         return structuredBuffer.size();

@@ -46,24 +46,47 @@ public final class BufferedStations implements Stations {
         this.structuredBuffer = new StructuredBuffer(STATION_STRUCTURE, buffer);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param id l'index de la gare
+     * @return
+     */
     @Override
     public String name(int id) {
         int nameIndex = structuredBuffer.getU16(NAME_ID, id);
         return stringTable.get(nameIndex);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param id l'index de la gare
+     * @return
+     */
     @Override
     public double longitude(int id) {
         int rawLongitude = structuredBuffer.getS32(LON, id);
         return rawLongitude * UNIT_TO_DEGREES;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param id l'index de la gare
+     * @return
+     */
     @Override
     public double latitude(int id) {
         int rawLatitude = structuredBuffer.getS32(LAT, id);
         return rawLatitude * UNIT_TO_DEGREES;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
     @Override
     public int size() {
         return structuredBuffer.size();

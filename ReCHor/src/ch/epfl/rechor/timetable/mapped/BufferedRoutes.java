@@ -40,7 +40,7 @@ public final  class BufferedRoutes implements Routes {
     }
 
     /**
-     * Retourne le type de véhicule desservant la ligne d'index donné.
+     * {@inheritDoc}
      *
      * @param id l'index de la ligne
      * @return le type de véhicule correspondant
@@ -52,7 +52,7 @@ public final  class BufferedRoutes implements Routes {
     }
 
     /**
-     * Retourne le nom de la ligne d'index donné.
+     * {@inheritDoc}
      *
      * @param id l'index de la ligne
      * @return le nom de la ligne
@@ -64,7 +64,7 @@ public final  class BufferedRoutes implements Routes {
     }
 
     /**
-     * Retourne le nombre total de lignes présentes dans le buffer.
+     *{@inheritDoc}
      *
      * @return le nombre d'enregistrements (lignes)
      */

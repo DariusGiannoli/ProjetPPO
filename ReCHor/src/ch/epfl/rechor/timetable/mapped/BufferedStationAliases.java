@@ -40,18 +40,35 @@ public final class BufferedStationAliases implements StationAliases {
         this.structuredBuffer = new StructuredBuffer(ALIAS_STRUCTURE, buffer);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param id l'index de l'alias
+     * @return
+     */
     @Override
     public String alias(int id) {
         int aliasIndex = structuredBuffer.getU16(ALIAS_ID, id);
         return stringTable.get(aliasIndex);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param id l'index de l'alias
+     * @return
+     */
     @Override
     public String stationName(int id) {
         int stationNameIndex = structuredBuffer.getU16(STATION_NAME_ID, id);
         return stringTable.get(stationNameIndex);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
     @Override
     public int size() {
         return structuredBuffer.size();

@@ -89,20 +89,29 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param date la date du voyage
+     * @return
+     */
     @Override
     public Trips tripsFor(LocalDate date) {
         try {
             Path dateDir = directory.resolve(date.toString());
             ByteBuffer tripsByteBuffer = bufferExtractor(dateDir, PATH_TRIPS);
             return new BufferedTrips(stringTable, tripsByteBuffer);
-//            ByteBuffer tripsByteBuffer = bufferExtractor(directory.resolve(date.toString()), PATH_TRIPS);
-//            BufferedTrips bufferedTrips = new BufferedTrips(stringTable, tripsByteBuffer);
-//            return bufferedTrips;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param date la date du voyage
+     * @return
+     */
     @Override
     public Connections connectionsFor(LocalDate date) {
         try {
@@ -110,11 +119,6 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
             ByteBuffer connectionsByteBuffer = bufferExtractor(dateDir, PATH_CONNECTIONS);
             ByteBuffer connectionsSuccByteBuffer = bufferExtractor(dateDir, PATH_CONNECTIONS_SUC);
             return new BufferedConnections(connectionsByteBuffer, connectionsSuccByteBuffer);
-//            Path path = Path.of(date.toString());
-//            ByteBuffer connectionsByteBuffer = bufferExtractor(directory.resolve(date.toString()), PATH_CONNECTIONS);
-//            ByteBuffer connectionsSuccByteBuffer = bufferExtractor(directory.resolve(date.toString()), PATH_CONNECTIONS_SUC);
-//            BufferedConnections bufferedConnections = new BufferedConnections(connectionsByteBuffer, connectionsSuccByteBuffer);
-//            return bufferedConnections;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

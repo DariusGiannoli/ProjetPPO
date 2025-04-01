@@ -39,7 +39,7 @@ public final class BufferedTrips implements Trips {
     }
 
     /**
-     * Retourne l'index de la ligne (route) associée à la course d'index donné.
+     * {@inheritDoc}
      *
      * @param id l'index de la course
      * @return l'index de la ligne associée
@@ -50,7 +50,7 @@ public final class BufferedTrips implements Trips {
     }
 
     /**
-     * Retourne le nom de la destination finale de la course d'index donné.
+     * {@inheritDoc}
      *
      * @param id l'index de la course
      * @return le nom de la destination finale
@@ -62,7 +62,7 @@ public final class BufferedTrips implements Trips {
     }
 
     /**
-     * Retourne le nombre total de courses présentes dans le buffer.
+     * {@inheritDoc}
      *
      * @return le nombre d'enregistrements (courses)
      */

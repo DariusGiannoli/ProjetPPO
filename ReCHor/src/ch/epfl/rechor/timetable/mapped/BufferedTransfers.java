@@ -74,24 +74,49 @@ public final class BufferedTransfers implements Transfers {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param id l'index du changement
+     * @return
+     */
     @Override
     public int depStationId(int id) {
         return structuredBuffer.getU16(DEP_STATION_ID, id);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param id l'index du changement
+     * @return
+     */
     @Override
     public int minutes(int id) {
         return structuredBuffer.getU8(TRANSFER_MINUTES, id);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param stationId l'index de la gare d'arrivée
+     * @return
+     */
     @Override
     public int arrivingAt(int stationId) {
         if (stationId < 0 || stationId >= arrivingAtTable.length) {
-            throw new IndexOutOfBoundsException("Station id out of bounds");
+            throw new IndexOutOfBoundsException();
         }
         return arrivingAtTable[stationId];
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param depStationId l'index de la gare de départ
+     * @param arrStationId l'index de la gare d'arrivée
+     * @return
+     */
     @Override
     public int minutesBetween(int depStationId, int arrStationId) {
         int interval = arrivingAt(arrStationId);
@@ -102,10 +127,14 @@ public final class BufferedTransfers implements Transfers {
                 return structuredBuffer.getU8(TRANSFER_MINUTES, i);
             }
         }
-        throw new NoSuchElementException("No transfer found between station " +
-                depStationId + " and station " + arrStationId);
+        throw new NoSuchElementException();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
     @Override
     public int size() {
         return structuredBuffer.size();

@@ -48,43 +48,82 @@ public final class BufferedConnections implements Connections {
         this.nextBuffer = succBuffer.asIntBuffer();
     }
 
+    /**
+     *{@inheritDoc}
+     * @param id l'index de la liaison
+     * @return
+     */
     @Override
     public int depStopId(int id) {
         return structuredBuffer.getU16(DEP_STOP_ID, id);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param id l'index de la liaison
+     * @return
+     */
     @Override
     public int depMins(int id) {
         return structuredBuffer.getU16(DEP_MINUTES, id);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param id l'index de la liaison
+     * @return
+     */
     @Override
     public int arrStopId(int id) {
         return structuredBuffer.getU16(ARR_STOP_ID, id);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param id l'index de la liaison
+     * @return
+     */
     @Override
     public int arrMins(int id) {
         return structuredBuffer.getU16(ARR_MINUTES, id);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param id l'index de la liaison
+     * @return
+     */
     @Override
     public int tripId(int id) {
         int tripPosPacked = structuredBuffer.getS32(TRIP_POS_ID, id);
         return Bits32_24_8.unpack24(tripPosPacked);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param id l'index de la liaison
+     * @return
+     */
     @Override
     public int tripPos(int id) {
         int tripPosPacked = structuredBuffer.getS32(TRIP_POS_ID, id);
         return Bits32_24_8.unpack8(tripPosPacked);
     }
 
+    /**
+     * {@inheritDoc}
+     * @param id l'index de la liaison
+     * @return
+     */
     @Override
     public int nextConnectionId(int id) {
         return nextBuffer.get(id);
     }
 
+    /**
+     * {@inheritDoc}
+     * @return
+     */
     @Override
     public int size() {
         return structuredBuffer.size();
