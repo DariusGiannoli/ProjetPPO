@@ -122,7 +122,7 @@ public final class JourneyExtractor {
      * @param endMins      les minutes d'arrivée finale
      * @param isLastLeg    indique s'il s'agit de la dernière étape
      * @param legs         la liste des étapes à compléter
-     * @return l'id de la prochaine connexion, ou -1 si traitement terminé
+     * @return le criteria du paretoFront de la gare d'arrivée de l'étape, ou -1 si traitement terminé
      */
     private static long processTransportLeg(Profile profile, int connectionId, int interStops,
                                            int remainingChanges, int endMins, boolean isLastLeg,
