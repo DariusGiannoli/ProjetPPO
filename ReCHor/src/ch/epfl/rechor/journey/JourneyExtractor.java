@@ -162,12 +162,11 @@ public final class JourneyExtractor {
 
     private static Stop createStop(TimeTable timeTable, int stopId) {
         if (timeTable.isStationId(stopId)) {
-            int stationId = stopId;
             return new Stop(
-                    timeTable.stations().name(stationId),
+                    timeTable.stations().name(stopId),
                     null,
-                    timeTable.stations().longitude(stationId),
-                    timeTable.stations().latitude(stationId));
+                    timeTable.stations().longitude(stopId),
+                    timeTable.stations().latitude(stopId));
         } else {
             int platformId = stopId - timeTable.stations().size();
             int stationId = timeTable.platforms().stationId(platformId);
