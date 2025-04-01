@@ -57,14 +57,9 @@ public final class FormatterFr {
         final long minutes = totalMinutes % 60;
 
         StringBuilder sb = new StringBuilder(SB_CAPACITY_SMALL);
+        sb.append(hours == 0 ? minutes : hours + HOUR_SEPARATOR + minutes);
 
-        if (hours == 0) {
-            sb.append(minutes).append(MIN_SUFFIX);
-        } else {
-            sb.append(hours).append(HOUR_SEPARATOR).append(minutes).append(MIN_SUFFIX);
-        }
-
-        return sb.toString();
+        return sb.append(MIN_SUFFIX).toString();
     }
 
     /**
