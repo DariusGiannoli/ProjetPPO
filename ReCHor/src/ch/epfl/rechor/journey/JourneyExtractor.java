@@ -115,12 +115,12 @@ public final class JourneyExtractor {
                     inter, vehicle, routeName, destination));
 
             // Préparer la prochaine étape
-            int nextStationId = timeTable.stationId(arrStopId);
+            int currentStationId = timeTable.stationId(arrStopId);
 
             // Si ce n'est pas la dernière étape
             if (i < changes) {
                 try {
-                    ParetoFront nextFront = profile.forStation(nextStationId);
+                    ParetoFront nextFront = profile.forStation(currentStationId);
                     long nextCriteria = nextFront.get(endMins, changes - i - 1);
                     int nextConnectionId = Bits32_24_8.unpack24(PackedCriteria.payload(nextCriteria));
                     int nextInterStops = Bits32_24_8.unpack8(PackedCriteria.payload(nextCriteria));
@@ -129,7 +129,7 @@ public final class JourneyExtractor {
 
                     // Ajouter une étape à pied (changement)
                     Stop nextDepStop = createStop(timeTable, nextDepStopId);
-                    LocalDateTime nextTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(nextStationId, timeTable.stationId(connections.depStopId(nextConnectionId))));
+                    LocalDateTime nextTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, timeTable.stationId(connections.depStopId(nextConnectionId))));
 
                     legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, nextDepStop, nextTime));
 
@@ -137,18 +137,18 @@ public final class JourneyExtractor {
                     interStops = nextInterStops;
                 } catch (NoSuchElementException e) {
                     // Pas de critère suivant, finir avec une étape à pied si nécessaire
-                    if (nextStationId != profile.arrStationId()) {
+                    if (currentStationId != profile.arrStationId()) {
                         Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                        LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(nextStationId, profile.arrStationId()));
+                        LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, profile.arrStationId()));
 
                         legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));
                     }
                     break;
                 }
-            } else if (nextStationId != profile.arrStationId()) {
+            } else if (currentStationId != profile.arrStationId()) {
                 // Dernière étape, mais pas à la destination
                 Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(nextStationId, profile.arrStationId()));
+                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, profile.arrStationId()));
 
                 legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));
             }
