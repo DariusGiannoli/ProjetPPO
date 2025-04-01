@@ -44,7 +44,7 @@ public final class BufferedStationAliases implements StationAliases {
      * {@inheritDoc}
      *
      * @param id l'index de l'alias
-     * @return
+     * @return  le nom alternatif de la gare
      */
     @Override
     public String alias(int id) {
@@ -56,7 +56,7 @@ public final class BufferedStationAliases implements StationAliases {
      * {@inheritDoc}
      *
      * @param id l'index de l'alias
-     * @return
+     * @return  le nom de la gare d'origine
      */
     @Override
     public String stationName(int id) {
@@ -67,7 +67,7 @@ public final class BufferedStationAliases implements StationAliases {
     /**
      * {@inheritDoc}
      *
-     * @return
+     * @return  le nombre d'enregistrements
      */
     @Override
     public int size() {

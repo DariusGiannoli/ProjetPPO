@@ -1,7 +1,5 @@
 package ch.epfl.rechor.journey;
 
-import ch.epfl.rechor.Preconditions;
-import ch.epfl.rechor.journey.PackedCriteria;
 
 import java.util.Arrays;
 import java.util.NoSuchElementException;

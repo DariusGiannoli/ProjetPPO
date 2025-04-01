@@ -78,7 +78,7 @@ public final class BufferedTransfers implements Transfers {
      * {@inheritDoc}
      *
      * @param id l'index du changement
-     * @return
+     * @return  l'index de la gare de départ pour ce changement
      */
     @Override
     public int depStationId(int id) {
@@ -89,7 +89,7 @@ public final class BufferedTransfers implements Transfers {
      * {@inheritDoc}
      *
      * @param id l'index du changement
-     * @return
+     * @return  la durée du changement en minutes
      */
     @Override
     public int minutes(int id) {
@@ -100,7 +100,8 @@ public final class BufferedTransfers implements Transfers {
      * {@inheritDoc}
      *
      * @param stationId l'index de la gare d'arrivée
-     * @return
+     * @return  l'intervalle empaqueté des index des changements pour cette gare
+     * @throws IndexOutOfBoundsException si l'index de la gare n'est pas valide
      */
     @Override
     public int arrivingAt(int stationId) {
@@ -115,7 +116,8 @@ public final class BufferedTransfers implements Transfers {
      *
      * @param depStationId l'index de la gare de départ
      * @param arrStationId l'index de la gare d'arrivée
-     * @return
+     * @return la durée du changement en minutes
+     * @throws NoSuchElementException si aucun changement correspondant n'est trouvé
      */
     @Override
     public int minutesBetween(int depStationId, int arrStationId) {
@@ -133,7 +135,7 @@ public final class BufferedTransfers implements Transfers {
     /**
      * {@inheritDoc}
      *
-     * @return
+     * @return  le nombre total de changements contenus dans le buffer
      */
     @Override
     public int size() {

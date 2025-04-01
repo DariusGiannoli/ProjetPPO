@@ -24,7 +24,9 @@ import java.util.List;
 public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
                       List<ParetoFront> stationFront) {
 
-    /**Constructeur compact qui copie la table des frontières de Pareto afin de garantir l'immuabilité.*/
+    /**
+     * Constructeur compact qui copie la table des frontières de Pareto afin de garantir l'immuabilité.
+     */
     public Profile {
         stationFront = List.copyOf(stationFront);
     }
@@ -55,7 +57,7 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
      * @throws IndexOutOfBoundsException si l'indice est invalide (négatif ou hors bornes).
      */
     public ParetoFront forStation(int stationId) {
-        if (stationId >= stationFront.size()) {
+        if (stationId < 0 || stationId >= stationFront.size()) {
             throw new IndexOutOfBoundsException();
         }
         return stationFront.get(stationId);
@@ -69,10 +71,12 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
      * @author Darius Giannoli (380759)
      */
     public static final class Builder {
-
+        // Attributs d'état du builder
         private final TimeTable timeTable;
         private final LocalDate date;
         private final int arrStationId;
+
+        // Tableaux de bâtisseurs de frontières
         private final ParetoFront.Builder[] stationsParetoFront;
         private final ParetoFront.Builder[] tripsParetoFront;
 
@@ -84,9 +88,11 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
          * @param arrStationId l'indice de la gare d'arrivée (destination).
          */
         public Builder(TimeTable timeTable, LocalDate date, int arrStationId) {
-            this.arrStationId = arrStationId;
-            this.date = date;
             this.timeTable = timeTable;
+            this.date = date;
+            this.arrStationId = arrStationId;
+
+            // Initialisation des tableaux de builders (vides initialement)
             this.stationsParetoFront = new ParetoFront.Builder[timeTable.stations().size()];
             this.tripsParetoFront = new ParetoFront.Builder[timeTable.tripsFor(date).size()];
         }
@@ -99,9 +105,7 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
          * @throws IndexOutOfBoundsException si l'indice est invalide.
          */
         public ParetoFront.Builder forStation(int stationId) {
-            if (stationId >= stationsParetoFront.length) {
-                throw new IndexOutOfBoundsException();
-            }
+            validateStationId(stationId);
             return stationsParetoFront[stationId];
         }
 
@@ -113,9 +117,7 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
          * @throws IndexOutOfBoundsException si l'indice est invalide.
          */
         public ParetoFront.Builder forTrip(int tripId) {
-            if (tripId >= tripsParetoFront.length) {
-                throw new IndexOutOfBoundsException();
-            }
+            validateTripId(tripId);
             return tripsParetoFront[tripId];
         }
 
@@ -124,8 +126,10 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
          *
          * @param stationId l'indice de la gare
          * @param builder   le bâtisseur à associer
+         * @throws IndexOutOfBoundsException si l'indice est invalide.
          */
         public void setForStation(int stationId, ParetoFront.Builder builder) {
+            validateStationId(stationId);
             stationsParetoFront[stationId] = builder;
         }
 
@@ -134,8 +138,10 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
          *
          * @param tripId  l'indice de la course
          * @param builder le bâtisseur à associer
+         * @throws IndexOutOfBoundsException si l'indice est invalide.
          */
         public void setForTrip(int tripId, ParetoFront.Builder builder) {
+            validateTripId(tripId);
             tripsParetoFront[tripId] = builder;
         }
 
@@ -146,11 +152,38 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
          * @return le profil construit.
          */
         public Profile build() {
-            List<ParetoFront> stationFront = new ArrayList<>();
+            List<ParetoFront> stationFront = new ArrayList<>(stationsParetoFront.length);
+
+            // Conversion des builders en ParetoFront
             for (ParetoFront.Builder builder : stationsParetoFront) {
                 stationFront.add(builder == null ? ParetoFront.EMPTY : builder.build());
             }
+
             return new Profile(timeTable, date, arrStationId, stationFront);
+        }
+
+        /**
+         * Valide l'identifiant de station.
+         *
+         * @param stationId l'identifiant à valider
+         * @throws IndexOutOfBoundsException si l'identifiant est invalide
+         */
+        private void validateStationId(int stationId) {
+            if (stationId < 0 || stationId >= stationsParetoFront.length) {
+                throw new IndexOutOfBoundsException();
+            }
+        }
+
+        /**
+         * Valide l'identifiant de course.
+         *
+         * @param tripId l'identifiant à valider
+         * @throws IndexOutOfBoundsException si l'identifiant est invalide
+         */
+        private void validateTripId(int tripId) {
+            if (tripId < 0 || tripId >= tripsParetoFront.length) {
+                throw new IndexOutOfBoundsException();
+            }
         }
     }
 }

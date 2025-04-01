@@ -93,7 +93,8 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
      * {@inheritDoc}
      *
      * @param date la date du voyage
-     * @return
+     * @return une instance de {@code Trips} correspondant aux courses de la date
+     * @throws UncheckedIOException si une erreur d'entrée/sortie survient lors du chargement
      */
     @Override
     public Trips tripsFor(LocalDate date) {
@@ -110,7 +111,8 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
      * {@inheritDoc}
      *
      * @param date la date du voyage
-     * @return
+     * @return une instance de {@code Connections} correspondant aux liaisons de la date
+     * @throws UncheckedIOException si une erreur d'entrée/sortie survient lors du chargement
      */
     @Override
     public Connections connectionsFor(LocalDate date) {

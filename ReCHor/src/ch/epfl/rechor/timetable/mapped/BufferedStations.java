@@ -50,7 +50,7 @@ public final class BufferedStations implements Stations {
      * {@inheritDoc}
      *
      * @param id l'index de la gare
-     * @return
+     * @return  le nom de la gare
      */
     @Override
     public String name(int id) {
@@ -62,7 +62,7 @@ public final class BufferedStations implements Stations {
      * {@inheritDoc}
      *
      * @param id l'index de la gare
-     * @return
+     * @return  la longitude de la gare en degrés
      */
     @Override
     public double longitude(int id) {
@@ -74,7 +74,7 @@ public final class BufferedStations implements Stations {
      * {@inheritDoc}
      *
      * @param id l'index de la gare
-     * @return
+     * @return  la latitude de la gare en degrés
      */
     @Override
     public double latitude(int id) {
@@ -85,7 +85,7 @@ public final class BufferedStations implements Stations {
     /**
      * {@inheritDoc}
      *
-     * @return
+     * @return  le nombre de gares
      */
     @Override
     public int size() {

@@ -50,8 +50,9 @@ public final class BufferedConnections implements Connections {
 
     /**
      *{@inheritDoc}
+     *
      * @param id l'index de la liaison
-     * @return
+     * @return  l'index de l'arrêt de départ
      */
     @Override
     public int depStopId(int id) {
@@ -60,8 +61,9 @@ public final class BufferedConnections implements Connections {
 
     /**
      * {@inheritDoc}
+     *
      * @param id l'index de la liaison
-     * @return
+     * @return  l'heure de départ en minutes après minuit
      */
     @Override
     public int depMins(int id) {
@@ -70,8 +72,9 @@ public final class BufferedConnections implements Connections {
 
     /**
      * {@inheritDoc}
+     *
      * @param id l'index de la liaison
-     * @return
+     * @return  l'index de l'arrêt d'arrivée
      */
     @Override
     public int arrStopId(int id) {
@@ -80,8 +83,9 @@ public final class BufferedConnections implements Connections {
 
     /**
      * {@inheritDoc}
+     *
      * @param id l'index de la liaison
-     * @return
+     * @return  l'heure d'arrivée en minutes après minuit
      */
     @Override
     public int arrMins(int id) {
@@ -90,8 +94,9 @@ public final class BufferedConnections implements Connections {
 
     /**
      * {@inheritDoc}
+     *
      * @param id l'index de la liaison
-     * @return
+     * @return  l'index de la course (trip)
      */
     @Override
     public int tripId(int id) {
@@ -101,8 +106,9 @@ public final class BufferedConnections implements Connections {
 
     /**
      * {@inheritDoc}
+     *
      * @param id l'index de la liaison
-     * @return
+     * @return  la position de la liaison dans la course
      */
     @Override
     public int tripPos(int id) {
@@ -112,8 +118,9 @@ public final class BufferedConnections implements Connections {
 
     /**
      * {@inheritDoc}
+     *
      * @param id l'index de la liaison
-     * @return
+     * @return  l'index de la liaison suivante dans la course
      */
     @Override
     public int nextConnectionId(int id) {
@@ -122,7 +129,8 @@ public final class BufferedConnections implements Connections {
 
     /**
      * {@inheritDoc}
-     * @return
+     *
+     * @return  le nombre total de liaisons contenues dans le buffer
      */
     @Override
     public int size() {
