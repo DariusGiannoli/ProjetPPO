@@ -17,7 +17,7 @@ public class MyFileTimeTableTest {
 
     @Test
     void TestTimeTable() throws IOException {
-        TimeTable table = FileTimeTable.in(Path.of("timetable"));
+        TimeTable table = FileTimeTable.in(Path.of("ReChor/timetable"));
         Stations stations = table.stations();
         int j = 0;
         for(int i = 0; i < stations.size(); i++) {
@@ -54,7 +54,7 @@ public class MyFileTimeTableTest {
     @Test
     void someGeneralKnowledge() throws IOException {
         // this is just a sanity check, ie do the name make sense ??
-        TimeTable t = FileTimeTable.in(Path.of("timetable"));
+        TimeTable t = FileTimeTable.in(Path.of("ReChor/timetable"));
         Stations stations = t.stations();
         StationAliases stationAliases = t.stationAliases();
         for (int i = 0; i < stationAliases.size(); i++) {
@@ -70,7 +70,7 @@ public class MyFileTimeTableTest {
         }
     }
 
-    private static Path directory = Path.of("timetable2");
+    private static Path directory = Path.of("ReChor/timetable2");
 
     Profile readProfile(TimeTable timeTable,
                         LocalDate date,
