@@ -36,9 +36,7 @@ public final class PackedCriteria {
     private static final long BITS_7_MASK_LONG = 0x7FL;    // 7 bits (127) long
     private static final long BITS_32_MASK = 0xFFFFFFFFL; // 32 bits
 
-    /**
-     * Constructeur privé pour empêcher l'instanciation.
-     */
+    /**Constructeur privé pour empêcher l'instanciation.*/
     private PackedCriteria() {}
 
     /**
@@ -142,7 +140,6 @@ public final class PackedCriteria {
      */
     public static long withDepMins(long criteria, int depMins) {
         Preconditions.checkArgument(depMins >= MIN_MINUTES && depMins < MAX_MINUTES);
-        //Preconditions.checkArgument(depMins <= arrMins(criteria));
         int depComplement = BITS_12_MASK - (depMins + MINUTES_OFFSET);
         long cleared = withoutDepMins(criteria);
         return cleared | ((long) depComplement << SHIFT_DEP);
@@ -158,17 +155,12 @@ public final class PackedCriteria {
      * @throws IllegalArgumentException si l'un des critères possède une heure de départ et pas l'autre
      */
     public static boolean dominatesOrIsEqual(long criteria1, long criteria2){
+        boolean hasDep = hasDepMins(criteria1);
+        Preconditions.checkArgument(hasDep == hasDepMins(criteria2));
 
-        boolean hasDep1 = hasDepMins(criteria1);
-        boolean hasDep2 = hasDepMins(criteria2);
-        Preconditions.checkArgument(hasDep1 == hasDep2);
-
-        boolean result = (arrMins(criteria1) <= arrMins(criteria2))
-                && (changes(criteria1) <= changes(criteria2));
-        if(hasDep1) {
-            result &= (depMins(criteria1) >= depMins(criteria2));
-        }
-        return result;
+        return (arrMins(criteria1) <= arrMins(criteria2))
+                && (changes(criteria1) <= changes(criteria2))
+                && (!hasDep || depMins(criteria1) >= depMins(criteria2));
     }
 
     /**

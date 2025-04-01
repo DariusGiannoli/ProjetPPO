@@ -19,6 +19,17 @@ import java.util.function.LongConsumer;
  */
 public final class ParetoFront {
 
+    // Constantes de chaînes partagées
+    private static final String EMPTY_FRONTIER = "ParetoFront EMPTY";
+    private static final String EMPTY_BUILDER = "Builder: ParetoFront EMPTY";
+    private static final String PARETO_FRONT_PREFIX = "ParetoFront";
+    private static final String BUILDER_PREFIX = "Builder ParetoFront";
+    private static final String OPEN_BRACKET_NEWLINE = " [\n";
+    private static final String ARR_MINS_PREFIX = "  arrMins=";
+    private static final String CHANGES_PREFIX = ", changes=";
+    private static final String NEWLINE = "\n";
+    private static final String CLOSE_BRACKET = "]";
+
     // Tableau final contenant les tuples empaquetés de la frontière
     private final long[] tuples;
 
@@ -27,7 +38,6 @@ public final class ParetoFront {
 
     /**
      * Constructeur privé recevant un tableau trié de tuples.
-     * Le tableau ne doit pas être modifié après construction pour garantir l'immuabilité.
      *
      * @param tuples le tableau de tuples empaquetés
      */
@@ -82,17 +92,17 @@ public final class ParetoFront {
     @Override
     public String toString() {
         if (tuples.length == 0) {
-            return "ParetoFront EMPTY";
+            return EMPTY_FRONTIER;
         }
-        StringBuilder sb = new StringBuilder("ParetoFront [\n");
+        StringBuilder sb = new StringBuilder(PARETO_FRONT_PREFIX + OPEN_BRACKET_NEWLINE);
         for (long tuple : tuples) {
-            sb.append("  arrMins=")
+            sb.append(ARR_MINS_PREFIX)
                     .append(PackedCriteria.arrMins(tuple))
-                    .append(", changes=")
+                    .append(CHANGES_PREFIX)
                     .append(PackedCriteria.changes(tuple))
-                    .append("\n");
+                    .append(NEWLINE);
         }
-        sb.append("]");
+        sb.append(CLOSE_BRACKET);
         return sb.toString();
     }
 
@@ -300,17 +310,17 @@ public final class ParetoFront {
         @Override
         public String toString() {
             if (size == 0) {
-                return "Builder: ParetoFront EMPTY";
+                return EMPTY_BUILDER;
             }
-            StringBuilder sb = new StringBuilder("Builder ParetoFront [\n");
+            StringBuilder sb = new StringBuilder(BUILDER_PREFIX + OPEN_BRACKET_NEWLINE);
             for (int i = 0; i < size; i++) {
-                sb.append("  arrMins=")
+                sb.append(ARR_MINS_PREFIX)
                         .append(PackedCriteria.arrMins(tuples[i]))
-                        .append(", changes=")
+                        .append(CHANGES_PREFIX)
                         .append(PackedCriteria.changes(tuples[i]))
-                        .append("\n");
+                        .append(NEWLINE);
             }
-            sb.append("]");
+            sb.append(CLOSE_BRACKET);
             return sb.toString();
         }
     }

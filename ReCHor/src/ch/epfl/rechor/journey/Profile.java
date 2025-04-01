@@ -24,9 +24,7 @@ import java.util.List;
 public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
                       List<ParetoFront> stationFront) {
 
-    /**
-     * Constructeur compact qui copie la table des frontières de Pareto afin de garantir l'immuabilité.
-     */
+    /**Constructeur compact qui copie la table des frontières de Pareto afin de garantir l'immuabilité.*/
     public Profile {
         stationFront = List.copyOf(stationFront);
     }
@@ -149,13 +147,6 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
          */
         public Profile build() {
             List<ParetoFront> stationFront = new ArrayList<>();
-//            for (int i = 0; i < stationsParetoFront.length; i++) {
-//                if (stationsParetoFront[i] == null) {
-//                    stationFront.add(ParetoFront.EMPTY);
-//                } else {
-//                    stationFront.add(stationsParetoFront[i].build());
-//                }
-//            }
             for (ParetoFront.Builder builder : stationsParetoFront) {
                 stationFront.add(builder == null ? ParetoFront.EMPTY : builder.build());
             }

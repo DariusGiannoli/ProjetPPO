@@ -206,13 +206,13 @@ public record Journey(List<Leg> legs) {
              * @throws IllegalArgumentException si arrTime précède depTime.
              */
             public Transport{
-                Objects.requireNonNull(depStop,       "depStop ne peut pas être null.");
-                Objects.requireNonNull(depTime,       "depTime ne peut pas être null.");
-                Objects.requireNonNull(arrStop,       "arrStop ne peut pas être null.");
-                Objects.requireNonNull(arrTime,       "arrTime ne peut pas être null.");
-                Objects.requireNonNull(vehicle,       "vehicle ne peut pas être null.");
-                Objects.requireNonNull(route,          "route ne peut pas être null.");
-                Objects.requireNonNull(destination,   "destination ne peut pas être null.");
+                Objects.requireNonNull(depStop);
+                Objects.requireNonNull(depTime);
+                Objects.requireNonNull(arrStop);
+                Objects.requireNonNull(arrTime);
+                Objects.requireNonNull(vehicle);
+                Objects.requireNonNull(route);
+                Objects.requireNonNull(destination);
 
                 checkArgument(!arrTime.isBefore(depTime));
 
@@ -243,10 +243,10 @@ public record Journey(List<Leg> legs) {
              * @throws IllegalArgumentException si arrTime précède depTime.
              */
             public Foot{
-                Objects.requireNonNull(depStop, "depStop ne peut pas être null.");
-                Objects.requireNonNull(depTime, "depTime ne peut pas être null.");
-                Objects.requireNonNull(arrStop, "arrStop ne peut pas être null.");
-                Objects.requireNonNull(arrTime, "arrTime ne peut pas être null.");
+                Objects.requireNonNull(depStop);
+                Objects.requireNonNull(depTime);
+                Objects.requireNonNull(arrStop);
+                Objects.requireNonNull(arrTime);
 
                 checkArgument(!arrTime.isBefore(depTime));
             }

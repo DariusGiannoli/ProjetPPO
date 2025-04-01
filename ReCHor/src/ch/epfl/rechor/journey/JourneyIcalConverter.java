@@ -17,7 +17,7 @@ import java.util.UUID;
  */
 public final class JourneyIcalConverter {
 
-    //Constructeur privé pour empêcher l'instanciation.
+    /**Constructeur privé pour empêcher l'instanciation.*/
     private JourneyIcalConverter() {}
 
     /**
@@ -39,6 +39,9 @@ public final class JourneyIcalConverter {
             }
         }
 
+        // Construction du résumé de l'événement
+        final String summary = journey.depStop().name() + " → " + journey.arrStop().name();
+
         // Création du builder iCalendar
         IcalBuilder builder = new IcalBuilder();
         builder.begin(IcalBuilder.Component.VCALENDAR)
@@ -49,8 +52,7 @@ public final class JourneyIcalConverter {
                 .add(IcalBuilder.Name.DTSTAMP, LocalDateTime.now())
                 .add(IcalBuilder.Name.DTSTART, journey.depTime())
                 .add(IcalBuilder.Name.DTEND, journey.arrTime())
-                .add(IcalBuilder.Name.SUMMARY,
-                        journey.depStop().name() + " → " + journey.arrStop().name())
+                .add(IcalBuilder.Name.SUMMARY, summary)
                 .add(IcalBuilder.Name.DESCRIPTION, joiner.toString())
                 .end()  // Fermeture du VEVENT
                 .end(); // Fermeture du VCALENDAR
