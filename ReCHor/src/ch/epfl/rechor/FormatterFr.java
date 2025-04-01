@@ -5,21 +5,40 @@ import ch.epfl.rechor.journey.Stop;
 import ch.epfl.rechor.journey.Journey.Leg.Foot;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
-import java.util.Objects;
-
 
 /**
  * Classe utilitaire finale pour formatter les informations relatives aux trajets.
  * Fournit des méthodes statiques pour obtenir la représentation textuelle de durées,
  * d'heures, de noms de plateformes, et d'étapes de trajet.
  *
- * @author Antoine Lepin
- * @author Darius Giannoli
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
  */
 public final class FormatterFr {
+
+    // Constantes pour les textes de formatage
+    private static final String MIN_SUFFIX = " min";
+    private static final String HOUR_SEPARATOR = " h ";
+    private static final String HOUR = "h";
+    private static final String VOIE_PREFIX = "voie ";
+    private static final String QUAI_PREFIX = "quai ";
+    private static final String CHANGEMENT = "changement";
+    private static final String TRAJET_A_PIED = "trajet à pied";
+    private static final String DIRECTION = " Direction ";
+    private static final String ARROW = " → ";
+    private static final String ARRIVAL_PREFIX = " (arr. ";
+    private static final String LEFT_PARENTHESIS = " (";
+    private static final String RIGHT_PARENTHESIS = ")";
+    private static final String EMPTY_STRING = "";
+    private static final String SPACE = " ";
+
+    // Tailles initiales pour StringBuilder selon les différentes utilisations
+    private static final int SB_CAPACITY_SMALL = 32;    // Pour formatDuration, formatTime
+    private static final int SB_CAPACITY_MEDIUM = 64;   // Pour formatLeg(Foot), formatRouteDestination
+    private static final int SB_CAPACITY_LARGE = 128;   // Pour formatLeg(Transport)
+
+    // Format des minutes avec deux chiffres
+    private static final String MINUTE_FORMAT = "%02d";
 
     /**
      * Constructeur privé pour empêcher l'instanciation de cette classe utilitaire.
@@ -29,19 +48,23 @@ public final class FormatterFr {
     /**
      * Formate une durée en chaîne de caractères.
      *
-     * @param duration la durée à formater.
+     * @param duration la durée à formatter.
      * @return une chaîne représentant la durée au format "X min" ou "Y h Z min".
      */
-    public static String formatDuration(Duration duration){
-        long totalMinutes = duration.toMinutes();
-        long hours = totalMinutes / 60;
-        long minutes = totalMinutes % 60;
+    public static String formatDuration(Duration duration) {
+        final long totalMinutes = duration.toMinutes();
+        final long hours = totalMinutes / 60;
+        final long minutes = totalMinutes % 60;
+
+        StringBuilder sb = new StringBuilder(SB_CAPACITY_SMALL);
 
         if (hours == 0) {
-            return minutes + " min";
+            sb.append(minutes).append(MIN_SUFFIX);
         } else {
-            return hours + " h " + minutes + " min";
+            sb.append(hours).append(HOUR_SEPARATOR).append(minutes).append(MIN_SUFFIX);
         }
+
+        return sb.toString();
     }
 
     /**
@@ -52,7 +75,11 @@ public final class FormatterFr {
      * @return une chaîne représentant l'heure au format "HHhmm".
      */
     public static String formatTime(LocalDateTime dateTime) {
-        return dateTime.getHour() + "h" + String.format("%02d", dateTime.getMinute());
+        StringBuilder sb = new StringBuilder(SB_CAPACITY_SMALL);
+        return sb.append(dateTime.getHour())
+                .append(HOUR)
+                .append(String.format(MINUTE_FORMAT, dateTime.getMinute()))
+                .toString();
     }
 
     /**
@@ -63,15 +90,16 @@ public final class FormatterFr {
      *         sinon "voie <nom>" si le nom commence par un chiffre, ou "quai <nom>" sinon.
      */
     public static String formatPlatformName(Stop stop) {
-        String platformName = stop.platformName();
+        final String platformName = stop.platformName();
 
-        if (platformName == null || platformName.isEmpty()){
-            return "";
+        if (platformName == null || platformName.isEmpty()) {
+            return EMPTY_STRING;
         }
 
-        return Character.isDigit(platformName.charAt(0))
-                ? "voie " + platformName
-                : "quai " + platformName;
+        StringBuilder sb = new StringBuilder(SB_CAPACITY_SMALL);
+        return sb.append(Character.isDigit(platformName.charAt(0)) ? VOIE_PREFIX : QUAI_PREFIX)
+                .append(platformName)
+                .toString();
     }
 
     /**
@@ -81,10 +109,15 @@ public final class FormatterFr {
      * @return une chaîne décrivant l'étape, par exemple "changement (5 min)" ou "trajet à pied (3 min)".
      */
     public static String formatLeg(Foot footLeg) {
-        String description = footLeg.isTransfer() ? "changement" : "trajet à pied";
-        Duration duration = footLeg.duration();
-        String durationStr = formatDuration(duration);
-        return description + " (" + durationStr + ")";
+        final String description = footLeg.isTransfer() ? CHANGEMENT : TRAJET_A_PIED;
+        final String durationStr = formatDuration(footLeg.duration());
+
+        StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);
+        return sb.append(description)
+                .append(LEFT_PARENTHESIS)
+                .append(durationStr)
+                .append(RIGHT_PARENTHESIS)
+                .toString();
     }
 
     /**
@@ -96,28 +129,28 @@ public final class FormatterFr {
      * @return une chaîne représentant l'étape en transport public.
      */
     public static String formatLeg(Journey.Leg.Transport leg) {
-        StringBuilder sb = new StringBuilder();
+        final String depTime = formatTime(leg.depTime());
+        final String depStopName = leg.depStop().name();
+        final String depPlatform = formatPlatformName(leg.depStop());
+        final String arrStopName = leg.arrStop().name();
+        final String arrTime = formatTime(leg.arrTime());
+        final String arrPlatform = formatPlatformName(leg.arrStop());
 
-        sb.append(formatTime(leg.depTime())).append(' ')
-                .append(leg.depStop().name());
+        StringBuilder sb = new StringBuilder(SB_CAPACITY_LARGE);
 
-        String depPlatform = formatPlatformName(leg.depStop());
+        sb.append(depTime).append(SPACE).append(depStopName);
+
         if (!depPlatform.isEmpty()) {
-            sb.append(" (").append(depPlatform).append(")");
+            sb.append(LEFT_PARENTHESIS).append(depPlatform).append(RIGHT_PARENTHESIS);
         }
 
-        sb.append(" → ")
-                .append(leg.arrStop().name())
-                .append(" (arr. ")
-                .append(formatTime(leg.arrTime()));
+        sb.append(ARROW).append(arrStopName).append(ARRIVAL_PREFIX).append(arrTime);
 
-        String arrPlatform = formatPlatformName(leg.arrStop());
         if (!arrPlatform.isEmpty()) {
-            sb.append(' ').append(arrPlatform);
+            sb.append(SPACE).append(arrPlatform);
         }
-        sb.append(')');
 
-        return sb.toString();
+        return sb.append(RIGHT_PARENTHESIS).toString();
     }
 
     /**
@@ -128,6 +161,13 @@ public final class FormatterFr {
      * @return une chaîne représentant la ligne et la destination, par exemple "IR 15 Direction Luzern".
      */
     public static String formatRouteDestination(Journey.Leg.Transport transportLeg) {
-        return transportLeg.route() + " Direction " + transportLeg.destination();
+        final String route = transportLeg.route();
+        final String destination = transportLeg.destination();
+
+        StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);
+        return sb.append(route)
+                .append(DIRECTION)
+                .append(destination)
+                .toString();
     }
 }

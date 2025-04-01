@@ -36,6 +36,11 @@ public record Stop(String name, String platformName, double longitude, double la
      */
     public Stop {
         Objects.requireNonNull(name);
-        Preconditions.checkArgument(longitude >= MIN_LON && longitude <= MAX_LON && latitude <= MAX_LAT && latitude >= MIN_LAT);
+
+        Preconditions.checkArgument(
+                longitude >= MIN_LON && longitude <= MAX_LON);
+
+        Preconditions.checkArgument(
+                latitude >= MIN_LAT && latitude <= MAX_LAT);
     }
 }

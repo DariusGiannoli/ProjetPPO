@@ -32,28 +32,26 @@ public record Journey(List<Leg> legs) {
      * @throws IllegalArgumentException si les conditions de validité ne sont pas respectées.
      */
     public Journey {
-        checkArgument(!(legs.isEmpty()));
+        checkArgument(!legs.isEmpty());
 
         // Copie pour l’immuabilité
         legs = List.copyOf(legs);
 
-        for (int i = 0; i < legs.size(); i++) {
+        // Vérification des conditions de validité pour les étapes consécutives
+        for (int i = 1; i < legs.size(); i++) {
             Leg current = legs.get(i);
+            Leg previous = legs.get(i - 1);
 
-            // Vérifications pour toutes les étapes sauf la première
-            if (i > 0) {
-                Leg previous = legs.get(i - 1);
+            // Vérifie l'alternance pied/transport
+            checkArgument(
+                    !((previous instanceof Leg.Foot && current instanceof Leg.Foot) ||
+                            (previous instanceof Leg.Transport && current instanceof Leg.Transport)));
 
-                // Vérifie l'alternance pied/transport
-                checkArgument(!((previous instanceof Leg.Foot && current instanceof Leg.Foot)
-                        || (previous instanceof Leg.Transport && current instanceof Leg.Transport)));
+            // Vérifie que l'instant de départ ne précède pas celui d'arrivée de la précédente
+            checkArgument(!current.depTime().isBefore(previous.arrTime()));
 
-                // Vérifie que l’instant de départ ne précède pas celui d’arrivée de la précédente
-                checkArgument(!current.depTime().isBefore(previous.arrTime()));
-
-                // Vérifie que l'arrêt de départ est identique à l'arrêt d'arrivée de la précédente
-                checkArgument(current.depStop().equals(previous.arrStop()));
-            }
+            // Vérifie que l'arrêt de départ est identique à l'arrêt d'arrivée de la précédente
+            checkArgument(current.depStop().equals(previous.arrStop()));
         }
     }
 
@@ -171,7 +169,7 @@ public record Journey(List<Leg> legs) {
              * @throws IllegalArgumentException si depTime est antérieur à arrTime.
              */
             public IntermediateStop {
-                Objects.requireNonNull(stop, "Le stop ne peut pas être null.");
+                Objects.requireNonNull(stop);
                 checkArgument(!depTime.isBefore(arrTime));
             }
         }
@@ -188,8 +186,9 @@ public record Journey(List<Leg> legs) {
          * @param route             le nom de la ligne.
          * @param destination       la destination finale.
          */
-        record Transport(Stop depStop, LocalDateTime depTime,  Stop arrStop, LocalDateTime arrTime,
-                         List<IntermediateStop> intermediateStops, Vehicle vehicle, String route, String destination)
+        record Transport(Stop depStop, LocalDateTime depTime,  Stop arrStop,
+                         LocalDateTime arrTime, List<IntermediateStop> intermediateStops,
+                         Vehicle vehicle, String route, String destination)
                 implements Leg {
 
             /**
@@ -249,7 +248,7 @@ public record Journey(List<Leg> legs) {
                 Objects.requireNonNull(arrStop, "arrStop ne peut pas être null.");
                 Objects.requireNonNull(arrTime, "arrTime ne peut pas être null.");
 
-                checkArgument(!(arrTime.isBefore(depTime)));
+                checkArgument(!arrTime.isBefore(depTime));
             }
 
             /**
