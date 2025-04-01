@@ -94,18 +94,16 @@ public final class JourneyExtractor {
         for (int i = 0; i <= changes && connectionId < connections.size(); i++) {
             try {
                 // Traitement de l'étape de transport courante
-                connectionId = processTransportLeg(profile, connectionId, interStops,
+                long newCriteria = processTransportLeg(profile, connectionId, interStops,
                         changes - i, endMins, i == changes, legs);
+                connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(newCriteria));
+                interStops = Bits32_24_8.unpack8(PackedCriteria.payload(newCriteria));
 
                 // Si connectionId est devenu invalide lors du traitement, on s'arrête
                 if (connectionId < 0) {
                     break;
                 }
 
-                // Mise à jour des paramètres pour la prochaine étape
-                interStops = Bits32_24_8.unpack8(PackedCriteria.payload(
-                                profile.forStation(timeTable.stationId(connections.arrStopId(connectionId)))
-                                        .get(endMins, changes - i - 1)));
 
             } catch (Exception e) {
                 // En cas d'erreur dans le traitement d'une étape, on arrête l'extraction
@@ -126,7 +124,7 @@ public final class JourneyExtractor {
      * @param legs         la liste des étapes à compléter
      * @return l'id de la prochaine connexion, ou -1 si traitement terminé
      */
-    private static int processTransportLeg(Profile profile, int connectionId, int interStops,
+    private static long processTransportLeg(Profile profile, int connectionId, int interStops,
                                            int remainingChanges, int endMins, boolean isLastLeg,
                                            List<Journey.Leg> legs) {
         TimeTable timeTable = profile.timeTable();
@@ -136,6 +134,7 @@ public final class JourneyExtractor {
         int depStopId = connections.depStopId(connectionId);
         int arrStopId = connections.arrStopId(connectionId);
         int tripId = connections.tripId(connectionId);
+        int depTime = connections.depMins(connectionId);
 
         // Collecter les arrêts intermédiaires si nécessaire
         List<Journey.Leg.IntermediateStop> intermediateStops = new ArrayList<>();
@@ -146,12 +145,12 @@ public final class JourneyExtractor {
             // Mise à jour de la connexion si des arrêts intermédiaires ont été collectés
             if (nextConnectionId != connectionId && nextConnectionId < connections.size()) {
                 connectionId = nextConnectionId;
-                arrStopId = connections.arrStopId(connectionId - 1);
+                arrStopId = connections.arrStopId(connectionId);
             }
         }
 
         // Créer l'étape en transport
-        createTransportLeg(profile, depStopId, arrStopId, connectionId, tripId,
+        createTransportLeg(profile, depStopId, arrStopId, connectionId, depTime, tripId,
                 intermediateStops, legs);
 
         // Station courante après cette étape
@@ -178,7 +177,7 @@ public final class JourneyExtractor {
                 // Ajouter une étape à pied pour le changement
                 addFootLegForChange(profile, connectionId, nextConnectionId, legs);
 
-                return nextConnectionId;
+                return nextCriteria;
             } catch (NoSuchElementException e) {
                 // Pas de critère suivant, finir avec une étape à pied si nécessaire
                 addFinalFootLegIfNeeded(timeTable, currentStationId, profile.arrStationId(),
@@ -225,7 +224,7 @@ public final class JourneyExtractor {
      * Crée et ajoute une étape de transport à la liste des étapes.
      */
     private static void createTransportLeg(Profile profile, int depStopId, int arrStopId,
-                                           int connectionId, int tripId,
+                                           int connectionId, int depTime,  int tripId,
                                            List<Journey.Leg.IntermediateStop> intermediateStops,
                                            List<Journey.Leg> legs) {
         TimeTable timeTable = profile.timeTable();
@@ -235,7 +234,7 @@ public final class JourneyExtractor {
         Stop depStop = createStop(timeTable, depStopId);
         Stop arrStop = createStop(timeTable, arrStopId);
 
-        LocalDateTime depDateTime = createDateTime(profile.date(), connections.depMins(connectionId));
+        LocalDateTime depDateTime = createDateTime(profile.date(), depTime);
         LocalDateTime arrDateTime = createDateTime(profile.date(), connections.arrMins(connectionId));
 
         int routeId = trips.routeId(tripId);
