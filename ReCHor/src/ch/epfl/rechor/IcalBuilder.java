@@ -8,15 +8,6 @@ import java.util.ArrayList;
  * Classe permettant de construire un événement au format iCalendar.
  * Ce builder permet d'ajouter des propriétés et de commencer/terminer des composants
  * (VCALENDAR, VEVENT) en respectant la norme (plis de ligne à 75 caractères max).
- * Exemple d'utilisation :
- * <pre>
- *   IcalBuilder builder = new IcalBuilder();
- *   builder.begin(IcalBuilder.Component.VCALENDAR)
- *          .add(IcalBuilder.Name.VERSION, "2.0")
- *          ... // autres propriétés
- *          .end();
- *   String ical = builder.build();
- * </pre>
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
@@ -28,7 +19,9 @@ public final class IcalBuilder {
      * Enumération représentant les composants iCalendar utilisés.
      */
     public enum Component {
+        /**L'objet iCalendar principal qui enveloppe l'ensemble de l'événement*/
         VCALENDAR,
+        /**Un événement individuel contenu dans le calendrier*/
         VEVENT
     }
 
@@ -36,15 +29,25 @@ public final class IcalBuilder {
      * Enumération listant les noms de propriété iCalendar pris en charge.
      */
     public enum Name {
+        /**Indique le début d'un composant*/
         BEGIN,
+        /**Indique la fin d'un composant*/
         END,
+        /**Identifiant du produit générant le fichier iCalendar*/
         PRODID,
+        /**Version de la spécification iCalendar utilisée*/
         VERSION,
+        /**Identifiant unique de l'événement*/
         UID,
+        /**Date/heure de création ou de modification du fichier*/
         DTSTAMP,
+        /**Date/heure de début d'un événement*/
         DTSTART,
+        /**Date/heure de fin d'un événement*/
         DTEND,
+        /**Titre ou résumé de l'événement*/
         SUMMARY,
+        /**Description détaillée de l'événement*/
         DESCRIPTION
     }
 
@@ -52,6 +55,11 @@ public final class IcalBuilder {
     //Formatteur de date/heure pour iCalendar, sous la forme "yyyyMMdd'T'HHmmss"
     private static final DateTimeFormatter ICAL_DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
+
+    // Constantes pour le pliage des lignes selon la norme iCalendar
+    private static final int MAX_LINE_LENGTH = 75;
+    private static final int CONTINUATION_LENGTH = 74;
+
     private final ArrayList<Component> begunComponents = new ArrayList<>();
     private final StringBuilder icalString = new StringBuilder();
 
@@ -64,15 +72,20 @@ public final class IcalBuilder {
      */
     public String textAdd(String name, String value) {
         String line = name + ":" + value;
-        StringBuilder sb = new StringBuilder();
+        final int lineLength = line.length();
+        // Estimation de la capacité : la chaîne d'origine plus le nombre de retours à la ligne et espaces
+        StringBuilder sb =
+                new StringBuilder(lineLength + (lineLength / MAX_LINE_LENGTH + 1) * (CRLF.length() + 1));
 
-        for (int index = 0; index < line.length(); index += (index == 0 ? 75 : 74)) {
-            int end = Math.min(index == 0 ? 75 : index + 74, line.length());
-            if (index == 0) {
-                sb.append(line, index, end).append(CRLF);
-            } else {
-                sb.append(" ").append(line, index, end).append(CRLF);
+        int index = 0;
+        while (index < lineLength) {
+            int currentMax = (index == 0) ? MAX_LINE_LENGTH : CONTINUATION_LENGTH;
+            int end = Math.min(index + currentMax, lineLength);
+            if (index > 0) {
+                sb.append(" ");
             }
+            sb.append(line, index, end).append(CRLF);
+            index += currentMax;
         }
         return sb.toString();
     }
