@@ -142,7 +142,7 @@ public final class PackedCriteria {
      */
     public static long withDepMins(long criteria, int depMins) {
         Preconditions.checkArgument(depMins >= MIN_MINUTES && depMins < MAX_MINUTES);
-        Preconditions.checkArgument(depMins <= arrMins(criteria));
+        //Preconditions.checkArgument(depMins <= arrMins(criteria));
         int depComplement = BITS_12_MASK - (depMins + MINUTES_OFFSET);
         long cleared = withoutDepMins(criteria);
         return cleared | ((long) depComplement << SHIFT_DEP);

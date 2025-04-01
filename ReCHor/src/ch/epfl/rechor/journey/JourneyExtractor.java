@@ -61,28 +61,29 @@ public final class JourneyExtractor {
         int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(criteria));
         int interStops = Bits32_24_8.unpack8(PackedCriteria.payload(criteria));
         int changes = PackedCriteria.changes(criteria);
-        int currentStationId = depStationId;
         int endMins = PackedCriteria.arrMins(criteria);
         int depTime = PackedCriteria.depMins(criteria);
 
+        int depStopId = connections.depStopId(connectionId);
+
+        // Ajouter une étape à pied initiale si nécessaire
+        if (timeTable.stationId(depStopId) != depStationId) {
+            Stop depStation = createStationStop(timeTable, depStationId);
+            Stop arrStop = createStop(timeTable, depStopId);
+
+            LocalDateTime depDateTime = createDateTime(profile.date(), depTime);
+            LocalDateTime arrDateTime = depDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(depStationId, timeTable.stationId(depStopId)));
+
+            legs.add(new Journey.Leg.Foot(depStation, depDateTime, arrStop, arrDateTime));
+        }
+
         for (int i = 0; i <= changes; i++) {
             // Obtenir les informations de la connexion
-            int depStopId = connections.depStopId(connectionId);
+            depStopId = connections.depStopId(connectionId);
             int arrStopId = connections.arrStopId(connectionId);
             int depMinutes = connections.depMins(connectionId);
             int arrMinutes = connections.arrMins(connectionId);
             int tripId = connections.tripId(connectionId);
-
-            // Ajouter une étape à pied initiale si nécessaire
-            if (legs.isEmpty() && timeTable.stationId(depStopId) != currentStationId) {
-                Stop depStation = createStationStop(timeTable, currentStationId);
-                Stop arrStop = createStop(timeTable, depStopId);
-
-                LocalDateTime depDateTime = createDateTime(profile.date(), depTime);
-                LocalDateTime arrDateTime = depDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, timeTable.stationId(depStopId)));
-
-                legs.add(new Journey.Leg.Foot(depStation, depDateTime, arrStop, arrDateTime));
-            }
 
             List<Journey.Leg.IntermediateStop> inter = new ArrayList<>();
             for(int j = 0; j < interStops; j++){
@@ -114,23 +115,21 @@ public final class JourneyExtractor {
                     inter, vehicle, routeName, destination));
 
             // Préparer la prochaine étape
-            int nextStationId = timeTable.stationId(arrStopId);
+            int currentStationId = timeTable.stationId(arrStopId);
 
             // Si ce n'est pas la dernière étape
             if (i < changes) {
                 try {
-                    ParetoFront nextFront = profile.forStation(nextStationId);
+                    ParetoFront nextFront = profile.forStation(currentStationId);
                     long nextCriteria = nextFront.get(endMins, changes - i - 1);
                     int nextConnectionId = Bits32_24_8.unpack24(PackedCriteria.payload(nextCriteria));
                     int nextInterStops = Bits32_24_8.unpack8(PackedCriteria.payload(nextCriteria));
 
                     int nextDepStopId = connections.depStopId(nextConnectionId);
-                    int nextDepMinutes = connections.depMins(nextConnectionId);
 
                     // Ajouter une étape à pied (changement)
                     Stop nextDepStop = createStop(timeTable, nextDepStopId);
-//                  LocalDateTime nextDepDateTime = createDateTime(profile.date(), nextDepMinutes);
-                    LocalDateTime nextTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(nextStationId, timeTable.stationId(connections.depStopId(nextConnectionId))));
+                    LocalDateTime nextTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, timeTable.stationId(connections.depStopId(nextConnectionId))));
 
                     legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, nextDepStop, nextTime));
 
@@ -138,39 +137,36 @@ public final class JourneyExtractor {
                     interStops = nextInterStops;
                 } catch (NoSuchElementException e) {
                     // Pas de critère suivant, finir avec une étape à pied si nécessaire
-                    if (nextStationId != profile.arrStationId()) {
+                    if (currentStationId != profile.arrStationId()) {
                         Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                        LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(nextStationId, profile.arrStationId()));
+                        LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, profile.arrStationId()));
 
                         legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));
                     }
                     break;
                 }
-            } else if (nextStationId != profile.arrStationId()) {
+            } else if (currentStationId != profile.arrStationId()) {
                 // Dernière étape, mais pas à la destination
                 Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(nextStationId, profile.arrStationId()));
+                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, profile.arrStationId()));
 
                 legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));
             }
 
-            currentStationId = nextStationId;
         }
     }
 
     private static LocalDateTime createDateTime(LocalDate date, int minutes) {
         return LocalDateTime.of(date, LocalTime.MIDNIGHT).plusMinutes(minutes);
-//        LocalTime.of(minutes / 60, minutes % 60)
     }
 
     private static Stop createStop(TimeTable timeTable, int stopId) {
         if (timeTable.isStationId(stopId)) {
-            int stationId = stopId;
             return new Stop(
-                    timeTable.stations().name(stationId),
+                    timeTable.stations().name(stopId),
                     null,
-                    timeTable.stations().longitude(stationId),
-                    timeTable.stations().latitude(stationId));
+                    timeTable.stations().longitude(stopId),
+                    timeTable.stations().latitude(stopId));
         } else {
             int platformId = stopId - timeTable.stations().size();
             int stationId = timeTable.platforms().stationId(platformId);
