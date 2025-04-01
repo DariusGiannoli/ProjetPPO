@@ -67,7 +67,7 @@ public final class JourneyExtractor {
         int depStopId = connections.depStopId(connectionId);
 
         // Ajouter une étape à pied initiale si nécessaire
-        if (legs.isEmpty() && timeTable.stationId(depStopId) != depStationId) {
+        if (timeTable.stationId(depStopId) != depStationId) {
             Stop depStation = createStationStop(timeTable, depStationId);
             Stop arrStop = createStop(timeTable, depStopId);
 
