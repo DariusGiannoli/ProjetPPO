@@ -68,7 +68,8 @@ public final class JourneyExtractor {
      * @param criteria     les critères du voyage actuel
      * @param legs         la liste des étapes à compléter
      */
-    private static void extractLegs(Profile profile, int depStationId, long criteria, List<Journey.Leg> legs) {
+    private static void extractLegs(Profile profile, int depStationId, long criteria,
+                                    List<Journey.Leg> legs) {
         // Récupération des objets fréquemment utilisés
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
@@ -122,7 +123,8 @@ public final class JourneyExtractor {
      * @param endMins      les minutes d'arrivée finale
      * @param isLastLeg    indique s'il s'agit de la dernière étape
      * @param legs         la liste des étapes à compléter
-     * @return le criteria du paretoFront de la gare d'arrivée de l'étape, ou -1 si traitement terminé
+     * @return le criteria du paretoFront de la gare d'arrivée de l'étape,
+     * ou -1 si traitement terminé
      */
     private static long processTransportLeg(Profile profile, int connectionId, int interStops,
                                            int remainingChanges, int endMins, boolean isLastLeg,
@@ -200,8 +202,8 @@ public final class JourneyExtractor {
     /**
      * Ajoute une étape à pied pour le changement entre deux connexions.
      */
-    private static void addFootLegForChange(Profile profile, int currentConnectionId, int nextConnectionId,
-                                            List<Journey.Leg> legs) {
+    private static void addFootLegForChange(Profile profile, int currentConnectionId,
+                                            int nextConnectionId, List<Journey.Leg> legs) {
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
 
@@ -211,7 +213,9 @@ public final class JourneyExtractor {
         Stop arrStop = createStop(timeTable, arrStopId);
         Stop nextDepStop = createStop(timeTable, nextDepStopId);
 
-        LocalDateTime arrDateTime = createDateTime(profile.date(), connections.arrMins(currentConnectionId));
+        LocalDateTime arrDateTime = createDateTime(profile.date(),
+                connections.arrMins(currentConnectionId));
+
         int transferMinutes = timeTable.transfers().minutesBetween(
                 timeTable.stationId(arrStopId), timeTable.stationId(nextDepStopId));
 
@@ -235,7 +239,8 @@ public final class JourneyExtractor {
         Stop arrStop = createStop(timeTable, arrStopId);
 
         LocalDateTime depDateTime = createDateTime(profile.date(), depTime);
-        LocalDateTime arrDateTime = createDateTime(profile.date(), connections.arrMins(connectionId));
+        LocalDateTime arrDateTime = createDateTime(profile.date(),
+                connections.arrMins(connectionId));
 
         int routeId = trips.routeId(tripId);
         Vehicle vehicle = timeTable.routes().vehicle(routeId);
@@ -251,7 +256,9 @@ public final class JourneyExtractor {
      * Gère l'ajout d'une étape à pied initiale si nécessaire.
      */
     private static void handleInitialFootLeg(TimeTable timeTable, int depStationId, int depStopId,
-                                             LocalDate date, int depMinutes, List<Journey.Leg> legs) {
+                                             LocalDate date, int depMinutes,
+                                             List<Journey.Leg> legs) {
+
         if (timeTable.stationId(depStopId) != depStationId) {
             try {
                 Stop depStation = createStationStop(timeTable, depStationId);
@@ -293,7 +300,8 @@ public final class JourneyExtractor {
 
                 Stop interStop = createStop(timeTable, arrStopId);
                 LocalDateTime arrDateTime = createDateTime(date, arrMinutes);
-                LocalDateTime depDateTime = createDateTime(date, connections.depMins(currentConnId));
+                LocalDateTime depDateTime = createDateTime(date,
+                        connections.depMins(currentConnId));
 
                 stops.add(new Journey.Leg.IntermediateStop(interStop, arrDateTime, depDateTime));
 
@@ -314,7 +322,9 @@ public final class JourneyExtractor {
         try {
             if (currentStationId != destStationId) {
                 Stop finalStop = createStationStop(timeTable, destStationId);
-                int transferTime = timeTable.transfers().minutesBetween(currentStationId, destStationId);
+                int transferTime = timeTable.transfers().minutesBetween(currentStationId,
+                        destStationId);
+
                 LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(transferTime);
 
                 legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));

@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Enregistrement qui représente un profil, c'est-à-dire une table donnant pour chaque gare du réseau
+ * Enregistrement qui représente un profil, c'est-à-dire une table donnant pour chaque gare du
+ * réseau
  * la frontière de Pareto des critères d'optimisation permettant d'atteindre une gare (destination)
  * à une date donnée.
  *
@@ -25,7 +26,8 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
                       List<ParetoFront> stationFront) {
 
     /**
-     * Constructeur compact qui copie la table des frontières de Pareto afin de garantir l'immuabilité.
+     * Constructeur compact qui copie la table des frontières de Pareto afin de garantir
+     * l'immuabilité.
      */
     public Profile {
         stationFront = List.copyOf(stationFront);
@@ -81,7 +83,8 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
         private final ParetoFront.Builder[] tripsParetoFront;
 
         /**
-         * Construit un bâtisseur de profil pour l'horaire, la date et la gare de destination donnés.
+         * Construit un bâtisseur de profil pour l'horaire, la date et la gare de destination
+         * donnés.
          *
          * @param timeTable    l'horaire associé.
          * @param date         la date du profil.

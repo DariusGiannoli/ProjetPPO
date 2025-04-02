@@ -6,10 +6,12 @@ import java.util.function.LongConsumer;
 
 /**
  * Représente une frontière de Pareto immuable des critères d'optimisation.
- * Les tuples (paires ou triplets de critères) sont empaquetés sous forme de longs dans un tableau trié
+ * Les tuples (paires ou triplets de critères) sont empaquetés sous forme de longs dans un
+ * tableau trié
  * selon l'ordre lexicographique (basé sur l'heure d'arrivée et le nombre de changements).
  * Cette structure est utilisée pour optimiser la recherche de voyages optimaux.
- * Les instances de ParetoFront sont immuables. La seule façon de les construire est via le bâtisseur
+ * Les instances de ParetoFront sont immuables. La seule façon de les construire est via
+ * le bâtisseur
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
@@ -62,7 +64,8 @@ public final class ParetoFront {
      */
     public long get(int arrMins, int changes) {
         for (long tuple : tuples) {
-            if (PackedCriteria.arrMins(tuple) == arrMins && PackedCriteria.changes(tuple) == changes) {
+            if (PackedCriteria.arrMins(tuple) == arrMins
+                    && PackedCriteria.changes(tuple) == changes) {
                 return tuple;
             }
         }
@@ -206,7 +209,8 @@ public final class ParetoFront {
 
         /**
          * Ajoute à la frontière le tuple de critères empaquetés donné;
-         * cet ajout n'est fait que si le nouveau tuple n'est pas dominé ou égal à un de la frontière,
+         * cet ajout n'est fait que si le nouveau tuple n'est pas dominé ou égal à un de
+         * la frontière,
          * et tous les éventuels tuples existants et dominés par le nouveau en sont supprimés.
          *
          * @param packedTuple le nouveau tuple que l'on veut ajouter à la frontière de Pareto.
@@ -250,7 +254,8 @@ public final class ParetoFront {
 
                 // Vérifier si nous avons besoin d'augmenter la capacité
                 if (pos + remaining + 1 > tuples.length) {
-                    int newCapacity = Math.max(tuples.length + 1, (int)(tuples.length * GROWTH_FACTOR));
+                    int newCapacity = Math.max(tuples.length + 1,
+                            (int)(tuples.length * GROWTH_FACTOR));
                     long[] newArray = new long[newCapacity];
                     System.arraycopy(tuples, 0, newArray, 0, pos);
                     newArray[pos] = packedTuple;
@@ -264,7 +269,8 @@ public final class ParetoFront {
             } else {
                 // Insertion à la fin
                 if (size >= tuples.length) {
-                    tuples = Arrays.copyOf(tuples, Math.max(size + 1, (int)(tuples.length * GROWTH_FACTOR)));
+                    tuples = Arrays.copyOf(tuples, Math.max(size + 1,
+                            (int)(tuples.length * GROWTH_FACTOR)));
                 }
                 tuples[size++] = packedTuple;
             }
@@ -308,10 +314,11 @@ public final class ParetoFront {
 
         /**
          * Retourne true si et seulement si tous les tuples de 'that', une fois qu'on leur
-         * a fixé l'heure de départ 'depMins', sont dominés par au moins un tuple du builder courant.
+         * a fixé l'heure de départ 'depMins', sont dominés par au moins un tuple du builder courant
          * @param that l'autre builder
          * @param depMins l'heure de départ à fixer
-         * @return true si la totalité des tuples de 'that' sont dominés par un tuple du builder courant
+         * @return true si la totalité des tuples de 'that' sont dominés par un tuple du
+         * builder courant
          */
         public boolean fullyDominates(Builder that, int depMins) {
             //Si that est vide, il est toujours dominé
@@ -349,7 +356,8 @@ public final class ParetoFront {
         }
 
         /**
-         * @return retourne la frontière de Pareto sous forme de chaine de caractère pour que cela soit plus lisible.
+         * @return retourne la frontière de Pareto sous forme de chaine de caractère pour que
+         * cela soit plus lisible.
          */
         @Override
         public String toString() {

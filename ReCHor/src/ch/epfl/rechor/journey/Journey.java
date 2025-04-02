@@ -13,8 +13,10 @@ import java.util.Objects;
  * <ul>
  *   <li>la liste d’étapes n’est pas vide</li>
  *   <li>les étapes à pied et en transport public alternent,</li>
- *   <li>pour chaque étape (sauf la première), l’instant de départ n’est pas antérieur à celui d’arrivée de l’étape précédente,</li>
- *   <li>pour chaque étape (sauf la première), l’arrêt de départ est identique à l’arrêt d’arrivée de l’étape précédente.</li>
+ *   <li>pour chaque étape (sauf la première), l’instant de départ n’est pas antérieur à celui
+ *   d’arrivée de l’étape précédente,</li>
+ *   <li>pour chaque étape (sauf la première), l’arrêt de départ est identique à l’arrêt d’arrivée
+ *   de l’étape précédente.</li>
  * </ul>
  *
  * @param legs la liste des étapes du voyage.
@@ -26,7 +28,8 @@ public record Journey(List<Leg> legs) {
 
     /**
      * Constructeur compact de Journey.
-     * Copie la liste des étapes afin d’assurer l’immuabilité et vérifie l’ensemble des préconditions.
+     * Copie la liste des étapes afin d’assurer l’immuabilité et vérifie l’ensemble des
+     * préconditions.
      *
      * @param legs la liste des étapes du voyage.
      * @throws IllegalArgumentException si les conditions de validité ne sont pas respectées.
@@ -45,7 +48,8 @@ public record Journey(List<Leg> legs) {
             // Vérifie l'alternance pied/transport
             checkArgument(
                     !((previous instanceof Leg.Foot && current instanceof Leg.Foot) ||
-                            (previous instanceof Leg.Transport && current instanceof Leg.Transport)));
+                            (previous instanceof Leg.Transport
+                                    && current instanceof Leg.Transport)));
 
             // Vérifie que l'instant de départ ne précède pas celui d'arrivée de la précédente
             checkArgument(!current.depTime().isBefore(previous.arrTime()));
@@ -197,8 +201,8 @@ public record Journey(List<Leg> legs) {
              * @param depStop           l’arrêt de départ (non nul).
              * @param depTime           la date/heure de départ (non nul).
              * @param arrStop           l’arrêt d’arrivée (non nul).
-             * @param arrTime           la date/heure d’arrivée (non nul et ne doit pas précéder depTime).
-             * @param intermediateStops la liste des arrêts intermédiaires (copiée pour garantir l’immuabilité).
+             * @param arrTime           la date/heure d’arrivée (non nul et <depTime).
+             * @param intermediateStops la liste des arrêts intermédiaires (immuabilité).
              * @param vehicle           le véhicule utilisé (non nul).
              * @param route             le nom de la ligne (non nul).
              * @param destination       la destination (non nul).

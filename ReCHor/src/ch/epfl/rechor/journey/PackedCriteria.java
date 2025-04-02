@@ -130,13 +130,15 @@ public final class PackedCriteria {
     }
 
     /**
-     * Retourne un nouveau critère identique à criteria, mais avec l'heure de départ fixée à depMins.
-     * Vérifie que depMins est compris entre -240 et 2879 et qu'il est antérieur ou égal à l'heure d'arrivée.
+     * Retourne un nouveau critère identique à criteria, mais avec l'heure départ fixée à depMins.
+     * Vérifie que depMins est compris entre -240 et 2879 et qu'il est antérieur ou égal à
+     * l'heure d'arrivée.
      *
      * @param criteria un entier 64 bits
      * @param depMins l'heure de départ réelle (entre -240 et 2879)
      * @return un nouvel entier 64 bits avec l'heure de départ stockée
-     * @throws IllegalArgumentException si depMins n'est pas dans les limites ou est postérieure à l'heure d'arrivée
+     * @throws IllegalArgumentException si depMins n'est pas dans les limites
+     * ou est postérieure à l'heure d'arrivée
      */
     public static long withDepMins(long criteria, int depMins) {
         Preconditions.checkArgument(depMins >= MIN_MINUTES && depMins < MAX_MINUTES);
@@ -152,7 +154,7 @@ public final class PackedCriteria {
      * @param criteria1 un entier 64 bits
      * @param criteria2 un entier 64 bits
      * @return true si criteria1 domine ou est égal à criteria2, false sinon
-     * @throws IllegalArgumentException si l'un des critères possède une heure de départ et pas l'autre
+     * @throws IllegalArgumentException si l'un des critères possède une heure de dep et non l'autre
      */
     public static boolean dominatesOrIsEqual(long criteria1, long criteria2){
         boolean hasDep = hasDepMins(criteria1);
@@ -164,7 +166,8 @@ public final class PackedCriteria {
     }
 
     /**
-     * Retourne un nouveau critère identique à criteria avec le nombre de changements incrémenté de 1.
+     * Retourne un nouveau critère identique à criteria avec le nombre de changements incrémenté
+     * de 1
      *
      * @param criteria un entier 64 bits
      * @return un entier 64 bits avec le champ "changes" augmenté de 1
