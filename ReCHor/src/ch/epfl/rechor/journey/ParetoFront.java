@@ -1,6 +1,5 @@
 package ch.epfl.rechor.journey;
 
-
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.function.LongConsumer;
@@ -110,17 +109,21 @@ public final class ParetoFront {
      * et en éliminant les tuples dominés.
      */
     public static final class Builder {
+        // Facteur de croissance du tableau lors d'un redimensionnement
+        private static final float GROWTH_FACTOR = 1.5f;
+        // Capacité initiale du tableau
+        private static final int INITIAL_CAPACITY = 4;
 
-        //Tableau dynamique interne stockant les tuples
+        // Tableau dynamique interne stockant les tuples
         private long[] tuples;
-        //Nombre d'éléments effectivement présents dans le tableau
-        int size;
+        // Nombre d'éléments effectivement présents dans le tableau
+        private int size;
 
         /**
          * Construit un nouveau Builder avec une frontière vide
          */
         public Builder() {
-            this.tuples = new long[2];
+            this.tuples = new long[INITIAL_CAPACITY];
             this.size = 0;
         }
 
@@ -153,82 +156,121 @@ public final class ParetoFront {
             return this;
         }
 
-        private int compact(long[] array, long packedTuple, int pos) {
+        /**
+         * Compacte un tableau en supprimant les éléments dominés par le tuple donné.
+         *
+         * @param array le tableau à compacter
+         * @param packedTuple le tuple dominant à comparer
+         * @param length le nombre d'éléments à considérer dans le tableau
+         * @return le nombre d'éléments non dominés restants
+         */
+        private int compact(long[] array, long packedTuple, int length) {
             int dst = 0;
-            for (int src = 0; src < size-pos; src += 1) {
+            for (int src = 0; src < length; src++) {
                 if (PackedCriteria.dominatesOrIsEqual(packedTuple, array[src])) continue;
-                if (dst != src) array[dst] = array[src];
-                dst += 1;
+                array[dst++] = array[src];
             }
             return dst;
         }
 
+        /**
+         * (Ajout d'optimisation)
+         * Recherche la position d'insertion pour un tuple dans l'ordre lexicographique.
+         *
+         * @param packedTuple le tuple à insérer
+         * @return la position d'insertion trouvée
+         */
+        private int findInsertPosition(long packedTuple) {
+            // On ne considère que les bits de poids fort pour la recherche (sans le payload)
+            long adjustedTuple = packedTuple & ~0xFFFFFFFFL;
+
+            // Recherche binaire pour trouver la position d'insertion
+            int low = 0;
+            int high = size - 1;
+
+            while (low <= high) {
+                int mid = (low + high) >>> 1;
+                long midVal = tuples[mid] & ~0xFFFFFFFFL;
+
+                if (midVal < adjustedTuple) {
+                    low = mid + 1;
+                } else if (midVal > adjustedTuple) {
+                    high = mid - 1;
+                } else {
+                    // Trouvé une correspondance exacte (sans considérer le payload)
+                    return mid;
+                }
+            }
+            return low;
+        }
 
         /**
-         * ajoute à la frontière le tuple de critères empaquetés donné;
+         * Ajoute à la frontière le tuple de critères empaquetés donné;
          * cet ajout n'est fait que si le nouveau tuple n'est pas dominé ou égal à un de la frontière,
          * et tous les éventuels tuples existants et dominés par le nouveau en sont supprimés.
+         *
          * @param packedTuple le nouveau tuple que l'on veut ajouter à la frontière de Pareto.
          * @return lui même car c'est un builder.
          */
-
-        // A vérifier
         public Builder add(long packedTuple) {
+            // Si la frontière est vide, on ajoute simplement le tuple
+            if (size == 0) {
+                tuples[0] = packedTuple;
+                size = 1;
+                return this;
+            }
 
-            long adjusted = packedTuple & ~0xFFFFFFFFL;
+            // Trouver la position d'insertion dans l'ordre lexicographique
+            int pos = findInsertPosition(packedTuple);
 
-
-            int pos = 0;
-            while (pos < size && tuples[pos] < adjusted) {
-
-                if (PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
-                    return this; // ajout annulé
+            // Vérifier si le tuple est dominé par un tuple existant
+            for (int i = 0; i < pos; i++) {
+                if (PackedCriteria.dominatesOrIsEqual(tuples[i], packedTuple)) {
+                    return this; // Le tuple est dominé, ne pas l'ajouter
                 }
-                pos++;
             }
 
-            if (pos < size && PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
-                return this; // ajout annulé
+            // Vérifier si un tuple à la position exacte domine déjà le nouveau
+            if (pos < size) {
+                long existingTuple = tuples[pos];
+                long adjustedExisting = existingTuple & ~0xFFFFFFFFL;
+                long adjustedNew = packedTuple & ~0xFFFFFFFFL;
+
+                if (adjustedExisting == adjustedNew &&
+                        PackedCriteria.dominatesOrIsEqual(existingTuple, packedTuple)) {
+                    return this;
+                }
             }
 
+            // Compacter le reste du tableau en supprimant les tuples dominés
+            if (pos < size) {
+                long[] tempArray = new long[size - pos];
+                System.arraycopy(tuples, pos, tempArray, 0, size - pos);
+                int remaining = compact(tempArray, packedTuple, size - pos);
 
-            long[] arrayCopy = new long[size - pos];
-            System.arraycopy(tuples, pos, arrayCopy, 0, size-pos);
-            int notDominated = compact(arrayCopy, packedTuple, pos);
-            int dominated = size - pos - notDominated;
-
-
-            if (dominated > 0) {
-
-                tuples[pos] = packedTuple;
-
-                System.arraycopy(arrayCopy, 0, tuples, pos + 1, notDominated);
-                size = pos + notDominated + 1;
-            } else {
-
-                if (size == tuples.length) {
-                    int newCap = (int) (tuples.length * 1.5);
-                    if (newCap == tuples.length) {
-                        newCap++; // s'assurer d'une augmentation
-                    }
-                    long[] newArray = new long[newCap];
-
+                // Vérifier si nous avons besoin d'augmenter la capacité
+                if (pos + remaining + 1 > tuples.length) {
+                    int newCapacity = Math.max(tuples.length + 1, (int)(tuples.length * GROWTH_FACTOR));
+                    long[] newArray = new long[newCapacity];
                     System.arraycopy(tuples, 0, newArray, 0, pos);
-
                     newArray[pos] = packedTuple;
-
-                    System.arraycopy(tuples, pos, newArray, pos + 1, size - pos);
+                    System.arraycopy(tempArray, 0, newArray, pos + 1, remaining);
                     tuples = newArray;
                 } else {
-
-                    System.arraycopy(tuples, pos, tuples, pos + 1, size - pos);
                     tuples[pos] = packedTuple;
+                    System.arraycopy(tempArray, 0, tuples, pos + 1, remaining);
                 }
-                size++;
+                size = pos + remaining + 1;
+            } else {
+                // Insertion à la fin
+                if (size >= tuples.length) {
+                    tuples = Arrays.copyOf(tuples, Math.max(size + 1, (int)(tuples.length * GROWTH_FACTOR)));
+                }
+                tuples[size++] = packedTuple;
             }
+
             return this;
         }
-
 
         /**
          * Ajoute un tuple (arrMins, changes, payload) dans la frontière,
@@ -247,7 +289,9 @@ public final class ParetoFront {
          * @return this, pour chaînage
          */
         public Builder addAll(Builder that) {
-            that.forEach(this::add);
+            for (int i = 0; i < that.size; i++) {
+                add(that.tuples[i]);
+            }
             return this;
         }
 
@@ -270,6 +314,10 @@ public final class ParetoFront {
          * @return true si la totalité des tuples de 'that' sont dominés par un tuple du builder courant
          */
         public boolean fullyDominates(Builder that, int depMins) {
+            //Si that est vide, il est toujours dominé
+            if (that.size == 0) return true;
+            // Si this est vide, il ne peut pas dominer that (sauf si that est vide)
+            if (size == 0) return false;
 
             for (int i = 0; i < that.size; i++) {
                 long thatTuple = that.tuples[i];
@@ -279,7 +327,6 @@ public final class ParetoFront {
                 // Cherche un tuple dans 'this' qui domine ou égale 'fixedThat'
                 boolean dominatedByAtLeastOne = false;
                 for (int j = 0; j < this.size; j++) {
-
                     if (PackedCriteria.dominatesOrIsEqual(tuples[j], fixedThat)) {
                         dominatedByAtLeastOne = true;
                         break;
@@ -298,8 +345,7 @@ public final class ParetoFront {
          * @return un ParetoFront immuable.
          */
         public ParetoFront build() {
-            long[] finalArray = Arrays.copyOf(tuples, size);
-            return new ParetoFront(finalArray);
+            return new ParetoFront(Arrays.copyOf(tuples, size));
         }
 
         /**
