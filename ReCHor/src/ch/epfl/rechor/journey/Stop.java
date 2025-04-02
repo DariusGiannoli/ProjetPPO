@@ -25,7 +25,8 @@ public record Stop(String name, String platformName, double longitude, double la
 
     /**
      * Constructeur compact de Stop.
-     * Vérifie que le nom n’est pas nul et que les coordonnées sont comprises dans les limites autorisées.
+     * Vérifie que le nom n’est pas nul
+     * et que les coordonnées sont comprises dans les limites autorisées.
      *
      * @param name         le nom de l’arrêt (non nul).
      * @param platformName le nom de la voie/quai (peut être nul).

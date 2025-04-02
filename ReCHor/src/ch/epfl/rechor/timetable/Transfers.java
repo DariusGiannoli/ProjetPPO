@@ -40,7 +40,8 @@ public interface Transfers extends Indexed{
     int arrivingAt(int stationId);
 
     /**
-     * Retourne la durée (en minutes) du changement entre les gares identifiées par les index donnés.
+     * Retourne la durée (en minutes)
+     * du changement entre les gares identifiées par les index donnés.
      *
      * @param depStationId l'index de la gare de départ
      * @param arrStationId l'index de la gare d'arrivée

@@ -44,7 +44,8 @@ public final record Router(TimeTable timetable) {
             stationPF[i] = new ParetoFront.Builder();
         }
 
-        // Récupération des courses actives pour la date et initialisation des frontières pour chaque course.
+        // Récupération des courses actives pour la date
+        // et initialisation des frontières pour chaque course.
         Trips trips = timetable.tripsFor(date);
         int nTrips = trips.size();
         ParetoFront.Builder[] tripPF = new ParetoFront.Builder[nTrips];
@@ -56,7 +57,8 @@ public final record Router(TimeTable timetable) {
         Connections connections = timetable.connectionsFor(date);
         int nConnections = connections.size();
 
-        // Parcours de chaque liaison par ordre d'index (les connexions sont déjà triées par ordre décroissant d'heure de départ).
+        // Parcours de chaque liaison par ordre d'index
+        // (les connexions sont déjà triées par ordre décroissant d'heure de départ).
         for (int cid = 0; cid < nConnections; cid++) {
             final int currentCid = cid;
             final int arrivalStation = connections.arrStopId(currentCid);
@@ -72,7 +74,8 @@ public final record Router(TimeTable timetable) {
             // si le temps de marche depuis la gare d'arrivée est faisable.
             if (walkTimes[arrivalStation] >= 0) {
                 int arrivalTimeWithWalk = arrMinsOfConn + walkTimes[arrivalStation];
-                // Le tuple est ajouté avec 0 changement et le payload fixé à l'identifiant de la connexion.
+                // Le tuple est ajouté avec 0 changement
+                // et le payload fixé à l'identifiant de la connexion.
                 f.add(arrivalTimeWithWalk, 0, currentCid);
             }
 
@@ -95,7 +98,8 @@ public final record Router(TimeTable timetable) {
                 }
             });
 
-            // Optimisation 1 : Si la frontière calculée pour la connexion est vide, on passe à la suivante.
+            // Optimisation 1 : Si la frontière calculée pour la connexion est vide,
+            // on passe à la suivante.
             if (f.isEmpty()) {
                 continue;
             }
@@ -112,13 +116,15 @@ public final record Router(TimeTable timetable) {
             }
         }
 
-        // Construction finale : création d'une liste immuable des frontières de Pareto pour chaque gare.
+        // Construction finale :
+        // création d'une liste immuable des frontières de Pareto pour chaque gare.
         List<ParetoFront> stationFronts = new ArrayList<>(nStations);
         for (int i = 0; i < nStations; i++) {
             stationFronts.add(stationPF[i].build());
         }
 
-        // Retour du profil final encapsulant l'horaire, la date, la gare de destination et les frontières.
+        // Retour du profil final encapsulant l'horaire, la date,
+        // la gare de destination et les frontières.
         return new Profile(timetable, date, destinationStationId, stationFronts);
     }
 }

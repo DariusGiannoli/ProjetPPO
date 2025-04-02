@@ -8,7 +8,8 @@ import java.nio.IntBuffer;
 /**
  * Permet d'accéder à une table de liaisons représentée de manière aplatie.
  * <p>
- * Fournit les informations sur les liaisons (départs, arrivées, cours, positions) ainsi que l'index de la liaison suivante.
+ * Fournit les informations sur les liaisons (départs, arrivées, cours, positions)
+ * ainsi que l'index de la liaison suivante.
  * </p>
  *
  * @author Antoine Lepin (390950)
@@ -41,7 +42,8 @@ public final class BufferedConnections implements Connections {
      * Construit une instance de {@code BufferedConnections}.
      *
      * @param buffer     le {@code ByteBuffer} contenant les données aplaties des liaisons.
-     * @param succBuffer le {@code ByteBuffer} contenant uniquement les indices des liaisons suivantes.
+     * @param succBuffer le {@code ByteBuffer} contenant uniquement les indices
+     *                   des liaisons suivantes.
      */
     public BufferedConnections(ByteBuffer buffer, ByteBuffer succBuffer) {
         this.structuredBuffer = new StructuredBuffer(CONNECTION_STRUCTURE, buffer);

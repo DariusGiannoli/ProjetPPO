@@ -10,7 +10,8 @@ import java.util.NoSuchElementException;
 /**
  * Permet d'accéder à une table de changements représentée de manière aplatie.
  * <p>
- * Pré-calcule une table associant, pour chaque gare d'arrivée, l'intervalle empaqueté des index des changements.
+ * Pré-calcule une table associant, pour chaque gare d'arrivée,
+ * l'intervalle empaqueté des index des changements.
  * </p>
  *
  * @author Antoine Lepin (390950)
@@ -32,13 +33,15 @@ public final class BufferedTransfers implements Transfers {
 
     // StructuredBuffer pour accéder aux données des changements
     private final StructuredBuffer structuredBuffer;
-    // Tableau pré-calculé associant, pour chaque gare d'arrivée, l'intervalle empaqueté des index des changements
+    // Tableau pré-calculé associant, pour chaque gare d'arrivée,
+    // l'intervalle empaqueté des index des changements
     private final int[] arrivingAtTable;
 
     /**
      * Construit une instance de {@code BufferedTransfers}.
      * <p>
-     * Parcourt deux fois le buffer afin de construire la table associant à chaque gare d'arrivée l'intervalle des changements.
+     * Parcourt deux fois le buffer afin de construire la table associant
+     * à chaque gare d'arrivée l'intervalle des changements.
      * </p>
      *
      * @param buffer le {@code ByteBuffer} contenant les données aplaties des changements.
@@ -56,7 +59,8 @@ public final class BufferedTransfers implements Transfers {
             }
         }
 
-        // Créer la table avec une taille couvrant tous les indices de gares (0 à maxArrStation inclus)
+        // Créer la table avec une taille couvrant tous les indices de gares
+        // (0 à maxArrStation inclus)
         arrivingAtTable = new int[maxArrStation + 1];
         // Initialiser la table avec des intervalles vides (convention : PackedRange.pack(0, 0))
         Arrays.fill(arrivingAtTable, PackedRange.pack(0, 0));
@@ -66,7 +70,8 @@ public final class BufferedTransfers implements Transfers {
         while (i < numChanges) {
             int currentArrStation = structuredBuffer.getU16(ARR_STATION_ID, i);
             int startIndex = i;
-            while (i < numChanges && structuredBuffer.getU16(ARR_STATION_ID, i) == currentArrStation) {
+            while (i < numChanges && structuredBuffer.getU16(ARR_STATION_ID, i)
+                    == currentArrStation) {
                 i++;
             }
             int endIndex = i; // intervalle [startIndex, endIndex)

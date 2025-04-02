@@ -7,7 +7,8 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 /**
- Permet d'accéder à une table de lignes représentée de manière aplatie et implémente l'interface Routes.
+ Permet d'accéder à une table de lignes représentée de manière aplatie
+ et implémente l'interface Routes.
  * Cette classe utilise un buffer structuré pour accéder aux données des lignes.
  *
  * @author Antoine Lepin (390950)

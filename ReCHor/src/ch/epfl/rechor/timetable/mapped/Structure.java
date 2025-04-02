@@ -114,7 +114,8 @@ public final class Structure {
      * @return l'offset correspondant dans le tableau d'octets
      */
     public int offset(int fieldIndex, int elementIndex) {
-        // L'accès à fieldOffsets[fieldIndex] déclenchera une IndexOutOfBoundsException si fieldIndex est hors limites
+        // L'accès à fieldOffsets[fieldIndex] déclenchera une IndexOutOfBoundsException
+        // si fieldIndex est hors limites
         return elementIndex * totalSize + fieldOffsets[fieldIndex];
     }
 

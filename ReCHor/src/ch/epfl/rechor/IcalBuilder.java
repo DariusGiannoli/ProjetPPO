@@ -64,7 +64,8 @@ public final class IcalBuilder {
     private final StringBuilder icalString = new StringBuilder();
 
     /**
-     * Ajoute une ligne iCalendar au format "name:value", en pliant la ligne si elle dépasse 75 caractères.
+     * Ajoute une ligne iCalendar au format "name:value",
+     * en pliant la ligne si elle dépasse 75 caractères.
      *
      * @param name le nom (propriété) iCalendar
      * @param value la valeur associée
@@ -73,9 +74,11 @@ public final class IcalBuilder {
     public String textAdd(String name, String value) {
         String line = name + ":" + value;
         final int lineLength = line.length();
-        // Estimation de la capacité : la chaîne d'origine plus le nombre de retours à la ligne et espaces
+        // Estimation de la capacité :
+        // la chaîne d'origine plus le nombre de retours à la ligne et espaces
         StringBuilder sb =
-                new StringBuilder(lineLength + (lineLength / MAX_LINE_LENGTH + 1) * (CRLF.length() + 1));
+                new StringBuilder(lineLength + (lineLength / MAX_LINE_LENGTH + 1) *
+                        (CRLF.length() + 1));
 
         int index = 0;
         while (index < lineLength) {
@@ -103,7 +106,8 @@ public final class IcalBuilder {
     }
 
     /**
-     * Ajoute au document iCalendar une propriété représentant une date/heure au format "yyyyMMdd'T'HHmmss".
+     * Ajoute au document iCalendar une propriété représentant
+     * une date/heure au format "yyyyMMdd'T'HHmmss".
      *
      * @param name la propriété iCalendar
      * @param dateTime l'instant à formater
@@ -142,7 +146,8 @@ public final class IcalBuilder {
     }
 
     /**
-     * Construit la chaîne iCalendar finale représentant l’ensemble des composants et propriétés ajoutés.
+     * Construit la chaîne iCalendar finale
+     * représentant l’ensemble des composants et propriétés ajoutés.
      *
      * @return la représentation iCalendar complète
      * @throws IllegalArgumentException si des composants sont encore ouverts
