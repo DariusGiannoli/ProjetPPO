@@ -21,7 +21,8 @@ public final class StructuredBuffer {
      *
      * @param structure la structure des éléments
      * @param buffer    le tampon contenant les données aplaties
-     * @throws IllegalArgumentException si la capacité du buffer n'est pas un multiple de la taille totale de la structure
+     * @throws IllegalArgumentException si la capacité du buffer n'est pas un multiple
+     * de la taille totale de la structure
      */
     public StructuredBuffer(Structure structure, ByteBuffer buffer){
         this.structure = structure;

@@ -62,7 +62,8 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
         BufferedRoutes bufferedRoutes = new BufferedRoutes(list, routesByteBuffer);
 
         ByteBuffer aliasesByteBuffer = bufferExtractor(directory, PATH_ALIASES);
-        BufferedStationAliases bufferedAliases = new BufferedStationAliases(list, aliasesByteBuffer);
+        BufferedStationAliases bufferedAliases = new BufferedStationAliases(list,
+                aliasesByteBuffer);
 
         ByteBuffer stationsByteBuffer = bufferExtractor(directory, PATH_STATIONS);
         BufferedStations bufferedStations = new BufferedStations(list, stationsByteBuffer);
@@ -70,8 +71,8 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
         ByteBuffer transfersByteBuffer = bufferExtractor(directory, PATH_TRANSFERS);
         BufferedTransfers bufferedTransfers = new BufferedTransfers(transfersByteBuffer);
 
-        return new FileTimeTable(directory, list, bufferedStations, bufferedAliases, bufferedPlatforms,
-                bufferedRoutes, bufferedTransfers);
+        return new FileTimeTable(directory, list, bufferedStations, bufferedAliases,
+                bufferedPlatforms, bufferedRoutes, bufferedTransfers);
     }
 
     /**
@@ -81,7 +82,8 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
      * @param directory le chemin du répertoire contenant le fichier
      * @param path  le nom du fichier à mapper
      * @return  un ByteBuffer mappé en lecture seule contenant le contenu du fichier
-     * @throws IOException  i une erreur d'entrée/sortie se produit lors de l'ouverture du fichier ou du mapping
+     * @throws IOException  i une erreur d'entrée/sortie se produit
+     * lors de l'ouverture du fichier ou du mapping
      */
     private static ByteBuffer bufferExtractor(Path directory, String path) throws IOException {
         try (FileChannel s = FileChannel.open(directory.resolve(path))) {

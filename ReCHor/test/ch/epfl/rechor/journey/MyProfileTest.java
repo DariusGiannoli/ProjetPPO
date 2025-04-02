@@ -19,14 +19,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyProfileTest {
-    Path path = Path.of("ReChor/timetable");
+    Path path = Path.of("timetable");
 
     Profile readProfile(TimeTable timeTable,
                         LocalDate date,
                         int arrStationId) throws IOException {
 
         Path path =
-                Path.of("ReChor","profile_" + date + "_" + arrStationId + ".txt");
+                Path.of("profile_" + date + "_" + arrStationId + ".txt");
         try (BufferedReader r = Files.newBufferedReader(path)) {
             Profile.Builder profileB =
                     new Profile.Builder(timeTable, date, arrStationId);
@@ -67,7 +67,7 @@ class MyProfileTest {
 
     @Test
     void tripsTest() throws IOException {
-        TimeTable t = FileTimeTable.in(Path.of("ReChor/timetable"));
+        TimeTable t = FileTimeTable.in(Path.of("timetable"));
         LocalDate date = LocalDate.of(2025, Month.MARCH, 18);
         Profile p = readProfile(t, date, 11486);
         List<Journey> js = JourneyExtractor.journeys(p, 7872);
@@ -83,7 +83,7 @@ class MyProfileTest {
 
     @Test
     void forStationTest() throws IOException {
-        TimeTable t = FileTimeTable.in(Path.of("ReChor/timetable"));
+        TimeTable t = FileTimeTable.in(Path.of("timetable"));
         LocalDate date = LocalDate.of(2025, Month.MARCH, 18);
         Profile p = readProfile(t, date, 11486);
         List<Journey> js = JourneyExtractor.journeys(p, 7874);
@@ -95,7 +95,7 @@ class MyProfileTest {
     void barbatruc() throws IOException {
 
 
-        TimeTable t = FileTimeTable.in(Path.of("ReChor/timetable"));
+        TimeTable t = FileTimeTable.in(Path.of("timetable"));
         Profile.Builder profileB = new Profile.Builder(t, LocalDate.of(2025, 3, 18), 7874);
         ParetoFront.Builder frontB = new ParetoFront.Builder();
         frontB.add(PackedCriteria.withDepMins(PackedCriteria.pack(1488, 0, Bits32_24_8.pack(5328, 0)), 1486));

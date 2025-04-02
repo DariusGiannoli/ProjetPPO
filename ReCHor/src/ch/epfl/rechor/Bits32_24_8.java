@@ -23,7 +23,8 @@ public final class Bits32_24_8 {
      * @param bits24 la valeur devant tenir sur 24 bits
      * @param bits8  la valeur devant tenir sur 8 bits
      * @return l’entier 32 bits contenant bits24 et bits8
-     * @throws IllegalArgumentException si bits24 ou bits8 ne tiennent pas dans leur nombre de bits respectif
+     * @throws IllegalArgumentException si bits24 ou bits8 ne tiennent pas
+     * dans leur nombre de bits respectif
      */
     public static int pack(int bits24, int bits8) {
         Preconditions.checkArgument((bits8 >>> EIGHT_BITS) == 0

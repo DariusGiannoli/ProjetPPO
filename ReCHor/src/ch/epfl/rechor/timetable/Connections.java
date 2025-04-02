@@ -2,7 +2,8 @@ package ch.epfl.rechor.timetable;
 
 /**
  * L'interface Connections représente les liaisons indexées.
- * Pour l'algorithme de recherche de voyages, les liaisons doivent être ordonnées par heure de départ décroissante.
+ * Pour l'algorithme de recherche de voyages,
+ * les liaisons doivent être ordonnées par heure de départ décroissante.
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)

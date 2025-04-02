@@ -34,7 +34,7 @@ public final class FormatterFr {
 
     // Tailles initiales pour StringBuilder selon les différentes utilisations
     private static final int SB_CAPACITY_SMALL = 32;    // Pour formatDuration, formatTime
-    private static final int SB_CAPACITY_MEDIUM = 64;   // Pour formatLeg(Foot), formatRouteDestination
+    private static final int SB_CAPACITY_MEDIUM = 64;   // Pour formatLeg(Foot)
     private static final int SB_CAPACITY_LARGE = 128;   // Pour formatLeg(Transport)
 
     // Format des minutes avec deux chiffres
@@ -99,7 +99,8 @@ public final class FormatterFr {
      * Formate une étape à pied en indiquant son type et sa durée.
      *
      * @param footLeg une étape effectuée à pied.
-     * @return une chaîne décrivant l'étape, par exemple "changement (5 min)" ou "trajet à pied (3 min)".
+     * @return une chaîne décrivant l'étape,
+     * par exemple "changement (5 min)" ou "trajet à pied (3 min)".
      */
     public static String formatLeg(Foot footLeg) {
         final String description = footLeg.isTransfer() ? CHANGEMENT : TRAJET_A_PIED;
@@ -159,7 +160,8 @@ public final class FormatterFr {
      * Le format résultant est "NomLigne Direction Destination".
      *
      * @param transportLeg une étape en transport public.
-     * @return une chaîne représentant la ligne et la destination, par exemple "IR 15 Direction Luzern".
+     * @return une chaîne représentant la ligne et la destination,
+     * par exemple "IR 15 Direction Luzern".
      */
     public static String formatRouteDestination(Journey.Leg.Transport transportLeg) {
         final String route = transportLeg.route();
