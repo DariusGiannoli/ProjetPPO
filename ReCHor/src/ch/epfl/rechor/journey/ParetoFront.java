@@ -17,6 +17,7 @@ import java.util.function.LongConsumer;
  * @author Darius Giannoli (380759)
  */
 public final class ParetoFront {
+
     // Shared string constants
     private static final String EMPTY_FRONTIER = "ParetoFront EMPTY";
     private static final String EMPTY_BUILDER = "Builder: ParetoFront EMPTY";
@@ -89,7 +90,7 @@ public final class ParetoFront {
      * Renvoie une représentation textuelle lisible de la frontière de Pareto,
      * indiquant l'heure d'arrivée et le nombre de changements pour chaque tuple.
      *
-     * @return une String représentant la frontière.
+     * @return String représentant la frontière.
      */
     @Override
     public String toString() {
@@ -114,6 +115,7 @@ public final class ParetoFront {
      * et en éliminant les tuples dominés.
      */
     public static final class Builder {
+
         // Initial capacity for the array
         private static final int INITIAL_CAPACITY = 2;
 
@@ -169,24 +171,24 @@ public final class ParetoFront {
          * @return la frontière en construction pour l'enchainement des méthodes.
          */
         public Builder add(long packedTuple) {
-            // Mask out payload bits for position comparison
+
+            // Masquer les bits de la charge utile pour la comparaison de la position
             long adjusted = packedTuple & PAYLOAD_MASK;
 
-            // 1. Find position and check if dominated
+            // 1. Trouver la position et vérifier si elle est dominée
             int pos = 0;
             while (pos < size && tuples[pos] < adjusted) {
                 if (PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
-                    return this; // Tuple is dominated, don't add it
+                    return this; // Le tuple est dominé, ne pas l'ajouter
                 }
                 pos++;
             }
-
-            // Check if tuple at insertion position dominates the new one
+            // Vérifier si le tuple à la position d'insertion domine le nouveau tuple
             if (pos < size && PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
                 return this;
             }
 
-            // 2. Handle dominated elements after position
+            // 2. Traiter les éléments dominés après la position
             int dst = pos;
             for (int src = pos; src < size; src++) {
                 if (!PackedCriteria.dominatesOrIsEqual(packedTuple, tuples[src])) {
@@ -196,19 +198,15 @@ public final class ParetoFront {
             }
             int newSize = dst;
 
-            // 3. Ensure capacity for the new element
+            // 3. Assurer la capacité d'accueil du nouvel élément
             if (newSize + 1 > tuples.length) {
-                int newCapacity = Math.max(tuples.length + 1, (int)(tuples.length * 1.5));
-                long[] newArray = new long[newCapacity];
-                System.arraycopy(tuples, 0, newArray, 0, pos);
-                System.arraycopy(tuples, pos, newArray, pos + 1, newSize - pos);
-                tuples = newArray;
-            } else {
-                // Make space for new element
-                System.arraycopy(tuples, pos, tuples, pos + 1, newSize - pos);
+                int newCapacity = Math.max(tuples.length * 2, newSize + 1);
+                tuples = Arrays.copyOf(tuples, newCapacity);
             }
+            // On fait le décalage dans tous les cas
+            System.arraycopy(tuples, pos, tuples, pos + 1, newSize - pos);
 
-            // 4. Insert new tuple and update size
+            // Insertion d'un nouveau tuple et mise à jour de la taille
             tuples[pos] = packedTuple;
             size = newSize + 1;
 
@@ -236,6 +234,7 @@ public final class ParetoFront {
          */
         public Builder addAll(Builder that) {
             that.forEach(this::add);
+
             return this;
         }
 
@@ -261,22 +260,27 @@ public final class ParetoFront {
          * @return vrai si tous les tuples de 'that' sont dominés par un tuple du bâtisseur actuel.
          */
         public boolean fullyDominates(Builder that, int depMins) {
+
             if (that.isEmpty()) return true;
             if (this.isEmpty()) return false;
 
             for (int i = 0; i < that.size; i++) {
                 long fixedThat = PackedCriteria.withDepMins(that.tuples[i], depMins);
-                boolean dominated = false;
 
+                // Vérifier si ce tuple est dominé par au moins un tuple de this
+                boolean dominated = false;
                 for (int j = 0; j < this.size; j++) {
                     if (PackedCriteria.dominatesOrIsEqual(tuples[j], fixedThat)) {
                         dominated = true;
                         break;
                     }
                 }
-
-                if (!dominated) return false;
+                // Si ce tuple n'est pas dominé, alors this ne domine pas entièrement that
+                if (!dominated) {
+                    return false;
+                }
             }
+            // Tous les tuples sont dominés
             return true;
         }
 
@@ -287,10 +291,13 @@ public final class ParetoFront {
          */
         public ParetoFront build() {
             if (size == 0) return EMPTY;
+
             return new ParetoFront(Arrays.copyOf(tuples, size));
         }
 
         /**
+         * Redéfinition de la méthode toString
+         *
          * @return renvoie la frontière de Pareto sous forme de chaîne de caractères pour
          * une meilleure lisibilité.
          */

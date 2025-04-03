@@ -17,6 +17,9 @@ import java.util.UUID;
  */
 public final class JourneyIcalConverter {
 
+    private static final String LINE_SEPARATOR = "\\n";
+    private static final String SUMMARY_SEPARATOR = " → ";
+
     /**Constructeur privé pour empêcher l'instanciation.*/
     private JourneyIcalConverter() {}
 
@@ -29,7 +32,7 @@ public final class JourneyIcalConverter {
     public static String toIcalendar(Journey journey){
 
         // Construction de la description : une étape par ligne, séparées par un saut de ligne
-        StringJoiner joiner = new StringJoiner("\\n");
+        StringJoiner joiner = new StringJoiner(LINE_SEPARATOR);
         for (Journey.Leg leg : journey.legs()) {
             switch (leg) {
                 case Journey.Leg.Foot foot ->
@@ -40,7 +43,8 @@ public final class JourneyIcalConverter {
         }
 
         // Construction du résumé de l'événement
-        final String summary = journey.depStop().name() + " → " + journey.arrStop().name();
+        final String summary =
+                journey.depStop().name() + SUMMARY_SEPARATOR + journey.arrStop().name();
 
         // Création du builder iCalendar
         IcalBuilder builder = new IcalBuilder();

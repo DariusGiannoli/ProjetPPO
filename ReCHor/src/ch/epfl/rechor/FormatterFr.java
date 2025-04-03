@@ -69,6 +69,7 @@ public final class FormatterFr {
      */
     public static String formatTime(LocalDateTime dateTime) {
         StringBuilder sb = new StringBuilder(SB_CAPACITY_SMALL);
+
         return sb.append(dateTime.getHour())
                 .append(HOUR)
                 .append(String.format(MINUTE_FORMAT, dateTime.getMinute()))
@@ -89,10 +90,8 @@ public final class FormatterFr {
             return EMPTY_STRING;
         }
 
-        StringBuilder sb = new StringBuilder(SB_CAPACITY_SMALL);
-        return sb.append(Character.isDigit(platformName.charAt(0)) ? VOIE_PREFIX : QUAI_PREFIX)
-                .append(platformName)
-                .toString();
+        String prefix = Character.isDigit(platformName.charAt(0)) ? VOIE_PREFIX : QUAI_PREFIX;
+        return prefix + platformName;
     }
 
     /**
@@ -123,30 +122,30 @@ public final class FormatterFr {
      * @return une chaîne représentant l'étape en transport public.
      */
     public static String formatLeg(Journey.Leg.Transport leg) {
-        final String depTime = formatTime(leg.depTime());
-        final String depStopName = leg.depStop().name();
-        final String depPlatform = formatPlatformName(leg.depStop());
-        final String arrStopName = leg.arrStop().name();
-        final String arrTime = formatTime(leg.arrTime());
-        final String arrPlatform = formatPlatformName(leg.arrStop());
 
         StringBuilder sb = new StringBuilder(SB_CAPACITY_LARGE);
 
-        sb.append(depTime)
+        // Ajout des informations de départ
+        sb.append(formatTime(leg.depTime()))
                 .append(SPACE)
-                .append(depStopName);
+                .append(leg.depStop().name());
 
+        // Ajout de la plateforme de départ si disponible
+        String depPlatform = formatPlatformName(leg.depStop());
         if (!depPlatform.isEmpty()) {
             sb.append(LEFT_PARENTHESIS)
                     .append(depPlatform)
                     .append(RIGHT_PARENTHESIS);
         }
 
+        // Ajout de la flèche et de l'arrêt d'arrivée
         sb.append(ARROW)
-                .append(arrStopName)
+                .append(leg.arrStop().name())
                 .append(ARRIVAL_PREFIX)
-                .append(arrTime);
+                .append(formatTime(leg.arrTime()));
 
+        // Ajout de la plateforme d'arrivée si disponible
+        String arrPlatform = formatPlatformName(leg.arrStop());
         if (!arrPlatform.isEmpty()) {
             sb.append(SPACE)
                     .append(arrPlatform);

@@ -46,10 +46,7 @@ public record Journey(List<Leg> legs) {
             Leg previous = legs.get(i - 1);
 
             // Vérifie l'alternance pied/transport
-            checkArgument(
-                    !((previous instanceof Leg.Foot && current instanceof Leg.Foot) ||
-                            (previous instanceof Leg.Transport
-                                    && current instanceof Leg.Transport)));
+            checkArgument(((previous instanceof Leg.Foot) ^ (current instanceof Leg.Foot)));
 
             // Vérifie que l'instant de départ ne précède pas celui d'arrivée de la précédente
             checkArgument(!current.depTime().isBefore(previous.arrTime()));
@@ -190,9 +187,10 @@ public record Journey(List<Leg> legs) {
          * @param route             le nom de la ligne.
          * @param destination       la destination finale.
          */
-        record Transport(Stop depStop, LocalDateTime depTime,  Stop arrStop,
-                         LocalDateTime arrTime, List<IntermediateStop> intermediateStops,
-                         Vehicle vehicle, String route, String destination)
+        record Transport(Stop depStop, LocalDateTime depTime,
+                         Stop arrStop, LocalDateTime arrTime,
+                         List<IntermediateStop> intermediateStops, Vehicle vehicle,
+                         String route, String destination)
                 implements Leg {
 
             /**
@@ -233,7 +231,8 @@ public record Journey(List<Leg> legs) {
          * @param arrStop l’arrêt d’arrivée.
          * @param arrTime la date/heure d’arrivée.
          */
-        record Foot(Stop depStop, LocalDateTime depTime, Stop arrStop, LocalDateTime arrTime)
+        record Foot(Stop depStop, LocalDateTime depTime,
+                    Stop arrStop, LocalDateTime arrTime)
                 implements Leg{
 
             /**

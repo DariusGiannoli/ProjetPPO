@@ -52,6 +52,10 @@ public final class IcalBuilder {
     }
 
     private static final String CRLF = "\r\n";
+    private static final int FOLDING_OVERHEAD = 2; // Pour CRLF + espace
+    private static final String CONTINUATION_SPACE = " ";
+    private static final String COLON = ":";
+
     //Formatteur de date/heure pour iCalendar, sous la forme "yyyyMMdd'T'HHmmss"
     private static final DateTimeFormatter ICAL_DATE_TIME_FORMAT =
             DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss");
@@ -72,20 +76,21 @@ public final class IcalBuilder {
      * @return la chaîne pliée correspondant à la propriété iCalendar, terminée par CRLF
      */
     public String textAdd(String name, String value) {
-        String line = name + ":" + value;
+
+        String line = name + COLON + value;
         final int lineLength = line.length();
         // Estimation de la capacité :
         // la chaîne d'origine plus le nombre de retours à la ligne et espaces
         StringBuilder sb =
-                new StringBuilder(lineLength + (lineLength / MAX_LINE_LENGTH + 1) *
-                        (CRLF.length() + 1));
+                new StringBuilder(lineLength +
+                        (lineLength / MAX_LINE_LENGTH + 1) * FOLDING_OVERHEAD);
 
         int index = 0;
         while (index < lineLength) {
             int currentMax = (index == 0) ? MAX_LINE_LENGTH : CONTINUATION_LENGTH;
             int end = Math.min(index + currentMax, lineLength);
             if (index > 0) {
-                sb.append(" ");
+                sb.append(CONTINUATION_SPACE);
             }
             sb.append(line, index, end).append(CRLF);
             index += currentMax;

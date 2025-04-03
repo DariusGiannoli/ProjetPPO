@@ -23,6 +23,8 @@ import java.util.NoSuchElementException;
  */
 public final class JourneyExtractor {
 
+    private static final int MAX_INTERMEDIATE_STOPS = 100;
+
     /**Constructeur privé pour empêcher l'instanciation*/
     private JourneyExtractor() {}
 
@@ -35,6 +37,7 @@ public final class JourneyExtractor {
      * @return une liste de voyages triés par heure de départ puis par heure d'arrivée
      */
     public static List<Journey> journeys(Profile profile, int depStationId) {
+
         List<Journey> journeys = new ArrayList<>();
         ParetoFront pf = profile.forStation(depStationId);
 
@@ -70,6 +73,7 @@ public final class JourneyExtractor {
      */
     private static void extractLegs(Profile profile, int depStationId, long criteria,
                                     List<Journey.Leg> legs) {
+
         // Récupération des objets fréquemment utilisés
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
@@ -129,6 +133,7 @@ public final class JourneyExtractor {
     private static long processTransportLeg(Profile profile, int connectionId, int interStops,
                                            int remainingChanges, int endMins, boolean isLastLeg,
                                            List<Journey.Leg> legs) {
+
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
 
@@ -229,7 +234,6 @@ public final class JourneyExtractor {
         legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, nextDepStop, nextDepDateTime));
     }
 
-
     /**
      * Crée et ajoute une étape de transport à la liste des étapes.
      *
@@ -246,6 +250,7 @@ public final class JourneyExtractor {
                                            int connectionId, int depTime,  int tripId,
                                            List<Journey.Leg.IntermediateStop> intermediateStops,
                                            List<Journey.Leg> legs) {
+
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
         Trips trips = profile.trips();
@@ -300,7 +305,6 @@ public final class JourneyExtractor {
         }
     }
 
-
     /**
      * Collecte les arrêts intermédiaires pour une étape de transport.
      *
@@ -317,7 +321,7 @@ public final class JourneyExtractor {
                                                 List<Journey.Leg.IntermediateStop> stops) {
         int currentConnId = connectionId;
 
-        for (int j = 0; j < count && j < 100; j++) { // Limite de sécurité
+        for (int j = 0; j < Math.min(count, MAX_INTERMEDIATE_STOPS); j++) { // Limite de sécurité
             try {
                 int arrStopId = connections.arrStopId(currentConnId);
                 int arrMinutes = connections.arrMins(currentConnId);
@@ -342,7 +346,6 @@ public final class JourneyExtractor {
 
         return currentConnId;
     }
-
 
     /**
      * Ajoute une étape à pied finale si la station courante n'est pas la destination.
@@ -372,7 +375,6 @@ public final class JourneyExtractor {
         }
     }
 
-
     /**
      * Crée un objet LocalDateTime à partir d'une date et d'un nombre de minutes depuis minuit.
      *
@@ -383,7 +385,6 @@ public final class JourneyExtractor {
     private static LocalDateTime createDateTime(LocalDate date, int minutes) {
         return LocalDateTime.of(date, LocalTime.MIDNIGHT).plusMinutes(minutes);
     }
-
 
     /**
      * Crée un objet Stop à partir d'un identifiant d'arrêt.
@@ -418,7 +419,6 @@ public final class JourneyExtractor {
                     timeTable.stations().latitude(stationId));
         }
     }
-
 
     /**
      * Crée un objet Stop représentant une gare.

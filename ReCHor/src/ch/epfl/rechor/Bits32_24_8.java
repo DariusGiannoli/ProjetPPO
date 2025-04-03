@@ -11,8 +11,10 @@ package ch.epfl.rechor;
  */
 public final class Bits32_24_8 {
 
-    private static final int MAX_8_BIT = 0xFF; // 255
+    //Constantes privées
     private static final int EIGHT_BITS = 8;
+    private static final int MAX_8_BIT = 0xFF; // 255
+    private static final int MAX_24_BIT = 0xFFFFFF;
 
     /**Constructeur privé pour empêcher l'instanciation.*/
     private Bits32_24_8() {}
@@ -23,12 +25,13 @@ public final class Bits32_24_8 {
      * @param bits24 la valeur devant tenir sur 24 bits
      * @param bits8  la valeur devant tenir sur 8 bits
      * @return l’entier 32 bits contenant bits24 et bits8
-     * @throws IllegalArgumentException si bits24 ou bits8 ne tiennent pas
-     * dans leur nombre de bits respectif
+     * @throws IllegalArgumentException si bits24 dépasse 24 bits ou si bits8 dépasse 8 bits
      */
     public static int pack(int bits24, int bits8) {
-        Preconditions.checkArgument((bits8 >>> EIGHT_BITS) == 0
-                && (bits24 >>> 24) == 0);
+
+        Preconditions.checkArgument((bits8 & ~MAX_8_BIT) == 0
+                && (bits24 & ~MAX_24_BIT) == 0);
+
         return (bits24 << EIGHT_BITS) | bits8;
     }
 
