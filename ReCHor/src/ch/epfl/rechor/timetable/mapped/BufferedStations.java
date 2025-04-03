@@ -31,6 +31,7 @@ public final class BufferedStations implements Stations {
             Structure.field(LAT, Structure.FieldType.S32)
     );
 
+    //Conversion des unités
     private static final double UNIT_TO_DEGREES = Math.scalb(360.0, -32);
 
     private final List<String> stringTable;

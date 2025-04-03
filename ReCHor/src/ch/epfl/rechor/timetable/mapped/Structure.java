@@ -23,9 +23,9 @@ public final class Structure {
      * @throws IllegalArgumentException si l'ordre des indices n'est pas correct
      */
     public Structure(Field... fields) {
-
-        for (int i = 0; i < fields.length; i++)
+        for (int i = 0; i < fields.length; i++) {
             Preconditions.checkArgument(fields[i].index() == i);
+        }
 
         // Copie défensive pour préserver l'immuabilité
         this.fields = fields.clone();
@@ -44,17 +44,13 @@ public final class Structure {
      * Types de champs supportés avec leur taille en octets.
      */
     public enum FieldType {
-
-        /** 8 bits (1 octet) interprétés comme un entier non signé, compris donc
-         entre 0 (inclus) et 256 (exclu*/
+        /** 8 bits (1 octet) interprétés comme un entier non signé*/
         U8(1),
 
-        /** 16 bits (2 octets) interprétés comme un entier non signé, compris donc
-         entre 0 (inclus) et 65 536 (exclu)*/
+        /** 16 bits (2 octets) interprétés comme un entier non signé*/
         U16(2),
 
-        /** 32 bits (4 octets) interprétés comme un entier signé, compris donc entre
-         –2 147 483 648 (inclus) et 2 147 483 648 (exclu)*/
+        /** 32 bits (4 octets) interprétés comme un entier signé*/
         S32(4);
 
         private final int size;
@@ -86,8 +82,9 @@ public final class Structure {
          * Constructeur compact qui lève une NullPointerException si et seulement si type est null.
          */
         public Field {
-            if (type == null)
+            if (type == null) {
                 throw new NullPointerException();
+            }
         }
     }
 

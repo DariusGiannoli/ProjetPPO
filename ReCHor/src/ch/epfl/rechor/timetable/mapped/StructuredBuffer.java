@@ -50,6 +50,7 @@ public final class StructuredBuffer {
     public int getU8(int fieldIndex, int elementIndex) {
         int offset = structure.offset(fieldIndex, elementIndex);
         byte b = buffer.get(offset);
+
         return Byte.toUnsignedInt(b);
     }
 

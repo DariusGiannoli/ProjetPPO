@@ -113,6 +113,7 @@ public final class BufferedTransfers implements Transfers {
         if (stationId < 0 || stationId >= arrivingAtTable.length) {
             throw new IndexOutOfBoundsException();
         }
+
         return arrivingAtTable[stationId];
     }
 
@@ -129,6 +130,7 @@ public final class BufferedTransfers implements Transfers {
         int interval = arrivingAt(arrStationId);
         int start = PackedRange.startInclusive(interval);
         int end = PackedRange.endExclusive(interval);
+
         for (int i = start; i < end; i++) {
             if (structuredBuffer.getU16(DEP_STATION_ID, i) == depStationId) {
                 return structuredBuffer.getU8(TRANSFER_MINUTES, i);

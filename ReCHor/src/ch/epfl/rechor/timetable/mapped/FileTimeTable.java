@@ -52,7 +52,6 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
      * @throws IOException en cas d'erreur d'entrée/sortie
      */
     public static TimeTable in(Path directory) throws IOException {
-
         // Chargement de la table de chaînes
         Path strings = directory.resolve(PATH_FILE);
         Charset charset = StandardCharsets.ISO_8859_1;
