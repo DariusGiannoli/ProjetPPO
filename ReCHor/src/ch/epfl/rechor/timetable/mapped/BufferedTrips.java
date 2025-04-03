@@ -16,6 +16,7 @@ import java.util.List;
  */
 public final class BufferedTrips implements Trips {
 
+    // Indices des champs dans la table principale des courses
     private static final int ROUTE_ID = 0;  //U16 index de la ligne (route)
     private static final int DESTINATION_ID = 1; //U16 index du nom de la destination.
 

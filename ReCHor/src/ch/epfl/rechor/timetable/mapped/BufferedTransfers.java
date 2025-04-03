@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
  */
 public final class BufferedTransfers implements Transfers {
 
-    // Indices des champs dans un enregistrement de changement
+    //Indices des champs dans la table principale des changements
     private static final int DEP_STATION_ID   = 0; // U16 index de la gare de départ
     private static final int ARR_STATION_ID   = 1; // U16 index de la gare d'arrivée
     private static final int TRANSFER_MINUTES = 2; // U8 durée du changement

@@ -20,6 +20,7 @@ import java.util.List;
  */
 public final class BufferedStations implements Stations {
 
+    // Indices des champs dans la table principale des gares
     private static final int NAME_ID = 0; //U16 Index de chaîne du nom de la gare
     private static final int LON = 1; //S32 Longitude de la gare
     private static final int LAT = 2; //S32 Latitude de la gare

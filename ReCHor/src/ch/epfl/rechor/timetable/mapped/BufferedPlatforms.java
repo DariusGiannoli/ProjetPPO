@@ -19,6 +19,7 @@ import java.util.List;
  */
 public final class BufferedPlatforms implements Platforms {
 
+    //// Indices des champs dans la table principale des voies/quais
     private static final int NAME_ID = 0; //U16, Index de chaîne du nom de la voie/quai
     private static final int STATION_ID = 1; //U16, Index de la gare parente
 

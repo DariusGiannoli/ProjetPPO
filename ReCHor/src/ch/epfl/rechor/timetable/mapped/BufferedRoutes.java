@@ -17,6 +17,7 @@ import java.util.List;
 
 public final class BufferedRoutes implements Routes {
 
+    // Indices des champs dans la table principale des lignes
     private static final int NAME_ID = 0; // U16 index de chaîne du nom de la ligne
     private static final int KIND = 1; // U8 type de véhicule desservant la ligne
 

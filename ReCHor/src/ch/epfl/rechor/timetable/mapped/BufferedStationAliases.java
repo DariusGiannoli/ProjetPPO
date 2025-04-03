@@ -18,6 +18,7 @@ import java.util.List;
  */
 public final class BufferedStationAliases implements StationAliases {
 
+    // Indices des champs dans la table principale des noms alternatifs des gares
     private static final int ALIAS_ID = 0; //U16 Index de chaîne du nom alternatif
     private static final int STATION_NAME_ID = 1; //U16 Index de chaîne du nom de la gare
 
