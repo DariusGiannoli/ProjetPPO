@@ -20,9 +20,9 @@ import java.util.List;
  */
 public final class BufferedStations implements Stations {
 
-    private static final int NAME_ID = 0;
-    private static final int LON = 1;
-    private static final int LAT = 2;
+    private static final int NAME_ID = 0; //U16 Index de chaîne du nom de la gare
+    private static final int LON = 1; //S32 Longitude de la gare
+    private static final int LAT = 2; //S32 Latitude de la gare
 
     private static final Structure STATION_STRUCTURE = new Structure(
             Structure.field(NAME_ID, Structure.FieldType.U16),

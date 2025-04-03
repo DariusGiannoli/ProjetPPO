@@ -34,18 +34,18 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
     }
 
     /**
-     * Retourne les liaisons correspondant au profil.
+     * Retourne les liaisons correspondant à la date du profil.
      *
-     * @return les connexions de l'horaire pour la date du profil.
+     * @return les connexions de l'horaire pour la date du profil
      */
     public Connections connections() {
         return timeTable.connectionsFor(date);
     }
 
     /**
-     * Retourne les courses correspondant au profil.
+     * Retourne les courses correspondant à la date du profil.
      *
-     * @return les trips de l'horaire pour la date du profil.
+     * @return les courses de l'horaire pour la date du profil
      */
     public Trips trips() {
         return timeTable.tripsFor(date);
@@ -151,8 +151,9 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
         /**
          * Construit le profil final en copiant la frontière pour chaque gare.
          * Si un bâtisseur n'a pas été défini, la constante ParetoFront.EMPTY est utilisée.
+         * Les frontières pour les courses ne sont pas incluses dans le profil final.
          *
-         * @return le profil construit.
+         * @return le profil construit
          */
         public Profile build() {
             List<ParetoFront> stationFront = new ArrayList<>(stationsParetoFront.length);

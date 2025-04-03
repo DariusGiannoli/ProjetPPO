@@ -19,8 +19,8 @@ import java.util.List;
  */
 public final class BufferedPlatforms implements Platforms {
 
-    private static final int NAME_ID = 0;
-    private static final int STATION_ID = 1;
+    private static final int NAME_ID = 0; //U16, Index de chaîne du nom de la voie/quai
+    private static final int STATION_ID = 1; //U16, Index de la gare parente
 
     private static final Structure PLATFORM_STRUCTURE = new Structure(
             Structure.field(NAME_ID, Structure.FieldType.U16),

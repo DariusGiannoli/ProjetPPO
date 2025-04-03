@@ -4,8 +4,9 @@ import ch.epfl.rechor.Preconditions;
 import java.util.Objects;
 
 /**
- * Représente un arrêt de transport public Suisse
- * L’arrêt peut être une gare (platformName nul) ou une voie/quai (platformName non nul).
+ * Représente un arrêt de transport public Suisse.
+ * L'arrêt peut être une gare (platformName nul) ou une voie/quai (platformName non nul).
+ * Chaque arrêt est identifié par son nom et ses coordonnées géographiques.
  *
  * @param name         le nom de l’arrêt.
  * @param platformName le nom de la voie ou du quai (null si l’arrêt est une gare).

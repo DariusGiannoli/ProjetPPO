@@ -5,6 +5,9 @@ package ch.epfl.rechor.timetable;
  * Pour l'algorithme de recherche de voyages,
  * les liaisons doivent être ordonnées par heure de départ décroissante.
  *
+ *  Toutes les méthodes de cette interface peuvent lever IndexOutOfBoundsException
+ *  si l'index fourni est invalide (négatif ou supérieur ou égal à size()).
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */

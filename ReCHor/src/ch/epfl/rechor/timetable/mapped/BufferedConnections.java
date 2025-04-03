@@ -18,11 +18,11 @@ import java.nio.IntBuffer;
 public final class BufferedConnections implements Connections {
 
     // Indices des champs dans la table principale des liaisons
-    private static final int DEP_STOP_ID  = 0;
-    private static final int DEP_MINUTES  = 1;
-    private static final int ARR_STOP_ID  = 2;
-    private static final int ARR_MINUTES  = 3;
-    private static final int TRIP_POS_ID  = 4;
+    private static final int DEP_STOP_ID  = 0; //U16 Index de l'arrêt de départ
+    private static final int DEP_MINUTES  = 1; //U16 Heure de départ, en minutes après minuit
+    private static final int ARR_STOP_ID  = 2; //U16 Index de l'arrêt d'arrivée
+    private static final int ARR_MINUTES  = 3; //U16 Heure d'arrivée, en minutes après minuit
+    private static final int TRIP_POS_ID  = 4; //S32 Index de la course et position en son sein
 
     // Structure d'une liaison (12 octets)
     private static final Structure CONNECTION_STRUCTURE = new Structure(

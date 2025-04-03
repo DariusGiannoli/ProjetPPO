@@ -24,7 +24,7 @@ public final class StructuredBuffer {
      * @throws IllegalArgumentException si la capacité du buffer n'est pas un multiple
      * de la taille totale de la structure
      */
-    public StructuredBuffer(Structure structure, ByteBuffer buffer){
+    public StructuredBuffer(Structure structure, ByteBuffer buffer) {
         this.structure = structure;
         this.buffer = buffer;
         Preconditions.checkArgument(buffer.capacity() % structure.totalSize() == 0);
@@ -36,7 +36,7 @@ public final class StructuredBuffer {
      *
      * @return le nombre d'éléments
      */
-    public int size(){
+    public int size() {
         return elementCount;
     }
 

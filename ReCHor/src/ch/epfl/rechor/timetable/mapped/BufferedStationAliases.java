@@ -18,8 +18,8 @@ import java.util.List;
  */
 public final class BufferedStationAliases implements StationAliases {
 
-    private static final int ALIAS_ID = 0;
-    private static final int STATION_NAME_ID = 1;
+    private static final int ALIAS_ID = 0; //U16 Index de chaîne du nom alternatif
+    private static final int STATION_NAME_ID = 1; //U16 Index de chaîne du nom de la gare
 
     private static final Structure ALIAS_STRUCTURE = new Structure(
             Structure.field(ALIAS_ID, Structure.FieldType.U16),

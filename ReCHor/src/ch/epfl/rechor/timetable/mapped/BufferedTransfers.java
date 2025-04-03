@@ -20,9 +20,9 @@ import java.util.NoSuchElementException;
 public final class BufferedTransfers implements Transfers {
 
     // Indices des champs dans un enregistrement de changement
-    private static final int DEP_STATION_ID   = 0; // U16 : index de la gare de départ
-    private static final int ARR_STATION_ID   = 1; // U16 : index de la gare d'arrivée
-    private static final int TRANSFER_MINUTES = 2; // U8 : durée du changement
+    private static final int DEP_STATION_ID   = 0; // U16 index de la gare de départ
+    private static final int ARR_STATION_ID   = 1; // U16 index de la gare d'arrivée
+    private static final int TRANSFER_MINUTES = 2; // U8 durée du changement
 
     // Structure d'un changement (5 octets)
     private static final Structure TRANSFER_STRUCTURE = new Structure(

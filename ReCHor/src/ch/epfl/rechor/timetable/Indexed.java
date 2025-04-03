@@ -12,6 +12,7 @@ public interface Indexed {
 
     /**
      * Retourne le nombre d'éléments dans la donnée indexée.
+     * Cette valeur définit la plage d'indices valides (de 0 à size()-1 inclus).
      *
      * @return  la taille = nombre d'éléments
      */

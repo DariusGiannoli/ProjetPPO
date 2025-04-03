@@ -12,17 +12,54 @@ import ch.epfl.rechor.Preconditions;
  */
 public final class Structure {
 
+    private final Field[] fields;
+    private final int[] fieldOffsets;
+    private final int totalSize;
+
+    /**
+     * Construit une structure en vérifiant que les champs sont donnés dans l'ordre.
+     *
+     * @param fields les champs décrivant la structure
+     * @throws IllegalArgumentException si l'ordre des indices n'est pas correct
+     */
+    public Structure(Field... fields) {
+
+        for (int i = 0; i < fields.length; i++)
+            Preconditions.checkArgument(fields[i].index() == i);
+
+        // Copie défensive pour préserver l'immuabilité
+        this.fields = fields.clone();
+
+        // Calcul des offsets et de la taille totale en octets
+        this.fieldOffsets = new int[fields.length];
+        int currentOffset = 0;
+        for (int i = 0; i < fields.length; i++) {
+            fieldOffsets[i] = currentOffset;
+            currentOffset += fields[i].type().size();
+        }
+        this.totalSize = currentOffset;
+    }
+
     /**
      * Types de champs supportés avec leur taille en octets.
      */
     public enum FieldType {
+
+        /** 8 bits (1 octet) interprétés comme un entier non signé, compris donc
+         entre 0 (inclus) et 256 (exclu*/
         U8(1),
+
+        /** 16 bits (2 octets) interprétés comme un entier non signé, compris donc
+         entre 0 (inclus) et 65 536 (exclu)*/
         U16(2),
+
+        /** 32 bits (4 octets) interprétés comme un entier signé, compris donc entre
+         –2 147 483 648 (inclus) et 2 147 483 648 (exclu)*/
         S32(4);
 
         private final int size;
 
-        //Constructeur
+        /** Constructeur */
         FieldType(int size) {
             this.size = size;
         }
@@ -49,9 +86,8 @@ public final class Structure {
          * Constructeur compact qui lève une NullPointerException si et seulement si type est null.
          */
         public Field {
-            if (type == null) {
-                throw new NullPointerException("FieldType ne doit pas être null");
-            }
+            if (type == null)
+                throw new NullPointerException();
         }
     }
 
@@ -64,37 +100,6 @@ public final class Structure {
      */
     public static Field field(int index, FieldType type) {
             return new Field(index, type);
-    }
-
-
-    private final Field[] fields;
-    private final int[] fieldOffsets;
-    private final int totalSize;
-
-
-    /**
-     * Construit une structure en vérifiant que les champs sont donnés dans l'ordre.
-     *
-     * @param fields les champs décrivant la structure
-     * @throws IllegalArgumentException si l'ordre des indices n'est pas correct
-     */
-    public Structure(Field... fields) {
-
-        for (int i = 0; i < fields.length; i++) {
-            Preconditions.checkArgument(fields[i].index() == i);
-        }
-
-        // Copie défensive pour préserver l'immuabilité
-        this.fields = fields.clone();
-
-        // Calcul des offsets et de la taille totale en octets
-        this.fieldOffsets = new int[fields.length];
-        int currentOffset = 0;
-        for (int i = 0; i < fields.length; i++) {
-            fieldOffsets[i] = currentOffset;
-            currentOffset += fields[i].type().size();
-        }
-        this.totalSize = currentOffset;
     }
 
     /**
@@ -119,12 +124,4 @@ public final class Structure {
         return elementIndex * totalSize + fieldOffsets[fieldIndex];
     }
 
-    /**
-     * Retourne le nombre de champs dans la structure.
-     *
-     * @return le nombre de champs
-     */
-    public int fieldCount() {
-        return fields.length;
-    }
 }

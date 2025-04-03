@@ -28,7 +28,7 @@ class JourneyExtractorTest {
     }
 
     private static Profile readProfile() throws IOException {
-        var timeTable = FileTimeTable.in(testPath("timetable"));
+        var timeTable = FileTimeTable.in(testPath("ReCHor/timetable2"));
         var date = LocalDate.of(2025, Month.MARCH, 18);
         var arrStationId = stationId(timeTable, "Gruyères");
 

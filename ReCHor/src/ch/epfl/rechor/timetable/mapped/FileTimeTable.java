@@ -33,6 +33,7 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
                             Transfers transfers)
         implements TimeTable {
 
+    // Constantes de chemin de fichier
     private static final String PATH_PLATFORMS       = "platforms.bin";
     private static final String PATH_ROUTES          = "routes.bin";
     private static final String PATH_ALIASES         = "station-aliases.bin";
@@ -51,26 +52,34 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
      * @throws IOException en cas d'erreur d'entrée/sortie
      */
     public static TimeTable in(Path directory) throws IOException {
+
+        // Chargement de la table de chaînes
         Path strings = directory.resolve(PATH_FILE);
         Charset charset = StandardCharsets.ISO_8859_1;
         List<String> list = List.copyOf(Files.readAllLines(strings, charset));
 
+        // Chargement des plateformes
         ByteBuffer platformByteBuffer = bufferExtractor(directory, PATH_PLATFORMS);
         BufferedPlatforms bufferedPlatforms = new BufferedPlatforms(list, platformByteBuffer);
 
+        // Chargement des lignes
         ByteBuffer routesByteBuffer = bufferExtractor(directory, PATH_ROUTES);
         BufferedRoutes bufferedRoutes = new BufferedRoutes(list, routesByteBuffer);
 
+        // Chargement des alias de gares
         ByteBuffer aliasesByteBuffer = bufferExtractor(directory, PATH_ALIASES);
         BufferedStationAliases bufferedAliases = new BufferedStationAliases(list,
                 aliasesByteBuffer);
 
+        // Chargement des gares
         ByteBuffer stationsByteBuffer = bufferExtractor(directory, PATH_STATIONS);
         BufferedStations bufferedStations = new BufferedStations(list, stationsByteBuffer);
 
+        // Chargement des correspondances
         ByteBuffer transfersByteBuffer = bufferExtractor(directory, PATH_TRANSFERS);
         BufferedTransfers bufferedTransfers = new BufferedTransfers(transfersByteBuffer);
 
+        // Création et retour de l'instance complète
         return new FileTimeTable(directory, list, bufferedStations, bufferedAliases,
                 bufferedPlatforms, bufferedRoutes, bufferedTransfers);
     }
@@ -82,7 +91,7 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
      * @param directory le chemin du répertoire contenant le fichier
      * @param path  le nom du fichier à mapper
      * @return  un ByteBuffer mappé en lecture seule contenant le contenu du fichier
-     * @throws IOException  i une erreur d'entrée/sortie se produit
+     * @throws IOException  si une erreur d'entrée/sortie se produit
      * lors de l'ouverture du fichier ou du mapping
      */
     private static ByteBuffer bufferExtractor(Path directory, String path) throws IOException {
