@@ -37,7 +37,6 @@ public final class JourneyExtractor {
      * @return une liste de voyages triés par heure de départ puis par heure d'arrivée
      */
     public static List<Journey> journeys(Profile profile, int depStationId) {
-
         List<Journey> journeys = new ArrayList<>();
         ParetoFront pf = profile.forStation(depStationId);
 
@@ -73,7 +72,6 @@ public final class JourneyExtractor {
      */
     private static void extractLegs(Profile profile, int depStationId, long criteria,
                                     List<Journey.Leg> legs) {
-
         // Récupération des objets fréquemment utilisés
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
@@ -108,8 +106,6 @@ public final class JourneyExtractor {
                 if (connectionId < 0) {
                     break;
                 }
-
-
             } catch (Exception e) {
                 // En cas d'erreur dans le traitement d'une étape, on arrête l'extraction
                 break;
@@ -133,7 +129,6 @@ public final class JourneyExtractor {
     private static long processTransportLeg(Profile profile, int connectionId, int interStops,
                                            int remainingChanges, int endMins, boolean isLastLeg,
                                            List<Journey.Leg> legs) {
-
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
 
@@ -250,7 +245,6 @@ public final class JourneyExtractor {
                                            int connectionId, int depTime,  int tripId,
                                            List<Journey.Leg.IntermediateStop> intermediateStops,
                                            List<Journey.Leg> legs) {
-
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
         Trips trips = profile.trips();
@@ -286,7 +280,6 @@ public final class JourneyExtractor {
     private static void handleInitialFootLeg(TimeTable timeTable, int depStationId, int depStopId,
                                              LocalDate date, int depMinutes,
                                              List<Journey.Leg> legs) {
-
         if (timeTable.stationId(depStopId) != depStationId) {
             try {
                 Stop depStation = createStationStop(timeTable, depStationId);
@@ -338,7 +331,6 @@ public final class JourneyExtractor {
                         connections.depMins(currentConnId));
 
                 stops.add(new Journey.Leg.IntermediateStop(interStop, arrDateTime, depDateTime));
-
             } catch (Exception e) {
                 break;
             }

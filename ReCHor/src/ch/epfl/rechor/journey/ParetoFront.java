@@ -97,7 +97,9 @@ public final class ParetoFront {
         if (tuples.length == 0) {
             return EMPTY_FRONTIER;
         }
+
         StringBuilder sb = new StringBuilder(PARETO_FRONT_PREFIX + OPEN_BRACKET_NEWLINE);
+
         for (long tuple : tuples) {
             sb.append(ARR_MINS_PREFIX)
                     .append(PackedCriteria.arrMins(tuple))
@@ -105,6 +107,7 @@ public final class ParetoFront {
                     .append(PackedCriteria.changes(tuple))
                     .append(NEWLINE);
         }
+
         sb.append(CLOSE_BRACKET);
         return sb.toString();
     }
@@ -118,7 +121,6 @@ public final class ParetoFront {
 
         // Initial capacity for the array
         private static final int INITIAL_CAPACITY = 2;
-
         // Internal dynamic array storing the tuples
         private long[] tuples;
         // Number of elements actually present in the array
@@ -171,7 +173,6 @@ public final class ParetoFront {
          * @return la frontière en construction pour l'enchainement des méthodes.
          */
         public Builder add(long packedTuple) {
-
             // Masquer les bits de la charge utile pour la comparaison de la position
             long adjusted = packedTuple & PAYLOAD_MASK;
 
@@ -183,6 +184,7 @@ public final class ParetoFront {
                 }
                 pos++;
             }
+
             // Vérifier si le tuple à la position d'insertion domine le nouveau tuple
             if (pos < size && PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
                 return this;
@@ -192,8 +194,9 @@ public final class ParetoFront {
             int dst = pos;
             for (int src = pos; src < size; src++) {
                 if (!PackedCriteria.dominatesOrIsEqual(packedTuple, tuples[src])) {
-                    if (dst != src) tuples[dst] = tuples[src];
-                    dst++;
+                    if (dst != src) tuples[dst] = tuples[src]; {
+                        dst++;
+                    }
                 }
             }
             int newSize = dst;
@@ -203,6 +206,7 @@ public final class ParetoFront {
                 int newCapacity = Math.max(tuples.length * 2, newSize + 1);
                 tuples = Arrays.copyOf(tuples, newCapacity);
             }
+
             // On fait le décalage dans tous les cas
             System.arraycopy(tuples, pos, tuples, pos + 1, newSize - pos);
 
@@ -234,7 +238,6 @@ public final class ParetoFront {
          */
         public Builder addAll(Builder that) {
             that.forEach(this::add);
-
             return this;
         }
 
@@ -255,12 +258,11 @@ public final class ParetoFront {
          * sont dominés par au moins un tuple du bâtisseur actuel.
          *
          * @param that l'autre bâtisseur.
-         * @param depMins l'heure de départ en minutes après minuit que l'on veut ajouter aux tuples
+         * @param depMins l'heure de départ en min après minuit que l'on veut ajouter aux tuples
          *                de that.
          * @return vrai si tous les tuples de 'that' sont dominés par un tuple du bâtisseur actuel.
          */
         public boolean fullyDominates(Builder that, int depMins) {
-
             if (that.isEmpty()) return true;
             if (this.isEmpty()) return false;
 
@@ -275,11 +277,13 @@ public final class ParetoFront {
                         break;
                     }
                 }
+
                 // Si ce tuple n'est pas dominé, alors this ne domine pas entièrement that
                 if (!dominated) {
                     return false;
                 }
             }
+
             // Tous les tuples sont dominés
             return true;
         }
@@ -290,7 +294,9 @@ public final class ParetoFront {
          * @return une frontière de Pareto immuable.
          */
         public ParetoFront build() {
-            if (size == 0) return EMPTY;
+            if (size == 0){
+                return EMPTY;
+            }
 
             return new ParetoFront(Arrays.copyOf(tuples, size));
         }
@@ -306,7 +312,9 @@ public final class ParetoFront {
             if (size == 0) {
                 return EMPTY_BUILDER;
             }
+
             StringBuilder sb = new StringBuilder(BUILDER_PREFIX + OPEN_BRACKET_NEWLINE);
+
             for (int i = 0; i < size; i++) {
                 sb.append(ARR_MINS_PREFIX)
                         .append(PackedCriteria.arrMins(tuples[i]))
@@ -314,6 +322,7 @@ public final class ParetoFront {
                         .append(PackedCriteria.changes(tuples[i]))
                         .append(NEWLINE);
             }
+
             sb.append(CLOSE_BRACKET);
             return sb.toString();
         }
