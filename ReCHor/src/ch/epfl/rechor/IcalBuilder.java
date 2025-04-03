@@ -12,7 +12,6 @@ import java.util.ArrayList;
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-
 public final class IcalBuilder {
 
     /**
@@ -76,14 +75,17 @@ public final class IcalBuilder {
      * @return la chaîne pliée correspondant à la propriété iCalendar, terminée par CRLF
      */
     public String textAdd(String name, String value) {
-
         String line = name + COLON + value;
         final int lineLength = line.length();
-        // Estimation de la capacité :
-        // la chaîne d'origine plus le nombre de retours à la ligne et espaces
-        StringBuilder sb =
-                new StringBuilder(lineLength +
-                        (lineLength / MAX_LINE_LENGTH + 1) * FOLDING_OVERHEAD);
+
+        // Si la ligne est assez courte, retourne-la directement avec CRLF
+        if (lineLength <= MAX_LINE_LENGTH) {
+            return line + CRLF;
+        }
+
+        // Estimation de la capacité pour éviter des reallocations inutiles
+        StringBuilder sb = new StringBuilder(lineLength
+                + (lineLength / MAX_LINE_LENGTH + 1) * FOLDING_OVERHEAD);
 
         int index = 0;
         while (index < lineLength) {
@@ -95,6 +97,7 @@ public final class IcalBuilder {
             sb.append(line, index, end).append(CRLF);
             index += currentMax;
         }
+
         return sb.toString();
     }
 

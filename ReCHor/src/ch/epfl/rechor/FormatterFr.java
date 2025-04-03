@@ -106,6 +106,7 @@ public final class FormatterFr {
         final String durationStr = formatDuration(footLeg.duration());
 
         StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);
+
         return sb.append(description)
                 .append(LEFT_PARENTHESIS)
                 .append(durationStr)
@@ -122,7 +123,6 @@ public final class FormatterFr {
      * @return une chaîne représentant l'étape en transport public.
      */
     public static String formatLeg(Journey.Leg.Transport leg) {
-
         StringBuilder sb = new StringBuilder(SB_CAPACITY_LARGE);
 
         // Ajout des informations de départ
@@ -167,6 +167,7 @@ public final class FormatterFr {
         final String destination = transportLeg.destination();
 
         StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);
+
         return sb.append(route)
                 .append(DIRECTION)
                 .append(destination)
