@@ -117,13 +117,13 @@ public final class JourneyExtractor {
      * Traite une étape de transport et ajoute les étapes à pied nécessaires entre les transports.
      *
      * @param profile      le profil contenant les données
-     * @param connectionId l'id de la connexion courante
+     * @param connectionId l'id de la liaison courante
      * @param interStops   le nombre d'arrêts intermédiaires
      * @param remainingChanges le nombre de changements restants
      * @param endMins      les minutes d'arrivée finale
      * @param isLastLeg    indique s'il s'agit de la dernière étape
      * @param legs         la liste des étapes à compléter
-     * @return le criteria du paretoFront de la gare d'arrivée de l'étape,
+     * @return le critère du paretoFront de la gare d'arrivée de l'étape,
      * ou -1 si traitement terminé
      */
     private static long processTransportLeg(Profile profile, int connectionId, int interStops,
@@ -201,6 +201,11 @@ public final class JourneyExtractor {
 
     /**
      * Ajoute une étape à pied pour le changement entre deux connexions.
+     *
+     * @param profile le profile contenant les données.
+     * @param currentConnectionId l'id de la dernière liaison de l'étape en transport.
+     * @param nextConnectionId id de la première liaison de la prochaine étape en transport.
+     * @param legs la liste des étapes à compléter.
      */
     private static void addFootLegForChange(Profile profile, int currentConnectionId,
                                             int nextConnectionId, List<Journey.Leg> legs) {
@@ -224,8 +229,18 @@ public final class JourneyExtractor {
         legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, nextDepStop, nextDepDateTime));
     }
 
+
     /**
      * Crée et ajoute une étape de transport à la liste des étapes.
+     *
+     * @param profile le profile contenant les données.
+     * @param depStopId l'id de l'arrêt de départ de l'étape en transport.
+     * @param arrStopId l'id de l'arrêt d'arrivée de l'étape en transport.
+     * @param connectionId l'id de la dernière liaison de l'étape en transport.
+     * @param depTime l'heure de départ de l'étape en minutes.
+     * @param tripId l'id de la course à laquelle appartient cette étape en transport.
+     * @param intermediateStops la liste des arrêts intermédiaires de cette étape.
+     * @param legs la liste des étapes à compléter.
      */
     private static void createTransportLeg(Profile profile, int depStopId, int arrStopId,
                                            int connectionId, int depTime,  int tripId,
@@ -252,8 +267,16 @@ public final class JourneyExtractor {
                 intermediateStops, vehicle, routeName, destination));
     }
 
+
     /**
      * Gère l'ajout d'une étape à pied initiale si nécessaire.
+     *
+     * @param timeTable est un horaire de transport public avec des données aplaties.
+     * @param depStationId l'id de la gare de départ du voyage.
+     * @param depStopId l'id de l'arrêt de départ de la première liaison
+     * @param date la date du début du voyage.
+     * @param depMinutes l'heure de départ du voyage en minutes.
+     * @param legs la liste des étapes à compléter.
      */
     private static void handleInitialFootLeg(TimeTable timeTable, int depStationId, int depStopId,
                                              LocalDate date, int depMinutes,
@@ -277,10 +300,17 @@ public final class JourneyExtractor {
         }
     }
 
+
     /**
      * Collecte les arrêts intermédiaires pour une étape de transport.
      *
-     * @return l'ID de la connexion suivante après les arrêts intermédiaires
+     * @param connections les liaisons indexées.
+     * @param timeTable est un horaire de transport public avec des données aplaties.
+     * @param date la date du voyage.
+     * @param connectionId l'id de la première liaison de l'étape.
+     * @param count le nombre d'arrêts intermédiaires de l'étape.
+     * @param stops la liste des arrêts intermédiaires de l'étape.
+     * @return l'ID de la connexion suivante après les arrêts intermédiaires.
      */
     private static int collectIntermediateStops(Connections connections, TimeTable timeTable,
                                                 LocalDate date, int connectionId, int count,
@@ -313,8 +343,16 @@ public final class JourneyExtractor {
         return currentConnId;
     }
 
+
     /**
      * Ajoute une étape à pied finale si la station courante n'est pas la destination.
+     *
+     * @param timeTable est un horaire de transport public avec des données aplaties.
+     * @param currentStationId l'id de la gare à la fin de la dernière étape en transport.
+     * @param destStationId l'id de la gare de destination du voyage.
+     * @param arrStop l'arrêt d'arrivée de la dernière étape en transport.
+     * @param arrDateTime la date/heure d'arrivée de la dernière étape en transport.
+     * @param legs la liste des étapes à compléter.
      */
     private static void addFinalFootLegIfNeeded(TimeTable timeTable, int currentStationId,
                                                 int destStationId, Stop arrStop,
@@ -334,15 +372,25 @@ public final class JourneyExtractor {
         }
     }
 
+
     /**
      * Crée un objet LocalDateTime à partir d'une date et d'un nombre de minutes depuis minuit.
+     *
+     * @param date la date de l'évènement.
+     * @param minutes l'heure de l'évènement en nombre de minutes après minuit.
+     * @return la date/heure de l'évènement sous forme d'un objet LocalDateTime.
      */
     private static LocalDateTime createDateTime(LocalDate date, int minutes) {
         return LocalDateTime.of(date, LocalTime.MIDNIGHT).plusMinutes(minutes);
     }
 
+
     /**
      * Crée un objet Stop à partir d'un identifiant d'arrêt.
+     *
+     * @param timeTable est un horaire de transport public avec des données aplaties.
+     * @param stopId l'id de l'arrêt que l'on veut créer.
+     * @return retourne l'arrêt d'id stopId.
      */
     private static Stop createStop(TimeTable timeTable, int stopId) {
         if (stopId < 0) {
@@ -371,8 +419,13 @@ public final class JourneyExtractor {
         }
     }
 
+
     /**
      * Crée un objet Stop représentant une gare.
+     *
+     * @param timeTable est un horaire de transport public avec des données aplaties.
+     * @param stationId l'id de la gare qui est représentée par cet arrêt.
+     * @return l'arrêt représentant la gare d'id stationId.
      */
     private static Stop createStationStop(TimeTable timeTable, int stationId) {
         if (stationId < 0 || stationId >= timeTable.stations().size()) {

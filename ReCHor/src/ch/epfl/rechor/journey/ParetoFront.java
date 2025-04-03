@@ -5,11 +5,13 @@ import java.util.NoSuchElementException;
 import java.util.function.LongConsumer;
 
 /**
- * Represents an immutable Pareto frontier of optimization criteria.
- * Tuples (pairs or triplets of criteria) are packed as longs in a sorted array
- * according to lexicographical order (based on arrival time and number of changes).
- * This structure is used to optimize the search for optimal journeys.
- * ParetoFront instances are immutable. The only way to build them is via the Builder.
+ * Représente une frontière de Pareto immuable de critères d'optimisation.
+ * Les tuples (paires ou triplets de critères) sont empilés sous forme de longueurs
+ * dans un tableau trié selon l'ordre lexicographique
+ * (basé sur l'heure d'arrivée et le nombre de changements).
+ * Cette structure est utilisée pour optimiser la recherche des trajets optimaux.
+ * Les instances de ParetoFront sont immuables.
+ * La seule façon de les construire est d'utiliser le Builder.
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
@@ -36,30 +38,30 @@ public final class ParetoFront {
     public static final ParetoFront EMPTY = new ParetoFront(new long[0]);
 
     /**
-     * Private constructor receiving a sorted array of tuples.
+     * Constructeur privé recevant un tableau de tuples triés.
      *
-     * @param tuples the array of packed tuples
+     * @param tuples le tableau de tuples triés.
      */
     private ParetoFront(long[] tuples) {
         this.tuples = tuples;
     }
 
     /**
-     * Returns the number of tuples in the frontier.
+     * Renvoie le nombre de tuples dans la frontière.
      *
-     * @return the size of the frontier
+     * @return la taille de la frontière
      */
     public int size() {
         return tuples.length;
     }
 
     /**
-     * Searches and returns the tuple with the given arrival time and number of changes.
+     * Recherche et renvoie le tuple avec l'heure d'arrivée et le nombre de changements donnés.
      *
-     * @param arrMins the actual arrival time (in minutes after midnight)
-     * @param changes the number of changes
-     * @return the packed tuple corresponding to the criteria
-     * @throws NoSuchElementException if no tuple matches the criteria
+     * @param arrMins l'heure d'arrivée (en minutes après minuit).
+     * @param changes le nombre de changements.
+     * @return le tuple empaqueté correspondant aux critères
+     * @throws NoSuchElementException si aucun tuple ne correspond aux critères.
      */
     public long get(int arrMins, int changes) {
         for (long tuple : tuples) {
@@ -72,9 +74,10 @@ public final class ParetoFront {
     }
 
     /**
-     * Iterates through all tuples in the frontier and applies the specified action to each.
+     * Itère à travers tous les tuples de la frontière
+     * et applique l'action spécifiée à chacun d'entre eux.
      *
-     * @param action the action to apply to each tuple
+     * @param action l'action à appliquer à tous les tuples.
      */
     public void forEach(LongConsumer action) {
         for (long tuple : tuples) {
@@ -83,10 +86,10 @@ public final class ParetoFront {
     }
 
     /**
-     * Returns a readable text representation of the Pareto frontier,
-     * showing arrival time and number of changes for each tuple.
+     * Renvoie une représentation textuelle lisible de la frontière de Pareto,
+     * indiquant l'heure d'arrivée et le nombre de changements pour chaque tuple.
      *
-     * @return a string representing the frontier
+     * @return une String représentant la frontière.
      */
     @Override
     public String toString() {
@@ -106,9 +109,9 @@ public final class ParetoFront {
     }
 
     /**
-     * Builder for the Pareto frontier.
-     * Allows insertion of packed tuples while maintaining lexicographical order
-     * and eliminating dominated tuples.
+     * Constructeur de la frontière de Pareto.
+     * Permet l'insertion de tuples empaquetés tout en maintenant l'ordre lexicographique
+     * et en éliminant les tuples dominés.
      */
     public static final class Builder {
         // Initial capacity for the array
@@ -120,7 +123,7 @@ public final class ParetoFront {
         private int size;
 
         /**
-         * Constructs a new Builder with an empty frontier
+         * Construit un nouveau Bâtisseur avec une frontière vide.
          */
         public Builder() {
             this.tuples = new long[INITIAL_CAPACITY];
@@ -128,9 +131,9 @@ public final class ParetoFront {
         }
 
         /**
-         * Copy constructor.
+         * Copie le bâtisseur.
          *
-         * @param that the Builder to copy
+         * @param that le bâtisseur à copier.
          */
         public Builder(Builder that) {
             this.tuples = Arrays.copyOf(that.tuples, that.size);
@@ -138,18 +141,18 @@ public final class ParetoFront {
         }
 
         /**
-         * Checks if the frontier under construction is empty.
+         * Vérifie si la frontière en construction est vide.
          *
-         * @return true if empty, false otherwise
+         * @return vrai si elle est vide, sinon faux.
          */
         public boolean isEmpty() {
             return size == 0;
         }
 
         /**
-         * Empties the frontier under construction.
+         * Vide la frontière en cours de construction.
          *
-         * @return this for method chaining
+         * @return la frontière en construction pour l'enchainement des méthodes.
          */
         public Builder clear() {
             size = 0;
@@ -157,12 +160,13 @@ public final class ParetoFront {
         }
 
         /**
-         * Adds the given packed tuple to the frontier;
-         * This addition is only made if the new tuple is not dominated by or equal to one in
-         * the frontier, and any existing tuples dominated by the new one are removed.
+         * Ajoute le n-tuple empaqueté donné à la frontière ;
+         * Cet ajout n'est effectué que si le nouveau n-tuple n'est pas dominé ou égal
+         * à un n-tuple dans la frontière,
+         * et tous les n-tuples existants dominés par le nouveau n-tuple sont supprimés.
          *
-         * @param packedTuple the new tuple to be added to the Pareto frontier
-         * @return this for method chaining
+         * @param packedTuple le nouveau tuple à ajouter à la frontière en construction.
+         * @return la frontière en construction pour l'enchainement des méthodes.
          */
         public Builder add(long packedTuple) {
             // Mask out payload bits for position comparison
@@ -212,24 +216,23 @@ public final class ParetoFront {
         }
 
         /**
-         * Adds a tuple (arrMins, changes, payload) to the frontier,
-         * without departure time.
+         * Ajoute un tuple (arrMins, changes, payload) à la frontière, sans l'heure de départ.
          *
-         * @param arrMins the arrival time in minutes after midnight
-         * @param changes the number of changes
-         * @param payload the payload value
-         * @return this for method chaining
+         * @param arrMins l'heure d'arrivée en minutes après minuit.
+         * @param changes le nombre de changements
+         * @param payload la valeur de la payload.
+         * @return la frontière en construction pour l'enchainement des méthodes.
          */
         public Builder add(int arrMins, int changes, int payload) {
             return add(PackedCriteria.pack(arrMins, changes, payload));
         }
 
         /**
-         * Adds all tuples from another Builder 'that' to the current builder,
-         * using Pareto logic (domination).
+         * Ajoute tous les tuples d'un autre bâtisseur au constructeur actuel,
+         * en utilisant la logique de Pareto (domination).
          *
-         * @param that the other builder
-         * @return this for method chaining
+         * @param that l'autre bâtisseur.
+         * @return la frontière en construction pour l'enchainement des méthodes.
          */
         public Builder addAll(Builder that) {
             that.forEach(this::add);
@@ -237,8 +240,7 @@ public final class ParetoFront {
         }
 
         /**
-         * Iterates through the frontier under construction and applies action.accept(tuple)
-         * for each tuple.
+         * Itère à travers la frontière en construction et applique l'action pour chaque tuple.
          *
          * @param action a LongConsumer
          */
@@ -249,12 +251,14 @@ public final class ParetoFront {
         }
 
         /**
-         * Returns true if and only if all tuples of 'that', once fixed with the departure time
-         * 'depMins',are dominated by at least one tuple of the current builder.
+         * Retourne vrai si et seulement si tous les tuples du bâtisseur 'that',
+         * une fois fixés avec l'heure de départ 'depMins',
+         * sont dominés par au moins un tuple du bâtisseur actuel.
          *
-         * @param that the other builder
-         * @param depMins the departure time to fix
-         * @return true if all tuples of 'that' are dominated by a tuple of the current builder
+         * @param that l'autre bâtisseur.
+         * @param depMins l'heure de départ en minutes après minuit que l'on veut ajouter aux tuples
+         *                de that.
+         * @return vrai si tous les tuples de 'that' sont dominés par un tuple du bâtisseur actuel.
          */
         public boolean fullyDominates(Builder that, int depMins) {
             if (that.isEmpty()) return true;
@@ -277,9 +281,9 @@ public final class ParetoFront {
         }
 
         /**
-         * Builds the immutable Pareto frontier from the builder content.
+         * Construit la frontière de Pareto immuable à partir du contenu du bâtisseur.
          *
-         * @return an immutable ParetoFront
+         * @return une frontière de Pareto immuable.
          */
         public ParetoFront build() {
             if (size == 0) return EMPTY;
@@ -287,7 +291,8 @@ public final class ParetoFront {
         }
 
         /**
-         * @return returns the Pareto frontier as a string for better readability
+         * @return renvoie la frontière de Pareto sous forme de chaîne de caractères pour
+         * une meilleure lisibilité.
          */
         @Override
         public String toString() {

@@ -62,7 +62,7 @@ public record Journey(List<Leg> legs) {
     /**
      * Retourne l’arrêt de départ du voyage, correspondant à celui de la première étape.
      *
-     * @return le stop de départ.
+     * @return l'arrêt de départ.
      */
     public Stop depStop(){
         return legs.getFirst().depStop();
@@ -71,7 +71,7 @@ public record Journey(List<Leg> legs) {
     /**
      * Retourne l’arrêt d’arrivée du voyage, correspondant à celui de la dernière étape.
      *
-     * @return le stop d’arrivée.
+     * @return l'arrêt d’arrivée.
      */
     public Stop arrStop(){
         return legs.getLast().arrStop();
@@ -113,14 +113,14 @@ public record Journey(List<Leg> legs) {
         /**
          * Retourne l’arrêt de départ de l’étape.
          *
-         * @return le stop de départ.
+         * @return l'arrêt de départ.
          */
         Stop depStop();
 
         /**
          * Retourne l’arrêt d’arrivée de l’étape.
          *
-         * @return le stop d’arrivée.
+         * @return l'arrêt d’arrivée.
          */
         Stop arrStop();
 
