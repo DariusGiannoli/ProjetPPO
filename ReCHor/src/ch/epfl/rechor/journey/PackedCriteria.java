@@ -50,7 +50,6 @@ public final class PackedCriteria {
      * @throws IllegalArgumentException si arrMins ou changes ne respectent pas les limites
      */
     public static long pack(int arrMins, int changes, int payload){
-
         Preconditions.checkArgument(arrMins >= MIN_MINUTES && arrMins < MAX_MINUTES);
         Preconditions.checkArgument(changes >= 0 && changes < 128);
 
@@ -71,7 +70,6 @@ public final class PackedCriteria {
      * @return l'heure d'arrivée réelle (entre -240 et 2879)
      */
     public static int arrMins(long criteria){
-
         long storedArr = (criteria >>> SHIFT_ARR) & BITS_12_MASK;
         return (int) (storedArr - MINUTES_OFFSET);
     }
@@ -83,7 +81,6 @@ public final class PackedCriteria {
      * @return le nombre de changements (entre 0 et 127)
      */
     public static int changes(long criteria){
-
         return (int) ((criteria >>>SHIFT_CHANGES) & BITS_7_MASK);
     }
 
@@ -94,7 +91,6 @@ public final class PackedCriteria {
      * @return un entier 32 bits représentant le payload
      */
     public static int payload(long criteria){
-
         return (int) (criteria & BITS_32_MASK);
     }
 
@@ -105,7 +101,6 @@ public final class PackedCriteria {
      * @return true si l'heure de départ est présente, false sinon
      */
     public static boolean hasDepMins(long criteria){
-
         long depComplement = (criteria >>> SHIFT_DEP) & BITS_12_MASK;
         return depComplement != 0;
     }
@@ -118,7 +113,6 @@ public final class PackedCriteria {
      * @throws IllegalArgumentException si criteria ne contient pas d'heure de départ
      */
     public static int depMins(long criteria){
-
         long depComplement = (criteria >>> SHIFT_DEP) & BITS_12_MASK;
         Preconditions.checkArgument(depComplement != 0);
 
@@ -132,7 +126,6 @@ public final class PackedCriteria {
      * @return un entier 64 bits sans heure de départ
      */
     public static long withoutDepMins(long criteria) {
-
         return criteria & ~(BITS_12_MASK_LONG << SHIFT_DEP);
     }
 
@@ -148,7 +141,6 @@ public final class PackedCriteria {
      * ou est postérieure à l'heure d'arrivée
      */
     public static long withDepMins(long criteria, int depMins) {
-
         Preconditions.checkArgument(depMins >= MIN_MINUTES && depMins < MAX_MINUTES);
 
         int depComplement = BITS_12_MASK - (depMins + MINUTES_OFFSET);
@@ -167,7 +159,6 @@ public final class PackedCriteria {
      * @throws IllegalArgumentException si l'un des critères possède une heure de dep et non l'autre
      */
     public static boolean dominatesOrIsEqual(long criteria1, long criteria2){
-
         boolean hasDep = hasDepMins(criteria1);
         Preconditions.checkArgument(hasDep == hasDepMins(criteria2));
 
@@ -185,7 +176,6 @@ public final class PackedCriteria {
      * @throws IllegalArgumentException si le nombre de changements atteint sa limite
      */
     public static long withAdditionalChange(long criteria){
-
         int currentChanges = changes(criteria);
         int newChanges = currentChanges + 1;
         long newCriteria = criteria & ~(BITS_7_MASK_LONG << SHIFT_CHANGES);
@@ -201,7 +191,6 @@ public final class PackedCriteria {
      * @return un entier 64 bits avec le payload mis à jour
      */
     public static long withPayload(long criteria, int payload){
-
         long newCriteria = criteria & ~BITS_32_MASK;
         long payloadLong = Integer.toUnsignedLong(payload);
 

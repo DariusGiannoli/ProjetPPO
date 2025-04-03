@@ -286,8 +286,8 @@ public final class JourneyExtractor {
                 Stop arrStop = createStop(timeTable, depStopId);
 
                 LocalDateTime depDateTime = createDateTime(date, depMinutes);
-                int walkTime = timeTable.transfers().minutesBetween(
-                        depStationId, timeTable.stationId(depStopId));
+                int walkTime = timeTable.transfers().minutesBetween(depStationId,
+                        timeTable.stationId(depStopId));
 
                 LocalDateTime arrDateTime = depDateTime.plusMinutes(walkTime);
 

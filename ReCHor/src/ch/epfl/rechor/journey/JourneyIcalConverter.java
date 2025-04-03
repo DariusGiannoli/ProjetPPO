@@ -17,6 +17,7 @@ import java.util.UUID;
  */
 public final class JourneyIcalConverter {
 
+    //Constantes de formatage
     private static final String LINE_SEPARATOR = "\\n";
     private static final String SUMMARY_SEPARATOR = " → ";
 
@@ -30,7 +31,6 @@ public final class JourneyIcalConverter {
      * @return une chaîne de caractères au format iCalendar
      */
     public static String toIcalendar(Journey journey){
-
         // Construction de la description : une étape par ligne, séparées par un saut de ligne
         StringJoiner joiner = new StringJoiner(LINE_SEPARATOR);
         for (Journey.Leg leg : journey.legs()) {
