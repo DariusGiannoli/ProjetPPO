@@ -62,6 +62,7 @@ public record Profile(TimeTable timeTable, LocalDate date, int arrStationId,
         if (stationId < 0 || stationId >= stationFront.size()) {
             throw new IndexOutOfBoundsException();
         }
+
         return stationFront.get(stationId);
     }
 

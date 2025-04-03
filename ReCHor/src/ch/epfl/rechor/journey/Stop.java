@@ -41,7 +41,6 @@ public record Stop(String name, String platformName, double longitude, double la
 
         Preconditions.checkArgument(
                 longitude >= MIN_LON && longitude <= MAX_LON);
-
         Preconditions.checkArgument(
                 latitude >= MIN_LAT && latitude <= MAX_LAT);
     }
