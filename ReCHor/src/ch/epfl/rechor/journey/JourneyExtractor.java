@@ -215,31 +215,6 @@ public final class JourneyExtractor {
                 timeTable.stations().longitude(stationId),
                 timeTable.stations().latitude(stationId)
         );
-
-//        if (stopId < 0) {
-//            throw new IllegalArgumentException();
-//        }
-//
-//        if (timeTable.isStationId(stopId)) {
-//            return createStationStop(timeTable, stopId);
-//        } else {
-//            int stationsSize = timeTable.stations().size();
-//            if (stopId < stationsSize) {
-//                return createStationStop(timeTable, stopId);
-//            }
-//
-//            int platformId = stopId - stationsSize;
-//            if (platformId >= timeTable.platforms().size()) {
-//                throw new IllegalArgumentException();
-//            }
-//
-//            int stationId = timeTable.platforms().stationId(platformId);
-//            return new Stop(
-//                    timeTable.stations().name(stationId),
-//                    timeTable.platforms().name(platformId),
-//                    timeTable.stations().longitude(stationId),
-//                    timeTable.stations().latitude(stationId));
-//        }
     }
 
     /**
