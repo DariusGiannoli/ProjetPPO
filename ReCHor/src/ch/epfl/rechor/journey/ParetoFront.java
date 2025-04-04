@@ -32,10 +32,10 @@ public final class ParetoFront {
     // Mask to ignore payload bits (lower 32 bits)
     private static final long PAYLOAD_MASK = ~0xFFFFFFFFL;
 
-    // Final array containing the packed tuples of the frontier
+    // tableau final contenant les tuples empaquetés de la frontière.
     private final long[] tuples;
 
-    // Empty Pareto frontier
+    // Frontière de Pareto vide.
     public static final ParetoFront EMPTY = new ParetoFront(new long[0]);
 
     /**
@@ -119,11 +119,11 @@ public final class ParetoFront {
      */
     public static final class Builder {
 
-        // Initial capacity for the array
+        // Capacité initiale du tableau.
         private static final int INITIAL_CAPACITY = 2;
-        // Internal dynamic array storing the tuples
+        // Tableau interne qui stock les tuples.
         private long[] tuples;
-        // Number of elements actually present in the array
+        // Nombre d'éléments présents dans le tableau.
         private int size;
 
         /**
@@ -263,8 +263,6 @@ public final class ParetoFront {
          * @return vrai si tous les tuples de 'that' sont dominés par un tuple du bâtisseur actuel.
          */
         public boolean fullyDominates(Builder that, int depMins) {
-            if (that.isEmpty()) return true;
-            if (this.isEmpty()) return false;
 
             for (int i = 0; i < that.size; i++) {
                 long fixedThat = PackedCriteria.withDepMins(that.tuples[i], depMins);
