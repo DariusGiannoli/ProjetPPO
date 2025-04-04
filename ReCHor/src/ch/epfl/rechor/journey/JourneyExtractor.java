@@ -430,7 +430,7 @@ public final class JourneyExtractor {
      */
     private static Stop createStop(TimeTable timeTable, int stopId) {
         if (stopId < 0) {
-            throw new IllegalArgumentException("Identifiant d'arrêt négatif");
+            throw new IllegalArgumentException();
         }
         if (timeTable.isStationId(stopId)) {
             return createStationStop(timeTable, stopId);
@@ -442,7 +442,7 @@ public final class JourneyExtractor {
 
             int platformId = stopId - stationsSize;
             if (platformId >= timeTable.platforms().size()) {
-                throw new IllegalArgumentException("Identifiant de plateforme invalide");
+                throw new IllegalArgumentException();
             }
 
             int stationId = timeTable.platforms().stationId(platformId);
@@ -465,7 +465,7 @@ public final class JourneyExtractor {
      */
     private static Stop createStationStop(TimeTable timeTable, int stationId) {
         if (stationId < 0 || stationId >= timeTable.stations().size()) {
-            throw new IllegalArgumentException("Identifiant de gare invalide");
+            throw new IllegalArgumentException();
         }
         return new Stop(
                 timeTable.stations().name(stationId),
