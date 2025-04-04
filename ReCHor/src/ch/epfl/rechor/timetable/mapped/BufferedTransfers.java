@@ -38,19 +38,35 @@ public final class BufferedTransfers implements Transfers {
     private final int[] arrivingAtTable;
 
     /**
-     * Construit une instance de {@code BufferedTransfers}.
+     * Construit une instance de {@code BufferedTransfers} à partir d'un {@code ByteBuffer}
+     * contenant les données aplaties des changements.
      * <p>
-     * Parcourt deux fois le buffer afin de construire la table associant
-     * à chaque gare d'arrivée l'intervalle des changements.
+     * Le constructeur effectue deux passes sur les données :
+     * <ul>
+     *   <li>La première passe détermine le maximum d'index de gare d'arrivée pour dimensionner le tableau.</li>
+     *   <li>La deuxième passe regroupe les enregistrements par gare d'arrivée et stocke, pour chaque gare,
+     *       l'intervalle empaqueté des index des changements correspondants.</li>
+     * </ul>
      * </p>
      *
      * @param buffer le {@code ByteBuffer} contenant les données aplaties des changements.
      */
     public BufferedTransfers(ByteBuffer buffer) {
         this.structuredBuffer = new StructuredBuffer(TRANSFER_STRUCTURE, buffer);
+        this.arrivingAtTable = buildArrivingAtTable();
+    }
+
+    /**
+     * Construit le tableau associant à chaque gare d'arrivée l'intervalle empaqueté
+     * des index des changements correspondants.
+     *
+     * @return un tableau d'entiers où chaque indice correspond à un identifiant de gare d'arrivée,
+     *         et la valeur est un intervalle empaqueté via {@code PackedRange}.
+     */
+    private int[] buildArrivingAtTable() {
         int numChanges = structuredBuffer.size();
 
-        // Première passe : déterminer le maximum d'ARR_STATION_ID pour dimensionner la table
+        // Déterminer le maximum d'index de gare d'arrivée pour dimensionner le tableau
         int maxArrStation = -1;
         for (int i = 0; i < numChanges; i++) {
             int arrStation = structuredBuffer.getU16(ARR_STATION_ID, i);
@@ -59,24 +75,25 @@ public final class BufferedTransfers implements Transfers {
             }
         }
 
-        // Créer la table avec une taille couvrant tous les indices de gares
-        // (0 à maxArrStation inclus)
-        arrivingAtTable = new int[maxArrStation + 1];
-        // Initialiser la table avec des intervalles vides (convention : PackedRange.pack(0, 0))
-        Arrays.fill(arrivingAtTable, PackedRange.pack(0, 0));
+        // Créer le tableau pour couvrir tous les indices de gare (de 0 à maxArrStation inclus)
+        int[] table = new int[maxArrStation + 1];
+        // Initialiser chaque entrée avec un intervalle vide (convention : PackedRange.pack(0, 0))
+        Arrays.fill(table, PackedRange.pack(0, 0));
 
-        // Deuxième passe : regrouper les enregistrements pour chaque gare d'arrivée.
+        // Parcourir le buffer et regrouper les enregistrements par gare d'arrivée
         int i = 0;
         while (i < numChanges) {
             int currentArrStation = structuredBuffer.getU16(ARR_STATION_ID, i);
             int startIndex = i;
+            // Avancer tant que l'index de la gare d'arrivée reste le même
             while (i < numChanges && structuredBuffer.getU16(ARR_STATION_ID, i)
                     == currentArrStation) {
                 i++;
             }
-            int endIndex = i; // intervalle [startIndex, endIndex)
-            arrivingAtTable[currentArrStation] = PackedRange.pack(startIndex, endIndex);
+            int endIndex = i; // Intervalle [startIndex, endIndex)
+            table[currentArrStation] = PackedRange.pack(startIndex, endIndex);
         }
+        return table;
     }
 
     /**
