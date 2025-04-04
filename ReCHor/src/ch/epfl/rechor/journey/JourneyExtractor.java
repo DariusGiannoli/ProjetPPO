@@ -56,8 +56,7 @@ public final class JourneyExtractor {
     /**
      * Constructeur privé pour empêcher l'instanciation de cette classe utilitaire.
      */
-    private JourneyExtractor() {
-    }
+    private JourneyExtractor() {}
 
     /**
      * Extrait tous les voyages optimaux permettant d'aller de la gare de départ donnée
