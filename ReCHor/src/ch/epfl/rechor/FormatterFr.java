@@ -106,7 +106,8 @@ public final class FormatterFr {
      * Formate une étape à pied en indiquant son type et sa durée.
      *
      * @param footLeg une étape effectuée à pied.
-     * @return une chaîne décrivant l'étape, par exemple "changement (5 min)" ou "trajet à pied (3 min)".
+     * @return une chaîne décrivant l'étape,
+     * par exemple "changement (5 min)" ou "trajet à pied (3 min)".
      */
     public static String formatLeg(Foot footLeg) {
         final String description = footLeg.isTransfer() ? CHANGEMENT : TRAJET_A_PIED;
@@ -166,7 +167,8 @@ public final class FormatterFr {
      * Le format résultant est "NomLigne Direction Destination".
      *
      * @param transportLeg une étape en transport public.
-     * @return une chaîne représentant la ligne et la destination, par exemple "IR 15 Direction Luzern".
+     * @return une chaîne représentant la ligne et la destination,
+     * par exemple "IR 15 Direction Luzern".
      */
     public static String formatRouteDestination(Journey.Leg.Transport transportLeg) {
         StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);

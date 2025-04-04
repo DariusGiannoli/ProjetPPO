@@ -67,7 +67,8 @@ public final record Router(TimeTable timetable) {
             final int depTime = connections.depMins(currentCid);
             final int departureStation = connections.depStopId(currentCid);
 
-            // Création d'un Builder pour accumuler la frontière temporaire de la connexion courante.
+            // Création d'un Builder pour accumuler
+            // la frontière temporaire de la connexion courante.
             ParetoFront.Builder f = new ParetoFront.Builder();
 
             // Option 1 : Descendre à l'arrivée de la liaison et marcher jusqu'à la destination,

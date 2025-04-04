@@ -43,9 +43,10 @@ public final class BufferedTransfers implements Transfers {
      * <p>
      * Le constructeur effectue deux passes sur les données :
      * <ul>
-     *   <li>La première passe détermine le maximum d'index de gare d'arrivée pour dimensionner le tableau.</li>
-     *   <li>La deuxième passe regroupe les enregistrements par gare d'arrivée et stocke, pour chaque gare,
-     *       l'intervalle empaqueté des index des changements correspondants.</li>
+     *   <li>La première passe détermine le maximum d'index de gare d'arrivée pour dimensionner
+     *   le tableau.</li>
+     *   <li>La deuxième passe regroupe les enregistrements par gare d'arrivée et stocke,
+     *   pour chaque gare, l'intervalle empaqueté des index des changements correspondants.</li>
      * </ul>
      * </p>
      *

@@ -112,7 +112,8 @@ public final class JourneyExtractor {
             return;
         }
 
-        // Gérer une éventuelle étape initiale à pied si la gare de départ diffère de l'arrêt de départ
+        // Gérer une éventuelle étape initiale à pied
+        // si la gare de départ diffère de l'arrêt de départ
         handleInitialFootLeg(timeTable, depStationId, connections.depStopId(crit.connectionId()),
                 profile.date(), crit.depMins(), legs);
 
@@ -153,7 +154,8 @@ public final class JourneyExtractor {
      * @param endMins          l'heure d'arrivée cible (en minutes)
      * @param isLastLeg        vrai si c'est la dernière étape de transport
      * @param legs             la liste des legs à compléter
-     * @return le nouveau critère empaqueté pour la prochaine étape, ou INVALID_ID si le voyage est terminé
+     * @return le nouveau critère empaqueté pour la prochaine étape,
+     * ou INVALID_ID si le voyage est terminé
      */
     private static long processTransportLeg(Profile profile, int connectionId, int interStops,
                                             int remainingChanges, int endMins, boolean isLastLeg,
@@ -200,7 +202,8 @@ public final class JourneyExtractor {
 
     /**
      * Gère la transition après une étape de transport.
-     * Récupère le prochain critère via la frontière de Pareto et ajoute une étape à pied de transfert.
+     * Récupère le prochain critère via la frontière de Pareto
+     * et ajoute une étape à pied de transfert.
      *
      * @param profile          le profil contenant les données
      * @param connectionId     l'identifiant de la connexion précédente
@@ -208,7 +211,8 @@ public final class JourneyExtractor {
      * @param endMins          l'heure d'arrivée cible (en minutes) pour le prochain critère
      * @param remainingChanges le nombre de changements restants
      * @param legs             la liste des legs à compléter
-     * @return le nouveau critère empaqueté pour poursuivre l'extraction, ou INVALID_ID si le voyage est terminé
+     * @return le nouveau critère empaqueté pour poursuivre l'extraction,
+     * ou INVALID_ID si le voyage est terminé
      */
     private static long handleNextLeg(Profile profile, int connectionId, int currentStationId,
                                       int endMins, int remainingChanges, List<Journey.Leg> legs) {
@@ -313,7 +317,8 @@ public final class JourneyExtractor {
     }
 
     /**
-     * Gère l'ajout d'une étape à pied initiale si la gare de départ ne correspond pas à l'arrêt de départ.
+     * Gère l'ajout d'une étape à pied initiale
+     * si la gare de départ ne correspond pas à l'arrêt de départ.
      *
      * @param timeTable    l'horaire contenant les données
      * @param depStationId l'identifiant de la gare de départ
