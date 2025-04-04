@@ -426,10 +426,12 @@ public final class JourneyExtractor {
             if (stopId < stationsSize) {
                 return createStationStop(timeTable, stopId);
             }
+
             int platformId = stopId - stationsSize;
             if (platformId >= timeTable.platforms().size()) {
                 throw new IllegalArgumentException("Identifiant de plateforme invalide");
             }
+
             int stationId = timeTable.platforms().stationId(platformId);
             return new Stop(
                     timeTable.stations().name(stationId),
