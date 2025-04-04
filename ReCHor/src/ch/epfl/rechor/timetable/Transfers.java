@@ -9,7 +9,7 @@ import java.util.NoSuchElementException;
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-public interface Transfers extends Indexed{
+public interface Transfers extends Indexed {
 
     /**
      * Retourne l'index de la gare de départ pour le changement identifié par l'index donné.
@@ -46,7 +46,7 @@ public interface Transfers extends Indexed{
      * @param depStationId l'index de la gare de départ
      * @param arrStationId l'index de la gare d'arrivée
      * @return la durée du changement en minutes
-     * @throws NoSuchElementException si aucun changement n'est possible entre ces gares
+     * @throws NoSuchElementException    si aucun changement n'est possible entre ces gares
      * @throws IndexOutOfBoundsException si l'un des index est invalide
      */
     int minutesBetween(int depStationId, int arrStationId);

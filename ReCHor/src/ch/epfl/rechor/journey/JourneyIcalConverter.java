@@ -21,8 +21,11 @@ public final class JourneyIcalConverter {
     private static final String LINE_SEPARATOR = "\\n";
     private static final String SUMMARY_SEPARATOR = " → ";
 
-    /**Constructeur privé pour empêcher l'instanciation.*/
-    private JourneyIcalConverter() {}
+    /**
+     * Constructeur privé pour empêcher l'instanciation.
+     */
+    private JourneyIcalConverter() {
+    }
 
     /**
      * Convertit le voyage donné en un événement iCalendar (VCALENDAR contenant un VEVENT).
@@ -30,13 +33,12 @@ public final class JourneyIcalConverter {
      * @param journey le voyage à convertir
      * @return une chaîne de caractères au format iCalendar
      */
-    public static String toIcalendar(Journey journey){
+    public static String toIcalendar(Journey journey) {
         // Construction de la description : une étape par ligne, séparées par un saut de ligne
         StringJoiner joiner = new StringJoiner(LINE_SEPARATOR);
         for (Journey.Leg leg : journey.legs()) {
             switch (leg) {
-                case Journey.Leg.Foot foot ->
-                        joiner.add(FormatterFr.formatLeg(foot));
+                case Journey.Leg.Foot foot -> joiner.add(FormatterFr.formatLeg(foot));
                 case Journey.Leg.Transport transport ->
                         joiner.add(FormatterFr.formatLeg(transport));
             }

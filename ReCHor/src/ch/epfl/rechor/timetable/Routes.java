@@ -10,7 +10,7 @@ import ch.epfl.rechor.journey.Vehicle;
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-public interface Routes extends Indexed{
+public interface Routes extends Indexed {
 
     /**
      * Retourne le type de véhicule desservant la ligne d'index donné.

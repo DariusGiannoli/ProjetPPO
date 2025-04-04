@@ -8,7 +8,7 @@ package ch.epfl.rechor.timetable;
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-public interface Trips extends Indexed{
+public interface Trips extends Indexed {
 
     /**
      * Retourne l'index de la ligne associée à la course d'index donné.

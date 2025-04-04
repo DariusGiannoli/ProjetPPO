@@ -194,7 +194,8 @@ public final class ParetoFront {
             int dst = pos;
             for (int src = pos; src < size; src++) {
                 if (!PackedCriteria.dominatesOrIsEqual(packedTuple, tuples[src])) {
-                    if (dst != src) tuples[dst] = tuples[src]; {
+                    if (dst != src) tuples[dst] = tuples[src];
+                    {
                         dst++;
                     }
                 }
@@ -226,7 +227,8 @@ public final class ParetoFront {
          * @return la frontière en construction pour l'enchainement des méthodes.
          */
         public Builder add(int arrMins, int changes, int payload) {
-            return add(PackedCriteria.pack(arrMins, changes, payload));
+            long criteria = PackedCriteria.pack(arrMins, changes, payload);
+            return add(criteria);
         }
 
         /**
@@ -257,7 +259,7 @@ public final class ParetoFront {
          * une fois fixés avec l'heure de départ 'depMins',
          * sont dominés par au moins un tuple du bâtisseur actuel.
          *
-         * @param that l'autre bâtisseur.
+         * @param that    l'autre bâtisseur.
          * @param depMins l'heure de départ en min après minuit que l'on veut ajouter aux tuples
          *                de that.
          * @return vrai si tous les tuples de 'that' sont dominés par un tuple du bâtisseur actuel.
@@ -292,7 +294,7 @@ public final class ParetoFront {
          * @return une frontière de Pareto immuable.
          */
         public ParetoFront build() {
-            if (size == 0){
+            if (size == 0) {
                 return EMPTY;
             }
 

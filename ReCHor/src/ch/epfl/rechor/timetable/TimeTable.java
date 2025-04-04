@@ -10,7 +10,7 @@ import java.time.LocalDate;
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-public interface TimeTable{
+public interface TimeTable {
 
     /**
      * Retourne les gares indexées de l'horaire.

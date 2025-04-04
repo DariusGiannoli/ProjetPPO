@@ -1,6 +1,7 @@
 package ch.epfl.rechor.timetable.mapped;
 
 import ch.epfl.rechor.timetable.StationAliases;
+
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public final class BufferedStationAliases implements StationAliases {
      * @param stringTable table des chaînes de caractères
      * @param buffer      tampon contenant les données aplaties
      */
-    public BufferedStationAliases(List<String> stringTable, ByteBuffer buffer){
+    public BufferedStationAliases(List<String> stringTable, ByteBuffer buffer) {
         this.stringTable = stringTable;
         this.structuredBuffer = new StructuredBuffer(ALIAS_STRUCTURE, buffer);
     }
@@ -45,7 +46,7 @@ public final class BufferedStationAliases implements StationAliases {
      * {@inheritDoc}
      *
      * @param id l'index de l'alias
-     * @return  le nom alternatif de la gare
+     * @return le nom alternatif de la gare
      */
     @Override
     public String alias(int id) {
@@ -57,7 +58,7 @@ public final class BufferedStationAliases implements StationAliases {
      * {@inheritDoc}
      *
      * @param id l'index de l'alias
-     * @return  le nom de la gare d'origine
+     * @return le nom de la gare d'origine
      */
     @Override
     public String stationName(int id) {
@@ -68,7 +69,7 @@ public final class BufferedStationAliases implements StationAliases {
     /**
      * {@inheritDoc}
      *
-     * @return  le nombre d'enregistrements
+     * @return le nombre d'enregistrements
      */
     @Override
     public int size() {

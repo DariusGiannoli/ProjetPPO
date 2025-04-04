@@ -18,7 +18,6 @@ import java.util.List;
  * @param date         la date du profil.
  * @param arrStationId l'index de la gare d'arrivée (destination).
  * @param stationFront la table des frontières de Pareto pour les gares.
- *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */

@@ -20,7 +20,6 @@ import java.util.Objects;
  * </ul>
  *
  * @param legs la liste des étapes du voyage.
- *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
@@ -61,7 +60,7 @@ public record Journey(List<Leg> legs) {
      *
      * @return l'arrêt de départ.
      */
-    public Stop depStop(){
+    public Stop depStop() {
         return legs.getFirst().depStop();
     }
 
@@ -70,7 +69,7 @@ public record Journey(List<Leg> legs) {
      *
      * @return l'arrêt d’arrivée.
      */
-    public Stop arrStop(){
+    public Stop arrStop() {
         return legs.getLast().arrStop();
     }
 
@@ -79,7 +78,7 @@ public record Journey(List<Leg> legs) {
      *
      * @return la date/heure de départ.
      */
-    public LocalDateTime depTime(){
+    public LocalDateTime depTime() {
         return legs.getFirst().depTime();
     }
 
@@ -88,7 +87,7 @@ public record Journey(List<Leg> legs) {
      *
      * @return la date/heure d’arrivée.
      */
-    public LocalDateTime arrTime(){
+    public LocalDateTime arrTime() {
         return legs.getLast().arrTime();
     }
 
@@ -154,11 +153,11 @@ public record Journey(List<Leg> legs) {
         /**
          * Méthode pour effectuer des vérifications afin d'éviter redondance + lever exception
          *
-         * @param depStop   l’arrêt de départ.
-         * @param depTime   la date/heure de départ.
-         * @param arrStop   l’arrêt d’arrivée.
-         * @param arrTime   la date/heure d’arrivée.
-         * @throws NullPointerException si des paramètres sont nuls
+         * @param depStop l’arrêt de départ.
+         * @param depTime la date/heure de départ.
+         * @param arrStop l’arrêt d’arrivée.
+         * @param arrTime la date/heure d’arrivée.
+         * @throws NullPointerException     si des paramètres sont nuls
          * @throws IllegalArgumentException si la date/heure d'arrivée est avant date/heure départ
          */
         private static void validateCommonLegParameters(Stop depStop, LocalDateTime depTime,
@@ -177,7 +176,7 @@ public record Journey(List<Leg> legs) {
          * @param arrTime la date/heure d’arrivée à cet arrêt.
          * @param depTime la date/heure de départ de cet arrêt.
          */
-         record IntermediateStop(Stop stop, LocalDateTime arrTime, LocalDateTime depTime) {
+        record IntermediateStop(Stop stop, LocalDateTime arrTime, LocalDateTime depTime) {
 
             /**
              * Constructeur compact qui valide les arguments.
@@ -224,10 +223,10 @@ public record Journey(List<Leg> legs) {
              * @param vehicle           le véhicule utilisé (non nul).
              * @param route             le nom de la ligne (non nul).
              * @param destination       la destination (non nul).
-             * @throws NullPointerException si un argument requis est nul.
+             * @throws NullPointerException     si un argument requis est nul.
              * @throws IllegalArgumentException si date/heure arrivée est avant date/heure départ
              */
-            public Transport{
+            public Transport {
                 validateCommonLegParameters(depStop, depTime, arrStop, arrTime);
 
                 Objects.requireNonNull(vehicle);
@@ -249,7 +248,7 @@ public record Journey(List<Leg> legs) {
          */
         record Foot(Stop depStop, LocalDateTime depTime,
                     Stop arrStop, LocalDateTime arrTime)
-                implements Leg{
+                implements Leg {
 
             /**
              * Constructeur compact qui valide les arguments en appelant une méthode auxiliaire.
@@ -261,7 +260,7 @@ public record Journey(List<Leg> legs) {
              * @throws NullPointerException     si un argument requis est nul.
              * @throws IllegalArgumentException si arrTime précède depTime.
              */
-            public Foot{
+            public Foot {
                 validateCommonLegParameters(depStop, depTime, arrStop, arrTime);
             }
 

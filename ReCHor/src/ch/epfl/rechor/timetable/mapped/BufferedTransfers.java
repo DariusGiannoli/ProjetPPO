@@ -20,8 +20,8 @@ import java.util.NoSuchElementException;
 public final class BufferedTransfers implements Transfers {
 
     //Indices des champs dans la table principale des changements
-    private static final int DEP_STATION_ID   = 0; // U16 index de la gare de départ
-    private static final int ARR_STATION_ID   = 1; // U16 index de la gare d'arrivée
+    private static final int DEP_STATION_ID = 0; // U16 index de la gare de départ
+    private static final int ARR_STATION_ID = 1; // U16 index de la gare d'arrivée
     private static final int TRANSFER_MINUTES = 2; // U8 durée du changement
 
     // Structure d'un changement (5 octets)
@@ -83,7 +83,7 @@ public final class BufferedTransfers implements Transfers {
      * {@inheritDoc}
      *
      * @param id l'index du changement
-     * @return  l'index de la gare de départ pour ce changement
+     * @return l'index de la gare de départ pour ce changement
      */
     @Override
     public int depStationId(int id) {
@@ -94,7 +94,7 @@ public final class BufferedTransfers implements Transfers {
      * {@inheritDoc}
      *
      * @param id l'index du changement
-     * @return  la durée du changement en minutes
+     * @return la durée du changement en minutes
      */
     @Override
     public int minutes(int id) {
@@ -105,7 +105,7 @@ public final class BufferedTransfers implements Transfers {
      * {@inheritDoc}
      *
      * @param stationId l'index de la gare d'arrivée
-     * @return  l'intervalle empaqueté des index des changements pour cette gare
+     * @return l'intervalle empaqueté des index des changements pour cette gare
      * @throws IndexOutOfBoundsException si l'index de la gare n'est pas valide
      */
     @Override
@@ -142,7 +142,7 @@ public final class BufferedTransfers implements Transfers {
     /**
      * {@inheritDoc}
      *
-     * @return  le nombre total de changements contenus dans le buffer
+     * @return le nombre total de changements contenus dans le buffer
      */
     @Override
     public int size() {

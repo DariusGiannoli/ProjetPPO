@@ -24,7 +24,6 @@ import java.util.List;
  * @param platforms      les voies/quais.
  * @param routes         les lignes.
  * @param transfers      les changements.
- *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
@@ -34,15 +33,15 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
         implements TimeTable {
 
     // Constantes de chemin de fichier
-    private static final String PATH_PLATFORMS       = "platforms.bin";
-    private static final String PATH_ROUTES          = "routes.bin";
-    private static final String PATH_ALIASES         = "station-aliases.bin";
-    private static final String PATH_STATIONS        = "stations.bin";
-    private static final String PATH_TRANSFERS       = "transfers.bin";
-    private static final String PATH_FILE            = "strings.txt";
-    private static final String PATH_CONNECTIONS     = "connections.bin";
+    private static final String PATH_PLATFORMS = "platforms.bin";
+    private static final String PATH_ROUTES = "routes.bin";
+    private static final String PATH_ALIASES = "station-aliases.bin";
+    private static final String PATH_STATIONS = "stations.bin";
+    private static final String PATH_TRANSFERS = "transfers.bin";
+    private static final String PATH_FILE = "strings.txt";
+    private static final String PATH_CONNECTIONS = "connections.bin";
     private static final String PATH_CONNECTIONS_SUC = "connections-succ.bin";
-    private static final String PATH_TRIPS           = "trips.bin";
+    private static final String PATH_TRIPS = "trips.bin";
 
     /**
      * Crée une instance de FileTimeTable à partir du répertoire contenant les fichiers horaires.
@@ -88,14 +87,14 @@ public record FileTimeTable(Path directory, List<String> stringTable, Stations s
      * et effectue un mapping en lecture seule de l'intégralité du contenu
      *
      * @param directory le chemin du répertoire contenant le fichier
-     * @param path  le nom du fichier à mapper
-     * @return  un ByteBuffer mappé en lecture seule contenant le contenu du fichier
-     * @throws IOException  si une erreur d'entrée/sortie se produit
-     * lors de l'ouverture du fichier ou du mapping
+     * @param path      le nom du fichier à mapper
+     * @return un ByteBuffer mappé en lecture seule contenant le contenu du fichier
+     * @throws IOException si une erreur d'entrée/sortie se produit
+     *                     lors de l'ouverture du fichier ou du mapping
      */
     private static ByteBuffer bufferExtractor(Path directory, String path) throws IOException {
         try (FileChannel s = FileChannel.open(directory.resolve(path))) {
-            return  s.map(FileChannel.MapMode.READ_ONLY, 0, s.size());
+            return s.map(FileChannel.MapMode.READ_ONLY, 0, s.size());
         }
     }
 

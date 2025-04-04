@@ -4,14 +4,14 @@ package ch.epfl.rechor.timetable;
  * L'interface Connections représente les liaisons indexées.
  * Pour l'algorithme de recherche de voyages,
  * les liaisons doivent être ordonnées par heure de départ décroissante.
- *
- *  Toutes les méthodes de cette interface peuvent lever IndexOutOfBoundsException
- *  si l'index fourni est invalide (négatif ou supérieur ou égal à size()).
+ * <p>
+ * Toutes les méthodes de cette interface peuvent lever IndexOutOfBoundsException
+ * si l'index fourni est invalide (négatif ou supérieur ou égal à size()).
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-public interface Connections extends Indexed{
+public interface Connections extends Indexed {
 
     /**
      * Retourne l'index de l'arrêt de départ de la liaison d'index donné.

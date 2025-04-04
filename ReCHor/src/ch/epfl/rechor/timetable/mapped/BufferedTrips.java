@@ -1,6 +1,7 @@
 package ch.epfl.rechor.timetable.mapped;
 
 import ch.epfl.rechor.timetable.Trips;
+
 import java.nio.ByteBuffer;
 import java.util.List;
 

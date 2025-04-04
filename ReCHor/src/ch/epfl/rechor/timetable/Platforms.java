@@ -8,7 +8,7 @@ package ch.epfl.rechor.timetable;
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
-public interface Platforms extends Indexed{
+public interface Platforms extends Indexed {
 
     /**
      * Retourne le nom de la voie ou du quai correspondant à l'index donné.

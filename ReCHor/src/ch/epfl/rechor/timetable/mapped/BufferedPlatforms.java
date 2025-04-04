@@ -46,7 +46,7 @@ public final class BufferedPlatforms implements Platforms {
      * {@inheritDoc}
      *
      * @param id l'index de la voie ou du quai
-     * @return  le nom de la voie ou du quai
+     * @return le nom de la voie ou du quai
      */
     @Override
     public String name(int id) {
@@ -58,7 +58,7 @@ public final class BufferedPlatforms implements Platforms {
      * {@inheritDoc}
      *
      * @param id l'index de la voie ou du quai
-     * @return  l'indice de la gare parente
+     * @return l'indice de la gare parente
      */
     @Override
     public int stationId(int id) {
@@ -68,7 +68,7 @@ public final class BufferedPlatforms implements Platforms {
     /**
      * {@inheritDoc}
      *
-     * @return  le nombre d'enregistrements
+     * @return le nombre d'enregistrements
      */
     @Override
     public int size() {

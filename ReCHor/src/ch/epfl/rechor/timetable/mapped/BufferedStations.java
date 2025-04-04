@@ -1,6 +1,7 @@
 package ch.epfl.rechor.timetable.mapped;
 
 import ch.epfl.rechor.timetable.Stations;
+
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public final class BufferedStations implements Stations {
      * @param stringTable table des chaînes de caractères
      * @param buffer      tampon contenant les données aplaties des gares
      */
-    public BufferedStations(List<String> stringTable, ByteBuffer buffer){
+    public BufferedStations(List<String> stringTable, ByteBuffer buffer) {
         this.stringTable = stringTable;
         this.structuredBuffer = new StructuredBuffer(STATION_STRUCTURE, buffer);
     }
@@ -52,7 +53,7 @@ public final class BufferedStations implements Stations {
      * {@inheritDoc}
      *
      * @param id l'index de la gare
-     * @return  le nom de la gare
+     * @return le nom de la gare
      */
     @Override
     public String name(int id) {
@@ -64,7 +65,7 @@ public final class BufferedStations implements Stations {
      * {@inheritDoc}
      *
      * @param id l'index de la gare
-     * @return  la longitude de la gare en degrés
+     * @return la longitude de la gare en degrés
      */
     @Override
     public double longitude(int id) {
@@ -76,7 +77,7 @@ public final class BufferedStations implements Stations {
      * {@inheritDoc}
      *
      * @param id l'index de la gare
-     * @return  la latitude de la gare en degrés
+     * @return la latitude de la gare en degrés
      */
     @Override
     public double latitude(int id) {
@@ -87,7 +88,7 @@ public final class BufferedStations implements Stations {
     /**
      * {@inheritDoc}
      *
-     * @return  le nombre de gares
+     * @return le nombre de gares
      */
     @Override
     public int size() {

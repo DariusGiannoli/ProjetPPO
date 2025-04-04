@@ -26,14 +26,17 @@ public final class JourneyExtractor {
     private static final int MAX_INTERMEDIATE_STOPS = 100;
     private static final int STATION_ID_INVALID = -1;
 
-    /**Constructeur privé pour empêcher l'instanciation*/
-    private JourneyExtractor() {}
+    /**
+     * Constructeur privé pour empêcher l'instanciation
+     */
+    private JourneyExtractor() {
+    }
 
     /**
      * Extrait tous les voyages optimaux permettant d'aller de la gare de départ donnée
      * à la destination indiquée dans le profil.
      *
-     * @param profile     le profil contenant les frontières de Pareto
+     * @param profile      le profil contenant les frontières de Pareto
      * @param depStationId l'indice de la gare de départ
      * @return une liste de voyages triés par heure de départ puis par heure d'arrivée
      */
@@ -103,7 +106,7 @@ public final class JourneyExtractor {
             int tripId = connections.tripId(connectionId);
 
             List<Journey.Leg.IntermediateStop> inter = new ArrayList<>();
-            for(int j = 0; j < interStops; j++){
+            for (int j = 0; j < interStops; j++) {
                 connectionId = connections.nextConnectionId(connectionId);
 
                 Stop interStop = createStop(timeTable, arrStopId);
@@ -175,7 +178,7 @@ public final class JourneyExtractor {
     /**
      * Crée un objet LocalDateTime à partir d'une date et d'un nombre de minutes depuis minuit.
      *
-     * @param date la date de l'évènement.
+     * @param date    la date de l'évènement.
      * @param minutes l'heure de l'évènement en nombre de minutes après minuit.
      * @return la date/heure de l'évènement sous forme d'un objet LocalDateTime.
      */
@@ -187,7 +190,7 @@ public final class JourneyExtractor {
      * Crée un objet Stop à partir d'un identifiant d'arrêt.
      *
      * @param timeTable est un horaire de transport public avec des données aplaties.
-     * @param stopId l'id de l'arrêt que l'on veut créer.
+     * @param stopId    l'id de l'arrêt que l'on veut créer.
      * @return retourne l'arrêt d'id stopId.
      */
     private static Stop createStop(TimeTable timeTable, int stopId) {

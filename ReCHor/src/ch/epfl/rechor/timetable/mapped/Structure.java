@@ -3,7 +3,7 @@ package ch.epfl.rechor.timetable.mapped;
 import ch.epfl.rechor.Preconditions;
 
 /**
- Facilite la description de la structure des données aplaties.
+ * Facilite la description de la structure des données aplaties.
  * Cette classe permet de définir des champs (Field) avec un type (FieldType) et de calculer
  * rapidement les offsets des champs dans une donnée aplatie.
  *
@@ -44,18 +44,26 @@ public final class Structure {
      * Types de champs supportés avec leur taille en octets.
      */
     public enum FieldType {
-        /** 8 bits (1 octet) interprétés comme un entier non signé*/
+        /**
+         * 8 bits (1 octet) interprétés comme un entier non signé
+         */
         U8(1),
 
-        /** 16 bits (2 octets) interprétés comme un entier non signé*/
+        /**
+         * 16 bits (2 octets) interprétés comme un entier non signé
+         */
         U16(2),
 
-        /** 32 bits (4 octets) interprétés comme un entier signé*/
+        /**
+         * 32 bits (4 octets) interprétés comme un entier signé
+         */
         S32(4);
 
         private final int size;
 
-        /** Constructeur */
+        /**
+         * Constructeur
+         */
         FieldType(int size) {
             this.size = size;
         }
@@ -96,7 +104,7 @@ public final class Structure {
      * @return un Field avec les attributs spécifiés
      */
     public static Field field(int index, FieldType type) {
-            return new Field(index, type);
+        return new Field(index, type);
     }
 
     /**

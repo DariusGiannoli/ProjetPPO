@@ -1,6 +1,7 @@
 package ch.epfl.rechor.journey;
 
 import ch.epfl.rechor.Preconditions;
+
 import java.util.Objects;
 
 /**
@@ -12,7 +13,6 @@ import java.util.Objects;
  * @param platformName le nom de la voie ou du quai (null si l’arrêt est une gare).
  * @param longitude    la longitude en degrés.
  * @param latitude     la latitude en degrés.
- *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */

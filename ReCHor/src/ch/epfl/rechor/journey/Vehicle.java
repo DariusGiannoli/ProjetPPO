@@ -10,24 +10,38 @@ import java.util.List;
  * @author Darius Giannoli (380759)
  */
 public enum Vehicle {
-    /** Tram */
+    /**
+     * Tram
+     */
     TRAM,
-    /** Métro */
+    /**
+     * Métro
+     */
     METRO,
-    /** Train */
+    /**
+     * Train
+     */
     TRAIN,
-    /** Bus/Car */
+    /**
+     * Bus/Car
+     */
     BUS,
-    /** Ferry/Bateau */
+    /**
+     * Ferry/Bateau
+     */
     FERRY,
-    /** Télécabine/Transport aérien à câble */
+    /**
+     * Télécabine/Transport aérien à câble
+     */
     AERIAL_LIFT,
-    /** Funiculaire */
+    /**
+     * Funiculaire
+     */
     FUNICULAR;
 
     /**
      * Liste immuable de l'ensemble des types de véhicules, dans l'ordre de définition.
      * Utile pour itérer sur tous les types de véhicules disponibles.
-     * */
+     */
     public static final List<Vehicle> ALL = List.of(values());
 }
