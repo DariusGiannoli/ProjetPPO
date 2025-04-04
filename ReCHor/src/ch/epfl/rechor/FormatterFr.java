@@ -70,6 +70,7 @@ public final class FormatterFr {
         final long totalMinutes = duration.toMinutes();
         final long hours = totalMinutes / 60;
         final long minutes = totalMinutes % 60;
+
         return buildDurationString(hours, minutes);
     }
 
@@ -96,6 +97,7 @@ public final class FormatterFr {
         if (platformName == null || platformName.isEmpty()) {
             return EMPTY_STRING;
         }
+
         String prefix = Character.isDigit(platformName.charAt(0)) ? VOIE_PREFIX : QUAI_PREFIX;
         return prefix + platformName;
     }
@@ -109,7 +111,9 @@ public final class FormatterFr {
     public static String formatLeg(Foot footLeg) {
         final String description = footLeg.isTransfer() ? CHANGEMENT : TRAJET_A_PIED;
         final String durationStr = formatDuration(footLeg.duration());
+
         StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);
+
         return sb.append(description)
                 .append(LEFT_PARENTHESIS)
                 .append(durationStr)
@@ -127,6 +131,7 @@ public final class FormatterFr {
      */
     public static String formatLeg(Journey.Leg.Transport leg) {
         StringBuilder sb = new StringBuilder(SB_CAPACITY_LARGE);
+
         // Ajout des informations de départ
         sb.append(formatTime(leg.depTime()))
                 .append(SPACE)
@@ -165,6 +170,7 @@ public final class FormatterFr {
      */
     public static String formatRouteDestination(Journey.Leg.Transport transportLeg) {
         StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);
+
         return sb.append(transportLeg.route())
                 .append(DIRECTION)
                 .append(transportLeg.destination())
