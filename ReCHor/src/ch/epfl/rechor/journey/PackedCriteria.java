@@ -23,18 +23,18 @@ public final class PackedCriteria {
 
     // Constantes pour les heures et vérifications
     private static final int MIN_MINUTES = -240;
-    private static final int MAX_MINUTES = 2880; // minutes < 2880
+    private static final int MAX_MINUTES = 2880;    // minutes < 2880
     private static final int MINUTES_OFFSET = 240; // translation pour rendre les minutes positives
 
     // Déplacements et masques pour le packing
     private static final int SHIFT_DEP = 51;
     private static final int SHIFT_ARR = 39;
     private static final int SHIFT_CHANGES = 32;
-    private static final int BITS_12_MASK = 0xFFF;
-    private static final long BITS_12_MASK_LONG = 0xFFFL;// 12 bits (4095) long
-    private static final int BITS_7_MASK = 0x7F;    // 7 bits (127)
-    private static final long BITS_7_MASK_LONG = 0x7FL;    // 7 bits (127) long
-    private static final long BITS_32_MASK = 0xFFFFFFFFL; // 32 bits
+    private static final int BITS_12_MASK = 0xFFF;          // 12 bits (4095)
+    private static final long BITS_12_MASK_LONG = 0xFFFL;   // 12 bits (4095) long
+    private static final int BITS_7_MASK = 0x7F;            // 7 bits (127)
+    private static final long BITS_7_MASK_LONG = 0x7FL;     // 7 bits (127) long
+    private static final long BITS_32_MASK = 0xFFFFFFFFL;   // 32 bits
 
     /**Constructeur privé pour empêcher l'instanciation.*/
     private PackedCriteria() {}
