@@ -39,6 +39,7 @@ public final class JourneyIcalConverter {
         final String summary =
                 journey.depStop().name() + SUMMARY_SEPARATOR + journey.arrStop().name();
 
+        // Construction de la description du voyage.
         String description = descriptionFormatter(journey);
 
         // Création du builder iCalendar
@@ -60,7 +61,7 @@ public final class JourneyIcalConverter {
 
     /**
      * @param journey le voyage à convertir.
-     * @return une chaine de caractère qui est le résumé du voyage au format voulu.
+     * @return une chaine de caractère qui est la description voyage au format voulu.
      */
     private static String descriptionFormatter(Journey journey) {
         // Construction de la description : une étape par ligne, séparées par un saut de ligne
