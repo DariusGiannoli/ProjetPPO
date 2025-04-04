@@ -1,7 +1,6 @@
 package ch.epfl.rechor.journey;
 
 import ch.epfl.rechor.Bits32_24_8;
-import ch.epfl.rechor.journey.*;
 import ch.epfl.rechor.timetable.Connections;
 import ch.epfl.rechor.timetable.TimeTable;
 import ch.epfl.rechor.timetable.Trips;
@@ -23,6 +22,8 @@ import java.util.NoSuchElementException;
  * @author Darius Giannoli (380759)
  */
 public final class JourneyExtractor {
+
+    private static final int INVALID_ID = -1;
 
     /**
      * Constructeur privé pour empêcher l'instanciation
@@ -178,7 +179,7 @@ public final class JourneyExtractor {
                             createStop(timeTable, arrStopId),
                             createDateTime(profile.date(), connections.arrMins(connectionId)),
                             legs);
-                    return -1;
+                    return INVALID_ID;
                 }
 
                 // Ajouter une étape à pied pour le changement
@@ -191,7 +192,7 @@ public final class JourneyExtractor {
                         createStop(timeTable, arrStopId),
                         createDateTime(profile.date(), connections.arrMins(connectionId)),
                         legs);
-                return -1;
+                return INVALID_ID;
             }
         } else if (currentStationId != profile.arrStationId()) {
             // Dernière étape mais pas à la destination, ajouter une étape à pied finale
@@ -201,7 +202,7 @@ public final class JourneyExtractor {
                     legs);
         }
 
-        return -1;
+        return INVALID_ID;
     }
 
     /**
@@ -404,7 +405,8 @@ public final class JourneyExtractor {
 
         if (timeTable.isStationId(stopId)) {
             return createStationStop(timeTable, stopId);
-        } else {
+        }
+        else {
             int stationsSize = timeTable.stations().size();
             if (stopId < stationsSize) {
                 return createStationStop(timeTable, stopId);
