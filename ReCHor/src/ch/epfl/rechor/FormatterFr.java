@@ -54,10 +54,10 @@ public final class FormatterFr {
         final long hours = totalMinutes / 60;
         final long minutes = totalMinutes % 60;
 
-        StringBuilder sb = new StringBuilder(SB_CAPACITY_SMALL);
-        sb.append(hours == 0 ? minutes : hours + HOUR_SEPARATOR + minutes);
+        StringBuilder stringBuilder = new StringBuilder(SB_CAPACITY_SMALL);
+        stringBuilder.append(hours == 0 ? minutes : hours + HOUR_SEPARATOR + minutes);
 
-        return sb.append(MIN_SUFFIX).toString();
+        return stringBuilder.append(MIN_SUFFIX).toString();
     }
 
     /**
@@ -68,9 +68,9 @@ public final class FormatterFr {
      * @return une chaîne représentant l'heure au format "HHhmm".
      */
     public static String formatTime(LocalDateTime dateTime) {
-        StringBuilder sb = new StringBuilder(SB_CAPACITY_SMALL);
+        StringBuilder stringBuilder = new StringBuilder(SB_CAPACITY_SMALL);
 
-        return sb.append(dateTime.getHour())
+        return stringBuilder.append(dateTime.getHour())
                 .append(HOUR)
                 .append(String.format(MINUTE_FORMAT, dateTime.getMinute()))
                 .toString();
@@ -105,9 +105,9 @@ public final class FormatterFr {
         final String description = footLeg.isTransfer() ? CHANGEMENT : TRAJET_A_PIED;
         final String durationStr = formatDuration(footLeg.duration());
 
-        StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);
+        StringBuilder stringBuilder = new StringBuilder(SB_CAPACITY_MEDIUM);
 
-        return sb.append(description)
+        return stringBuilder.append(description)
                 .append(LEFT_PARENTHESIS)
                 .append(durationStr)
                 .append(RIGHT_PARENTHESIS)
@@ -166,9 +166,9 @@ public final class FormatterFr {
         final String route = transportLeg.route();
         final String destination = transportLeg.destination();
 
-        StringBuilder sb = new StringBuilder(SB_CAPACITY_MEDIUM);
+        StringBuilder stringBuilder = new StringBuilder(SB_CAPACITY_MEDIUM);
 
-        return sb.append(route)
+        return stringBuilder.append(route)
                 .append(DIRECTION)
                 .append(destination)
                 .toString();

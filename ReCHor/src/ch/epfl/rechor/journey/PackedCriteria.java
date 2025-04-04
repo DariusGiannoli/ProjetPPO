@@ -172,10 +172,10 @@ public final class PackedCriteria {
 
     /**
      * Retourne un nouveau critère identique à criteria avec le nombre de changements incrémenté
-     * de 1
+     * de 1.
      *
      * @param criteria un entier 64 bits
-     * @return un entier 64 bits avec le champ "changes" augmenté de 1
+     * @return un entier 64 bits avec le champ "changes" augmenté de 1.
      * @throws IllegalArgumentException si le nombre de changements atteint sa limite
      */
     public static long withAdditionalChange(long criteria) {

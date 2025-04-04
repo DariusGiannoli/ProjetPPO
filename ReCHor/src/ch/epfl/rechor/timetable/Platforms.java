@@ -14,7 +14,7 @@ public interface Platforms extends Indexed {
      * Retourne le nom de la voie ou du quai correspondant à l'index donné.
      *
      * @param id l'index de la voie ou du quai
-     * @return le nom de la voie ou du quai (peut être une chaîne vide)
+     * @return le nom de la voie ou du quai (peut être une chaîne vide).
      * @throws IndexOutOfBoundsException si l'index est invalide
      */
     String name(int id);

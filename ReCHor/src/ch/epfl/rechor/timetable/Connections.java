@@ -15,7 +15,7 @@ public interface Connections extends Indexed {
 
     /**
      * Retourne l'index de l'arrêt de départ de la liaison d'index donné.
-     * Cet index représente une gare si inférieur au nombre total de gares,
+     * Cet index représente une gare s'il est inférieur au nombre total de gares,
      * sinon il correspond à (index - nombre de gares) pour une voie/quai.
      *
      * @param id l'index de la liaison
@@ -63,7 +63,7 @@ public interface Connections extends Indexed {
 
     /**
      * Retourne la position de la liaison d'index donné dans la course correspondante.
-     * La première liaison d'une course a l'index 0.
+     * La première liaison d'une course à l'index 0.
      *
      * @param id l'index de la liaison
      * @return la position dans la course
