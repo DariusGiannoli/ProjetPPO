@@ -49,6 +49,7 @@ public final class JourneyExtractor {
         int changes = PackedCriteria.changes(criteria);
         int endMins = PackedCriteria.arrMins(criteria);
         int depMins = PackedCriteria.depMins(criteria);
+
         return new CriteriaData(connectionId, interStops, changes, endMins, depMins);
     }
 
