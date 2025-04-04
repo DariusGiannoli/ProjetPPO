@@ -34,19 +34,12 @@ public final class JourneyIcalConverter {
      * @return une chaîne de caractères au format iCalendar
      */
     public static String toIcalendar(Journey journey) {
-        // Construction de la description : une étape par ligne, séparées par un saut de ligne
-        StringJoiner joiner = new StringJoiner(LINE_SEPARATOR);
-        for (Journey.Leg leg : journey.legs()) {
-            switch (leg) {
-                case Journey.Leg.Foot foot -> joiner.add(FormatterFr.formatLeg(foot));
-                case Journey.Leg.Transport transport ->
-                        joiner.add(FormatterFr.formatLeg(transport));
-            }
-        }
 
         // Construction du résumé de l'événement
         final String summary =
                 journey.depStop().name() + SUMMARY_SEPARATOR + journey.arrStop().name();
+
+        String description = descriptionFormatter(journey);
 
         // Création du builder iCalendar
         IcalBuilder builder = new IcalBuilder();
@@ -59,9 +52,27 @@ public final class JourneyIcalConverter {
                 .add(IcalBuilder.Name.DTSTART, journey.depTime())
                 .add(IcalBuilder.Name.DTEND, journey.arrTime())
                 .add(IcalBuilder.Name.SUMMARY, summary)
-                .add(IcalBuilder.Name.DESCRIPTION, joiner.toString())
+                .add(IcalBuilder.Name.DESCRIPTION, description)
                 .end()  // Fermeture du VEVENT
                 .end(); // Fermeture du VCALENDAR
         return builder.build();
+    }
+
+    /**
+     * @param journey le voyage à convertir.
+     * @return une chaine de caractère qui est le résumé du voyage au format voulu.
+     */
+    private static String descriptionFormatter(Journey journey) {
+        // Construction de la description : une étape par ligne, séparées par un saut de ligne
+        StringJoiner joiner = new StringJoiner(LINE_SEPARATOR);
+        for (Journey.Leg leg : journey.legs()) {
+            switch (leg) {
+                case Journey.Leg.Foot foot -> joiner.add(FormatterFr.formatLeg(foot));
+                case Journey.Leg.Transport transport ->
+                        joiner.add(FormatterFr.formatLeg(transport));
+            }
+        }
+
+        return joiner.toString();
     }
 }
