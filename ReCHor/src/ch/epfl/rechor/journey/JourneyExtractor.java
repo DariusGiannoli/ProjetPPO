@@ -24,6 +24,7 @@ import java.util.NoSuchElementException;
 public final class JourneyExtractor {
 
     private static final int INVALID_ID = -1;
+    private static final int MAX_INTERMEDIATE_STOPS = 100;
 
     /**
      * Constructeur privé pour empêcher l'instanciation
@@ -347,7 +348,7 @@ public final class JourneyExtractor {
                                                 List<Journey.Leg.IntermediateStop> stops) {
         int currentConnId = connectionId;
 
-        for (int j = 0; j < count && j < 100; j++) { // Limite de sécurité
+        for (int j = 0; j < Math.min(count, MAX_INTERMEDIATE_STOPS); j++) { // Limite de sécurité
             try {
                 int arrStopId = connections.arrStopId(currentConnId);
                 int arrMinutes = connections.arrMins(currentConnId);

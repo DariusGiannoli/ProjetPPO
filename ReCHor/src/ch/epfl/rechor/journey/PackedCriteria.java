@@ -36,6 +36,7 @@ public final class PackedCriteria {
     private static final long BITS_7_MASK_LONG = 0x7FL;     // 7 bits (127) long
     private static final long BITS_32_MASK = 0xFFFFFFFFL;   // 32 bits
 
+    private static final int MAX_CHANGES = 128; // Maximum number of changes
     /**
      * Constructeur privé pour empêcher l'instanciation.
      */
@@ -54,7 +55,7 @@ public final class PackedCriteria {
      */
     public static long pack(int arrMins, int changes, int payload) {
         Preconditions.checkArgument(arrMins >= MIN_MINUTES && arrMins < MAX_MINUTES);
-        Preconditions.checkArgument(changes >= 0 && changes < 128);
+        Preconditions.checkArgument(changes >= 0 && changes < MAX_CHANGES);
 
         // Translation de l'heure d'arrivée pour obtenir une valeur positive
         int storedArr = arrMins + MINUTES_OFFSET;

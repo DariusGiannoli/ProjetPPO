@@ -176,46 +176,79 @@ public final class ParetoFront {
             // Masquer les bits de la charge utile pour la comparaison de la position
             long adjusted = packedTuple & PAYLOAD_MASK;
 
-            // 1. Trouver la position et vérifier si elle est dominée
-            int pos = 0;
-            while (pos < size && tuples[pos] < adjusted) {
-                if (PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
-                    return this; // Le tuple est dominé, ne pas l'ajouter
-                }
-                pos++;
-            }
-
-            // Vérifier si le tuple à la position d'insertion domine le nouveau tuple
-            if (pos < size && PackedCriteria.dominatesOrIsEqual(tuples[pos], packedTuple)) {
+            // 1. Déterminer position d'insertion tout en vérifiant si le nouveau tuple est dominé.
+            int pos = findInsertionPosition(packedTuple, adjusted);
+            if (pos < 0) {
+                // Le tuple est dominé, on ne l'ajoute pas.
                 return this;
             }
 
-            // 2. Traiter les éléments dominés après la position
-            int dst = pos;
-            for (int src = pos; src < size; src++) {
-                if (!PackedCriteria.dominatesOrIsEqual(packedTuple, tuples[src])) {
-                    if (dst != src) tuples[dst] = tuples[src];
-                    {
-                        dst++;
-                    }
-                }
-            }
-            int newSize = dst;
+            // 2. Supprimer les tuples dominés par le nouveau tuple dans la portion [pos, size).
+            int newSize = removeDominatedTuples(pos, packedTuple);
 
-            // 3. Assurer la capacité d'accueil du nouvel élément
-            if (newSize + 1 > tuples.length) {
-                int newCapacity = Math.max(tuples.length * 2, newSize + 1);
-                tuples = Arrays.copyOf(tuples, newCapacity);
-            }
-
-            // On fait le décalage dans tous les cas
+            // 3. Assurer la capacité d'accueil et insérer le nouveau tuple.
+            ensureCapacity(newSize + 1);
             System.arraycopy(tuples, pos, tuples, pos + 1, newSize - pos);
-
-            // Insertion d'un nouveau tuple et mise à jour de la taille
             tuples[pos] = packedTuple;
             size = newSize + 1;
 
             return this;
+        }
+
+        /**
+         * Recherche la position d'insertion pour le nouveau tuple.
+         * Si le tuple est déjà dominé par un tuple existant, renvoie -1.
+         *
+         * @param newTuple le nouveau tuple empaqueté.
+         * @param adjusted la valeur du tuple avec la charge utile masquée.
+         * @return la position d'insertion ou -1 si le tuple est dominé.
+         */
+        private int findInsertionPosition(long newTuple, long adjusted) {
+            int pos = 0;
+            while (pos < size && tuples[pos] < adjusted) {
+                if (PackedCriteria.dominatesOrIsEqual(tuples[pos], newTuple)) {
+                    return -1; // Le tuple existant domine le nouveau tuple.
+                }
+                pos++;
+            }
+            if (pos < size && PackedCriteria.dominatesOrIsEqual(tuples[pos], newTuple)) {
+                return -1;
+            }
+            return pos;
+        }
+
+        /**
+         * Parcourt la portion de tableau à partir de startPos et élimine les tuples
+         * dominés par newTuple.
+         *
+         * @param startPos la position de départ.
+         * @param newTuple le nouveau tuple à insérer.
+         * @return la nouvelle taille effective de la portion traitée.
+         */
+        private int removeDominatedTuples(int startPos, long newTuple) {
+            int dst = startPos;
+            for (int src = startPos; src < size; src++) {
+                if (!PackedCriteria.dominatesOrIsEqual(newTuple, tuples[src])) {
+                    if (dst != src) {
+                        tuples[dst] = tuples[src];
+                    }
+                    dst++;
+                }
+            }
+            return dst;
+        }
+
+        /**
+         * Assure que le tableau interne dispose de la capacité requise et redimensionne si
+         * necessaire
+         *
+         * @param requiredCapacity la capacité minimale requise.
+         */
+        private void ensureCapacity(int requiredCapacity) {
+            if (requiredCapacity > tuples.length) {
+                int newCapacity = Math.max(tuples.length * 2, requiredCapacity);
+                tuples = Arrays.copyOf(tuples, newCapacity);
+            }
         }
 
         /**
