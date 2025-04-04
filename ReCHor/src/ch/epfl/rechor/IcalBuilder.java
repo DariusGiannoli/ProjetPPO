@@ -67,38 +67,43 @@ public final class IcalBuilder {
     private final StringBuilder icalString = new StringBuilder();
 
     /**
-     * Ajoute une ligne iCalendar au format "name:value",
-     * en pliant la ligne si elle dépasse 75 caractères.
+     * Méthode dédiée au pliage d'une ligne conformément à la norme iCalendar.
      *
-     * @param name le nom (propriété) iCalendar
-     * @param value la valeur associée
-     * @return la chaîne pliée correspondant à la propriété iCalendar, terminée par CRLF
+     * @param line la ligne à plier
+     * @return la ligne pliée, chaque segment terminé par CRLF
      */
-    public String textAdd(String name, String value) {
-        String line = name + COLON + value;
-        final int lineLength = line.length();
-
-        // Si la ligne est assez courte, retourne-la directement avec CRLF
+    private String foldLine(String line) {
+        int lineLength = line.length();
         if (lineLength <= MAX_LINE_LENGTH) {
             return line + CRLF;
         }
 
-        // Estimation de la capacité pour éviter des reallocations inutiles
-        StringBuilder sb = new StringBuilder(lineLength
+        StringBuilder folded = new StringBuilder(lineLength
                 + (lineLength / MAX_LINE_LENGTH + 1) * FOLDING_OVERHEAD);
 
         int index = 0;
         while (index < lineLength) {
-            int currentMax = (index == 0) ? MAX_LINE_LENGTH : CONTINUATION_LENGTH;
-            int end = Math.min(index + currentMax, lineLength);
+            int segmentLength = (index == 0) ? MAX_LINE_LENGTH : CONTINUATION_LENGTH;
+            int end = Math.min(index + segmentLength, lineLength);
             if (index > 0) {
-                sb.append(CONTINUATION_SPACE);
+                folded.append(CONTINUATION_SPACE);
             }
-            sb.append(line, index, end).append(CRLF);
-            index += currentMax;
+            folded.append(line, index, end).append(CRLF);
+            index += segmentLength;
         }
-
-        return sb.toString();
+        return folded.toString();
+    }
+    /**
+     * Ajoute une ligne iCalendar au format "name:value",
+     * en pliant la ligne si nécessaire.
+     *
+     * @param name le nom (propriété) iCalendar
+     * @param value la valeur associée
+     * @return la chaîne pliée correspondant à la propriété, terminée par CRLF
+     */
+    public String textAdd(String name, String value) {
+        String line = name + COLON + value;
+        return foldLine(line);
     }
 
     /**
