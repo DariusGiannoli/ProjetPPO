@@ -119,17 +119,23 @@ public final class JourneyExtractor {
     }
 
     /**
-     * Traite une étape de transport et ajoute les étapes à pied nécessaires entre les transports.
+     * Traite une étape de transport dans l'extraction d'un voyage.
+     * <p>
+     * Cette méthode récupère les informations de la connexion actuelle (stops, heure, trip, etc.),
+     * collecte les arrêts intermédiaires si nécessaire, et crée une étape de transport qu'elle ajoute
+     * à la liste des legs du voyage. Ensuite, elle détermine la station actuelle et gère la transition
+     * vers la prochaine étape en appelant {@code handleNextLeg} ou en ajoutant une étape finale à pied
+     * si la destination n'est pas atteinte.
+     * </p>
      *
-     * @param profile          le profil contenant les données
-     * @param connectionId     l'id de la liaison courante
-     * @param interStops       le nombre d'arrêts intermédiaires
-     * @param remainingChanges le nombre de changements restants
-     * @param endMins          les minutes d'arrivée finale
-     * @param isLastLeg        indique s'il s'agit de la dernière étape
-     * @param legs             la liste des étapes à compléter
-     * @return le critère du paretoFront de la gare d'arrivée de l'étape,
-     * ou -1 si traitement terminé
+     * @param profile          le profil contenant les données de l'horaire et la frontière de Pareto
+     * @param connectionId     l'identifiant de la connexion actuelle
+     * @param interStops       le nombre d'arrêts intermédiaires à ignorer
+     * @param remainingChanges le nombre de changements restants pour atteindre la destination
+     * @param endMins          l'heure d'arrivée cible (en minutes) pour le critère
+     * @param isLastLeg        vrai si c'est la dernière étape de transport
+     * @param legs             la liste des legs du voyage à compléter
+     * @return le critère suivant sous forme de long pour la prochaine étape, ou -1 si le voyage est terminé
      */
     private static long processTransportLeg(Profile profile, int connectionId, int interStops,
                                             int remainingChanges, int endMins, boolean isLastLeg,
@@ -137,73 +143,91 @@ public final class JourneyExtractor {
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
 
-        // Obtenir les informations de la connexion courante
+        // Récupération des informations de la connexion actuelle
         int depStopId = connections.depStopId(connectionId);
         int arrStopId = connections.arrStopId(connectionId);
         int tripId = connections.tripId(connectionId);
         int depTime = connections.depMins(connectionId);
 
-        // Collecter les arrêts intermédiaires si nécessaire
+        // Collecte des arrêts intermédiaires si nécessaire
         List<Journey.Leg.IntermediateStop> intermediateStops = new ArrayList<>();
         if (interStops > 0) {
             int nextConnectionId = collectIntermediateStops(connections, timeTable, profile.date(),
                     connectionId, interStops, intermediateStops);
-
-            // Mise à jour de la connexion si des arrêts intermédiaires ont été collectés
             if (nextConnectionId != connectionId && nextConnectionId < connections.size()) {
                 connectionId = nextConnectionId;
                 arrStopId = connections.arrStopId(connectionId);
             }
         }
 
-        // Créer l'étape en transport
+        // Création de l'étape de transport et ajout à la liste des legs
         createTransportLeg(profile, depStopId, arrStopId, connectionId, depTime, tripId,
                 intermediateStops, legs);
 
-        // Station courante après cette étape
+        // Détermination de la station actuelle après l'étape de transport
         int currentStationId = timeTable.stationId(arrStopId);
 
-        // Gérer la suite du voyage
+        // Gestion de la transition vers la prochaine étape ou ajout d'une étape finale à pied
         if (!isLastLeg) {
-            // S'il reste des changements, trouver la prochaine étape
-            try {
-                ParetoFront nextFront = profile.forStation(currentStationId);
-                long nextCriteria = nextFront.get(endMins, remainingChanges - 1);
-                int nextConnectionId = Bits32_24_8.unpack24(PackedCriteria.payload(nextCriteria));
-
-                // Vérifier la validité de la prochaine connexion
-                if (nextConnectionId >= connections.size()) {
-                    // Si la prochaine connexion est invalide,
-                    // ajouter la dernière étape à pied si nécessaire
-                    addFinalFootLegIfNeeded(timeTable, currentStationId, profile.arrStationId(),
-                            createStop(timeTable, arrStopId),
-                            createDateTime(profile.date(), connections.arrMins(connectionId)),
-                            legs);
-                    return INVALID_ID;
-                }
-
-                // Ajouter une étape à pied pour le changement
-                addFootLegForChange(profile, connectionId, nextConnectionId, legs);
-
-                return nextCriteria;
-            } catch (NoSuchElementException e) {
-                // Pas de critère suivant, finir avec une étape à pied si nécessaire
-                addFinalFootLegIfNeeded(timeTable, currentStationId, profile.arrStationId(),
-                        createStop(timeTable, arrStopId),
-                        createDateTime(profile.date(), connections.arrMins(connectionId)),
-                        legs);
-                return INVALID_ID;
-            }
+            return handleNextLeg(profile, connectionId, currentStationId, endMins, remainingChanges, legs);
         } else if (currentStationId != profile.arrStationId()) {
-            // Dernière étape mais pas à la destination, ajouter une étape à pied finale
             addFinalFootLegIfNeeded(timeTable, currentStationId, profile.arrStationId(),
                     createStop(timeTable, arrStopId),
                     createDateTime(profile.date(), connections.arrMins(connectionId)),
                     legs);
         }
-
         return INVALID_ID;
     }
+
+    /**
+     * Gère la transition après une étape de transport en déterminant la prochaine étape via la frontière de Pareto.
+     * <p>
+     * Cette méthode récupère le critère suivant à partir de la frontière de Pareto de la station actuelle.
+     * Si le critère indique une connexion valide, elle ajoute une étape à pied pour le transfert
+     * vers cette prochaine connexion. Sinon, ou en cas d'absence de critère, elle ajoute une étape finale
+     * à pied afin d'assurer que le voyage se termine correctement.
+     * </p>
+     *
+     * @param profile          le profil contenant les données de l'horaire et la frontière de Pareto
+     * @param connectionId     l'identifiant de la connexion précédente
+     * @param currentStationId l'identifiant de la station atteinte après l'étape de transport
+     * @param endMins          l'heure d'arrivée cible (en minutes) pour le prochain critère
+     * @param remainingChanges le nombre de changements restants pour atteindre la destination
+     * @param legs             la liste des legs du voyage à compléter
+     * @return le critère suivant sous forme de long pour poursuivre l'extraction, ou -1 si le voyage est terminé
+     */
+    private static long handleNextLeg(Profile profile, int connectionId, int currentStationId,
+                                      int endMins, int remainingChanges, List<Journey.Leg> legs) {
+        TimeTable timeTable = profile.timeTable();
+        Connections connections = profile.connections();
+
+        try {
+            // Récupère le critère suivant depuis la frontière de Pareto de la station actuelle
+            ParetoFront nextFront = profile.forStation(currentStationId);
+            long nextCriteria = nextFront.get(endMins, remainingChanges - 1);
+            int nextConnectionId = Bits32_24_8.unpack24(PackedCriteria.payload(nextCriteria));
+
+            // Si le prochain identifiant de connexion est invalide, ajouter une étape finale à pied
+            if (nextConnectionId >= connections.size()) {
+                addFinalFootLegIfNeeded(timeTable, currentStationId, profile.arrStationId(),
+                        createStop(timeTable, connections.arrStopId(connectionId)),
+                        createDateTime(profile.date(), connections.arrMins(connectionId)),
+                        legs);
+                return INVALID_ID;
+            }
+            // Ajoute une étape à pied pour le transfert vers la prochaine connexion
+            addFootLegForChange(profile, connectionId, nextConnectionId, legs);
+            return nextCriteria;
+        } catch (NoSuchElementException e) {
+            // En cas d'absence de critère suivant, ajoute une étape finale à pied pour terminer le voyage
+            addFinalFootLegIfNeeded(timeTable, currentStationId, profile.arrStationId(),
+                    createStop(timeTable, connections.arrStopId(connectionId)),
+                    createDateTime(profile.date(), connections.arrMins(connectionId)),
+                    legs);
+            return INVALID_ID;
+        }
+    }
+
 
     /**
      * Ajoute une étape à pied pour le changement entre deux connexions.
