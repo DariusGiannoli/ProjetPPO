@@ -15,28 +15,23 @@ import java.util.NoSuchElementException;
 
 /**
  * Classe utilitaire permettant d'extraire des voyages à partir d'un profil.
- * Optimisée pour la concision et l'efficacité en réduisant les appels redondants
- * et en utilisant des méthodes auxiliaires bien définies.
  *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
 public final class JourneyExtractor {
 
+    // Constante pour limiter le nombre d'arrêts intermédiaires
     private static final int MAX_INTERMEDIATE_STOPS = 100;
-    private static final int STATION_ID_INVALID = -1;
 
-    /**
-     * Constructeur privé pour empêcher l'instanciation
-     */
-    private JourneyExtractor() {
-    }
+    /**Constructeur privé pour empêcher l'instanciation*/
+    private JourneyExtractor() {}
 
     /**
      * Extrait tous les voyages optimaux permettant d'aller de la gare de départ donnée
      * à la destination indiquée dans le profil.
      *
-     * @param profile      le profil contenant les frontières de Pareto
+     * @param profile     le profil contenant les frontières de Pareto
      * @param depStationId l'indice de la gare de départ
      * @return une liste de voyages triés par heure de départ puis par heure d'arrivée
      */
@@ -44,20 +39,20 @@ public final class JourneyExtractor {
         List<Journey> journeys = new ArrayList<>();
         ParetoFront pf = profile.forStation(depStationId);
 
-        // Parcours de la frontière de Pareto pour la gare de départ
+        // Extraction des voyages à partir de chaque critère de la frontière
         pf.forEach(criteria -> {
+            List<Journey.Leg> legs = new ArrayList<>();
             try {
-                List<Journey.Leg> legs = new ArrayList<>();
                 extractLegs(profile, depStationId, criteria, legs);
                 if (!legs.isEmpty()) {
                     journeys.add(new Journey(legs));
                 }
             } catch (Exception e) {
-                // Simple log de l'erreur, permet de continuer avec les autres voyages
+                // Ignorer ce voyage et continuer avec les autres
             }
         });
 
-        // Tri des voyages selon l'heure de départ puis l'heure d'arrivée
+        // Tri des voyages par heure de départ puis par heure d'arrivée
         journeys.sort(Comparator
                 .comparing(Journey::depTime)
                 .thenComparing(Journey::arrTime));
@@ -66,130 +61,263 @@ public final class JourneyExtractor {
     }
 
     /**
-     * Extrait récursivement les étapes d'un voyage à partir des critères de la frontière de Pareto.
+     * Extrait les étapes d'un voyage à partir des critères.
      *
      * @param profile      le profil contenant les données
      * @param depStationId l'identifiant de la gare de départ
-     * @param criteria     les critères du voyage actuel
-     * @param legs         la liste des étapes à compléter
+     * @param criteria     les critères du voyage
+     * @param legs         la liste des étapes à remplir
      */
-    private static void extractLegs(Profile profile, int depStationId,
-                                    long criteria, List<Journey.Leg> legs) {
+    private static void extractLegs(Profile profile, int depStationId, long criteria,
+                                    List<Journey.Leg> legs) {
+        // Récupération des objets fréquemment utilisés
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
-        Trips trips = profile.trips();
 
+        // Extraction des données du critère
         int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(criteria));
         int interStops = Bits32_24_8.unpack8(PackedCriteria.payload(criteria));
         int changes = PackedCriteria.changes(criteria);
         int endMins = PackedCriteria.arrMins(criteria);
-        int depTime = PackedCriteria.depMins(criteria);
+        int depMins = PackedCriteria.depMins(criteria);
 
+        // Vérification de validité
+        if (connectionId >= connections.size()) {
+            return;
+        }
+
+        // Étape 1: Ajouter une étape à pied initiale si nécessaire
+        connectionId = addInitialFootLegIfNeeded(timeTable, depStationId,
+                connectionId, connections,
+                profile.date(), depMins, legs);
+
+        // Étape 2: Parcourir tous les segments du voyage
+        processAllSegments(profile, connectionId, interStops, changes, endMins, legs);
+    }
+
+    /**
+     * Ajoute une étape à pied initiale si nécessaire et retourne l'ID de la connexion à utiliser.
+     */
+    private static int addInitialFootLegIfNeeded(TimeTable timeTable, int depStationId,
+                                                 int connectionId, Connections connections,
+                                                 LocalDate date, int depMins,
+                                                 List<Journey.Leg> legs) {
         int depStopId = connections.depStopId(connectionId);
+        int currentStationId = timeTable.stationId(depStopId);
 
-        // Ajouter une étape à pied initiale si nécessaire
-        if (timeTable.stationId(depStopId) != depStationId) {
+        if (currentStationId != depStationId) {
             Stop depStation = createStationStop(timeTable, depStationId);
             Stop arrStop = createStop(timeTable, depStopId);
 
-            LocalDateTime depDateTime = createDateTime(profile.date(), depTime);
-            LocalDateTime arrDateTime = depDateTime.plusMinutes(timeTable.transfers()
-                    .minutesBetween(depStationId, timeTable.stationId(depStopId)));
+            LocalDateTime depDateTime = createDateTime(date, depMins);
+            int walkTime = timeTable.transfers().minutesBetween(depStationId, currentStationId);
+            LocalDateTime arrDateTime = depDateTime.plusMinutes(walkTime);
 
             legs.add(new Journey.Leg.Foot(depStation, depDateTime, arrStop, arrDateTime));
         }
 
+        return connectionId;
+    }
+
+    /**
+     * Traite tous les segments du voyage.
+     */
+    private static void processAllSegments(Profile profile, int connectionId, int interStops,
+                                           int changes, int endMins, List<Journey.Leg> legs) {
+        TimeTable timeTable = profile.timeTable();
+        Connections connections = profile.connections();
+        Trips trips = profile.trips();
+        LocalDate date = profile.date();
+
+        int currentConnectionId = connectionId;
+        int currentInterStops = interStops;
+
         for (int i = 0; i <= changes; i++) {
-            // Obtenir les informations de la connexion
-            depStopId = connections.depStopId(connectionId);
-            int arrStopId = connections.arrStopId(connectionId);
-            int depMinutes = connections.depMins(connectionId);
-            int arrMinutes = connections.arrMins(connectionId);
-            int tripId = connections.tripId(connectionId);
+            // Récupérer les informations de la connexion courante
+            int depStopId = connections.depStopId(currentConnectionId);
+            int arrStopId = connections.arrStopId(currentConnectionId);
+            int tripId = connections.tripId(currentConnectionId);
 
-            List<Journey.Leg.IntermediateStop> inter = new ArrayList<>();
-            for (int j = 0; j < interStops; j++) {
-                connectionId = connections.nextConnectionId(connectionId);
+            // Traiter l'étape en transport
+            ConnectionResult result = processTransportLeg(
+                    timeTable, connections, trips, date,
+                    currentConnectionId, currentInterStops,
+                    depStopId, arrStopId, tripId, legs);
 
-                Stop interStop = createStop(timeTable, arrStopId);
-                LocalDateTime depDateTime = createDateTime(profile.date(),
-                        connections.depMins(connectionId));
-                LocalDateTime arrDateTime = createDateTime(profile.date(), arrMinutes);
-                inter.add(new Journey.Leg.IntermediateStop(interStop, arrDateTime, depDateTime));
+            if (result == null) break;
 
-                arrStopId = connections.arrStopId(connectionId);
-                arrMinutes = connections.arrMins(connectionId);
-            }
+            // Mettre à jour la station courante
+            int currentStationId = timeTable.stationId(result.arrStopId);
+            LocalDateTime arrDateTime = result.arrDateTime;
+            Stop arrStop = createStop(timeTable, result.arrStopId);
 
-            // Créer l'étape en transport
-            Stop depStop = createStop(timeTable, depStopId);
-            Stop arrStop = createStop(timeTable, arrStopId);
-
-            LocalDateTime depDateTime = createDateTime(profile.date(), depMinutes);
-            LocalDateTime arrDateTime = createDateTime(profile.date(), arrMinutes);
-
-            int routeId = trips.routeId(tripId);
-            Vehicle vehicle = timeTable.routes().vehicle(routeId);
-            String routeName = timeTable.routes().name(routeId);
-            String destination = trips.destination(tripId);
-
-            legs.add(new Journey.Leg.Transport(
-                    depStop, depDateTime, arrStop, arrDateTime,
-                    inter, vehicle, routeName, destination));
-
-            // Préparer la prochaine étape
-            int currentStationId = timeTable.stationId(arrStopId);
-
-            // Si ce n'est pas la dernière étape
+            // Gérer la suite du voyage
             if (i < changes) {
-                try {
-                    ParetoFront nextFront = profile.forStation(currentStationId);
-                    long nextCriteria = nextFront.get(endMins, changes - i - 1);
-                    int nextConnectionId = Bits32_24_8.unpack24(PackedCriteria.payload(nextCriteria));
-                    int nextInterStops = Bits32_24_8.unpack8(PackedCriteria.payload(nextCriteria));
+                // Chercher le prochain segment
+                NextSegmentResult nextSegment = findNextSegment(
+                        profile, timeTable, connections, currentStationId,
+                        endMins, changes - i - 1);
 
-                    int nextDepStopId = connections.depStopId(nextConnectionId);
-
-                    // Ajouter une étape à pied (changement)
-                    Stop nextDepStop = createStop(timeTable, nextDepStopId);
-                    LocalDateTime nextTime = arrDateTime.plusMinutes(profile.timeTable().
-                            transfers().minutesBetween(currentStationId,
-                                    timeTable.stationId(connections.depStopId(nextConnectionId))));
-
-                    legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, nextDepStop, nextTime));
-
-                    connectionId = nextConnectionId;
-                    interStops = nextInterStops;
-                } catch (NoSuchElementException e) {
-                    // Pas de critère suivant, finir avec une étape à pied si nécessaire
-                    if (currentStationId != profile.arrStationId()) {
-                        Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                        LocalDateTime finalArrDateTime = arrDateTime.
-                                plusMinutes(profile.timeTable().transfers()
-                                        .minutesBetween(currentStationId, profile.arrStationId()));
-
-                        legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop,
-                                finalArrDateTime));
-                    }
+                if (nextSegment == null) {
+                    // Pas de segment suivant, ajouter une étape à pied finale si nécessaire
+                    addFinalFootLegIfNeeded(profile, timeTable, currentStationId,
+                            arrStop, arrDateTime, legs);
                     break;
                 }
-            } else if (currentStationId != profile.arrStationId()) {
-                // Dernière étape, mais pas à la destination
-                Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable()
-                        .transfers().minutesBetween(currentStationId, profile.arrStationId()));
 
-                legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));
+                // Ajouter une étape à pied pour le changement
+                legs.add(new Journey.Leg.Foot(
+                        arrStop, arrDateTime,
+                        nextSegment.nextStop, nextSegment.nextDepDateTime));
+
+                // Mettre à jour les variables pour la prochaine étape
+                currentConnectionId = nextSegment.nextConnectionId;
+                currentInterStops = nextSegment.nextInterStops;
+
+            } else if (currentStationId != profile.arrStationId()) {
+                // Dernière étape mais pas à destination, ajouter une étape à pied finale
+                addFinalFootLegIfNeeded(profile, timeTable, currentStationId,
+                        arrStop, arrDateTime, legs);
             }
         }
     }
 
     /**
-     * Crée un objet LocalDateTime à partir d'une date et d'un nombre de minutes depuis minuit.
-     *
-     * @param date    la date de l'évènement.
-     * @param minutes l'heure de l'évènement en nombre de minutes après minuit.
-     * @return la date/heure de l'évènement sous forme d'un objet LocalDateTime.
+     * Traite une étape en transport et retourne les informations du résultat.
+     */
+    private static ConnectionResult processTransportLeg(TimeTable timeTable,
+                                                        Connections connections,
+                                                        Trips trips, LocalDate date,
+                                                        int connectionId, int interStops,
+                                                        int depStopId, int arrStopId, int tripId,
+                                                        List<Journey.Leg> legs) {
+        // Collecter les arrêts intermédiaires
+        IntermediateStopsResult intermediateResult = collectIntermediateStops(
+                connections, timeTable, date, connectionId, interStops);
+
+        if (intermediateResult.intermediateStops.size() > 0) {
+            // Mettre à jour l'arrêt d'arrivée si des arrêts intermédiaires ont été collectés
+            arrStopId = connections.arrStopId(intermediateResult.lastConnectionId);
+        }
+
+        // Obtenir les heures de départ et d'arrivée
+        int depTime = connections.depMins(connectionId);
+        int arrTime = connections.arrMins(
+                intermediateResult.intermediateStops.isEmpty() ?
+                        connectionId : intermediateResult.lastConnectionId);
+
+        // Créer les objets pour l'étape
+        Stop depStop = createStop(timeTable, depStopId);
+        Stop arrStop = createStop(timeTable, arrStopId);
+
+        LocalDateTime depDateTime = createDateTime(date, depTime);
+        LocalDateTime arrDateTime = createDateTime(date, arrTime);
+
+        // Créer l'étape en transport
+        int routeId = trips.routeId(tripId);
+        Vehicle vehicle = timeTable.routes().vehicle(routeId);
+        String routeName = timeTable.routes().name(routeId);
+        String destination = trips.destination(tripId);
+
+        legs.add(new Journey.Leg.Transport(
+                depStop, depDateTime, arrStop, arrDateTime,
+                intermediateResult.intermediateStops, vehicle, routeName, destination));
+
+        return new ConnectionResult(arrStopId, arrDateTime);
+    }
+
+    /**
+     * Collecte les arrêts intermédiaires d'une étape et retourne le résultat.
+     */
+    private static IntermediateStopsResult collectIntermediateStops(Connections connections,
+                                                                    TimeTable timeTable,
+                                                                    LocalDate date,
+                                                                    int connectionId,
+                                                                    int maxStops) {
+        List<Journey.Leg.IntermediateStop> stops = new ArrayList<>();
+        int currentId = connectionId;
+        int lastId = connectionId;
+
+        for (int j = 0; j < Math.min(maxStops, MAX_INTERMEDIATE_STOPS); j++) {
+            int arrStopId = connections.arrStopId(currentId);
+            int arrTime = connections.arrMins(currentId);
+
+            currentId = connections.nextConnectionId(currentId);
+            if (currentId >= connections.size()) break;
+
+            int depTime = connections.depMins(currentId);
+
+            Stop interStop = createStop(timeTable, arrStopId);
+            LocalDateTime arrDateTime = createDateTime(date, arrTime);
+            LocalDateTime depDateTime = createDateTime(date, depTime);
+
+            stops.add(new Journey.Leg.IntermediateStop(
+                    interStop, arrDateTime, depDateTime));
+
+            lastId = currentId;
+        }
+
+        return new IntermediateStopsResult(stops, lastId);
+    }
+
+    /**
+     * Recherche les informations du prochain segment du voyage.
+     */
+    private static NextSegmentResult findNextSegment(Profile profile, TimeTable timeTable,
+                                                     Connections connections, int currentStationId,
+                                                     int endMins, int remainingChanges) {
+        try {
+            ParetoFront stationFront = profile.forStation(currentStationId);
+            long nextCriteria = stationFront.get(endMins, remainingChanges);
+
+            int nextConnectionId = Bits32_24_8.unpack24(PackedCriteria.payload(nextCriteria));
+            int nextInterStops = Bits32_24_8.unpack8(PackedCriteria.payload(nextCriteria));
+
+            if (nextConnectionId >= connections.size()) {
+                return null;
+            }
+
+            int nextDepStopId = connections.depStopId(nextConnectionId);
+            Stop nextStop = createStop(timeTable, nextDepStopId);
+
+            // Calculer l'heure de départ du prochain segment
+            int arrTime = connections.arrMins(nextConnectionId);
+            LocalDateTime arrDateTime = createDateTime(profile.date(), arrTime);
+
+            int walkTime = timeTable.transfers().minutesBetween(
+                    currentStationId, timeTable.stationId(nextDepStopId));
+            LocalDateTime nextDepDateTime = arrDateTime.plusMinutes(walkTime);
+
+            return new NextSegmentResult(nextConnectionId, nextInterStops,
+                    nextStop, nextDepDateTime);
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Ajoute une étape à pied finale si nécessaire.
+     */
+    private static void addFinalFootLegIfNeeded(Profile profile, TimeTable timeTable,
+                                                int currentStationId, Stop currentStop,
+                                                LocalDateTime arrDateTime, List<Journey.Leg> legs) {
+        if (currentStationId != profile.arrStationId()) {
+            try {
+                Stop finalStop = createStationStop(timeTable, profile.arrStationId());
+                int transferTime = timeTable.transfers().minutesBetween(
+                        currentStationId, profile.arrStationId());
+
+                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(transferTime);
+                legs.add(new Journey.Leg.Foot(currentStop, arrDateTime,
+                        finalStop, finalArrDateTime));
+            } catch (Exception e) {
+                // Ignorer si l'ajout n'est pas possible
+            }
+        }
+    }
+
+    /**
+     * Crée un objet LocalDateTime à partir d'une date et de minutes après minuit.
      */
     private static LocalDateTime createDateTime(LocalDate date, int minutes) {
         return LocalDateTime.of(date, LocalTime.MIDNIGHT).plusMinutes(minutes);
@@ -197,54 +325,75 @@ public final class JourneyExtractor {
 
     /**
      * Crée un objet Stop à partir d'un identifiant d'arrêt.
-     *
-     * @param timeTable est un horaire de transport public avec des données aplaties.
-     * @param stopId    l'id de l'arrêt que l'on veut créer.
-     * @return retourne l'arrêt d'id stopId.
      */
     private static Stop createStop(TimeTable timeTable, int stopId) {
-        if (stopId < 0) {
-            throw new IllegalArgumentException();
-        }
-
-        int stationsSize = timeTable.stations().size();
-
-        // C'est une station
-        if (timeTable.isStationId(stopId) || stopId < stationsSize) {
+        if (timeTable.isStationId(stopId)) {
             return createStationStop(timeTable, stopId);
         }
 
-        // C'est une plateforme
-        int platformId = stopId - stationsSize;
-        if (platformId >= timeTable.platforms().size()) {
-            throw new IllegalArgumentException();
-        }
-
+        int platformId = stopId - timeTable.stations().size();
         int stationId = timeTable.platforms().stationId(platformId);
+
         return new Stop(
                 timeTable.stations().name(stationId),
                 timeTable.platforms().name(platformId),
                 timeTable.stations().longitude(stationId),
-                timeTable.stations().latitude(stationId)
-        );
+                timeTable.stations().latitude(stationId));
     }
 
     /**
      * Crée un objet Stop représentant une gare.
-     *
-     * @param timeTable est un horaire de transport public avec des données aplaties.
-     * @param stationId l'id de la gare qui est représentée par cet arrêt.
-     * @return l'arrêt représentant la gare d'id stationId.
      */
     private static Stop createStationStop(TimeTable timeTable, int stationId) {
-        if (stationId < 0 || stationId >= timeTable.stations().size()) {
-            throw new IllegalArgumentException();
-        }
-
         return new Stop(
                 timeTable.stations().name(stationId),
                 null,
                 timeTable.stations().longitude(stationId),
                 timeTable.stations().latitude(stationId));
+    }
+
+    /**
+     * Résultat d'une connexion comprenant l'arrêt d'arrivée et l'heure d'arrivée.
+     */
+    private static class ConnectionResult {
+        final int arrStopId;
+        final LocalDateTime arrDateTime;
+
+        ConnectionResult(int arrStopId, LocalDateTime arrDateTime) {
+            this.arrStopId = arrStopId;
+            this.arrDateTime = arrDateTime;
+        }
+    }
+
+    /**
+     * Résultat de la collecte des arrêts intermédiaires.
+     */
+    private static class IntermediateStopsResult {
+        final List<Journey.Leg.IntermediateStop> intermediateStops;
+        final int lastConnectionId;
+
+        IntermediateStopsResult(List<Journey.Leg.IntermediateStop> intermediateStops,
+                                int lastConnectionId) {
+            this.intermediateStops = intermediateStops;
+            this.lastConnectionId = lastConnectionId;
+        }
+    }
+
+    /**
+     * Résultat de la recherche du prochain segment.
+     */
+    private static class NextSegmentResult {
+        final int nextConnectionId;
+        final int nextInterStops;
+        final Stop nextStop;
+        final LocalDateTime nextDepDateTime;
+
+        NextSegmentResult(int nextConnectionId, int nextInterStops,
+                          Stop nextStop, LocalDateTime nextDepDateTime) {
+            this.nextConnectionId = nextConnectionId;
+            this.nextInterStops = nextInterStops;
+            this.nextStop = nextStop;
+            this.nextDepDateTime = nextDepDateTime;
+        }
     }
 }
