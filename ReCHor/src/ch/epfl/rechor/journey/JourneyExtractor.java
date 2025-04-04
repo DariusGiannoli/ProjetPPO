@@ -73,7 +73,8 @@ public final class JourneyExtractor {
      * @param criteria     les critères du voyage actuel
      * @param legs         la liste des étapes à compléter
      */
-    private static void extractLegs(Profile profile, int depStationId, long criteria, List<Journey.Leg> legs) {
+    private static void extractLegs(Profile profile, int depStationId,
+                                    long criteria, List<Journey.Leg> legs) {
         TimeTable timeTable = profile.timeTable();
         Connections connections = profile.connections();
         Trips trips = profile.trips();
@@ -92,7 +93,8 @@ public final class JourneyExtractor {
             Stop arrStop = createStop(timeTable, depStopId);
 
             LocalDateTime depDateTime = createDateTime(profile.date(), depTime);
-            LocalDateTime arrDateTime = depDateTime.plusMinutes(timeTable.transfers().minutesBetween(depStationId, timeTable.stationId(depStopId)));
+            LocalDateTime arrDateTime = depDateTime.plusMinutes(timeTable.transfers()
+                    .minutesBetween(depStationId, timeTable.stationId(depStopId)));
 
             legs.add(new Journey.Leg.Foot(depStation, depDateTime, arrStop, arrDateTime));
         }
@@ -110,7 +112,8 @@ public final class JourneyExtractor {
                 connectionId = connections.nextConnectionId(connectionId);
 
                 Stop interStop = createStop(timeTable, arrStopId);
-                LocalDateTime depDateTime = createDateTime(profile.date(), connections.depMins(connectionId));
+                LocalDateTime depDateTime = createDateTime(profile.date(),
+                        connections.depMins(connectionId));
                 LocalDateTime arrDateTime = createDateTime(profile.date(), arrMinutes);
                 inter.add(new Journey.Leg.IntermediateStop(interStop, arrDateTime, depDateTime));
 
@@ -149,7 +152,9 @@ public final class JourneyExtractor {
 
                     // Ajouter une étape à pied (changement)
                     Stop nextDepStop = createStop(timeTable, nextDepStopId);
-                    LocalDateTime nextTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, timeTable.stationId(connections.depStopId(nextConnectionId))));
+                    LocalDateTime nextTime = arrDateTime.plusMinutes(profile.timeTable().
+                            transfers().minutesBetween(currentStationId,
+                                    timeTable.stationId(connections.depStopId(nextConnectionId))));
 
                     legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, nextDepStop, nextTime));
 
@@ -159,16 +164,20 @@ public final class JourneyExtractor {
                     // Pas de critère suivant, finir avec une étape à pied si nécessaire
                     if (currentStationId != profile.arrStationId()) {
                         Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                        LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, profile.arrStationId()));
+                        LocalDateTime finalArrDateTime = arrDateTime.
+                                plusMinutes(profile.timeTable().transfers()
+                                        .minutesBetween(currentStationId, profile.arrStationId()));
 
-                        legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));
+                        legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop,
+                                finalArrDateTime));
                     }
                     break;
                 }
             } else if (currentStationId != profile.arrStationId()) {
                 // Dernière étape, mais pas à la destination
                 Stop finalStop = createStationStop(timeTable, profile.arrStationId());
-                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable().transfers().minutesBetween(currentStationId, profile.arrStationId()));
+                LocalDateTime finalArrDateTime = arrDateTime.plusMinutes(profile.timeTable()
+                        .transfers().minutesBetween(currentStationId, profile.arrStationId()));
 
                 legs.add(new Journey.Leg.Foot(arrStop, arrDateTime, finalStop, finalArrDateTime));
             }
