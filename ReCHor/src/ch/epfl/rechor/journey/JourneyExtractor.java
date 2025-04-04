@@ -237,7 +237,8 @@ public final class JourneyExtractor {
             addFootLegForChange(profile, connectionId, nextConnectionId, legs);
             return nextCriteria;
         } catch (NoSuchElementException e) {
-            // En cas d'absence de critère suivant, ajouter une étape finale à pied pour terminer le voyage
+            // En cas d'absence de critère suivant,
+            // ajouter une étape finale à pied pour terminer le voyage
             addFinalFootLegIfNeeded(timeTable, currentStationId, profile.arrStationId(),
                     createStop(timeTable, connections.arrStopId(connectionId)),
                     createDateTime(profile.date(), connections.arrMins(connectionId)),
