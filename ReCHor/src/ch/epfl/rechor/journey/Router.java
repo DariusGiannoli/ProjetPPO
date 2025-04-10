@@ -1,5 +1,7 @@
 package ch.epfl.rechor.journey;
 
+import ch.epfl.rechor.Bits32_24_8;
+import ch.epfl.rechor.PackedRange;
 import ch.epfl.rechor.timetable.TimeTable;
 import ch.epfl.rechor.timetable.Connections;
 import ch.epfl.rechor.timetable.Trips;
@@ -24,6 +26,7 @@ public final record Router(TimeTable timetable) {
      */
     public Profile profile(LocalDate date, int destinationStationId) {
         // Récupération des gares et du nombre total de gares.
+        Profile.Builder builder = new Profile.Builder(timetable, date, destinationStationId);
         Stations stations = timetable.stations();
         int nStations = stations.size();
 
@@ -38,34 +41,21 @@ public final record Router(TimeTable timetable) {
             }
         }
 
-        // Initialisation des frontières de Pareto pour chaque gare.
-        ParetoFront.Builder[] stationPF = new ParetoFront.Builder[nStations];
-        for (int i = 0; i < nStations; i++) {
-            stationPF[i] = new ParetoFront.Builder();
-        }
-
-        // Récupération des courses actives pour la date
-        // et initialisation des frontières pour chaque course.
-        Trips trips = timetable.tripsFor(date);
-        int nTrips = trips.size();
-        ParetoFront.Builder[] tripPF = new ParetoFront.Builder[nTrips];
-        for (int i = 0; i < nTrips; i++) {
-            tripPF[i] = new ParetoFront.Builder();
-        }
-
         // Récupération des liaisons actives pour la date.
         Connections connections = timetable.connectionsFor(date);
         int nConnections = connections.size();
 
         // Parcours de chaque liaison par ordre d'index
         // (les connexions sont déjà triées par ordre décroissant d'heure de départ).
-        for (int cid = 0; cid < nConnections; cid++) {
-            final int currentCid = cid;
-            final int arrivalStation = connections.arrStopId(currentCid);
+        for (int cId = 0; cId < nConnections; cId++) {
+            final int currentCid = cId;
+            final int arrivalStop = connections.arrStopId(currentCid);
+            final int arrivalStation = timetable.stationId(arrivalStop);
             final int arrMinsOfConn = connections.arrMins(currentCid);
             final int tripId = connections.tripId(currentCid);
             final int depTime = connections.depMins(currentCid);
-            final int departureStation = connections.depStopId(currentCid);
+            final int departureStop = connections.depStopId(currentCid);
+            final int departureStation = timetable.stationId(departureStop);
 
             // Création d'un Builder pour accumuler
             // la frontière temporaire de la connexion courante.
@@ -75,29 +65,38 @@ public final record Router(TimeTable timetable) {
             // si le temps de marche depuis la gare d'arrivée est faisable.
             if (walkTimes[arrivalStation] >= 0) {
                 int arrivalTimeWithWalk = arrMinsOfConn + walkTimes[arrivalStation];
+                int newPayload = Bits32_24_8.pack(currentCid, 0);
                 // Le tuple est ajouté avec 0 changement
-                // et le payload fixé à l'identifiant de la connexion.
-                f.add(arrivalTimeWithWalk, 0, currentCid);
+                f.add(PackedCriteria.pack(arrivalTimeWithWalk, 0, newPayload));
             }
 
             // Option 2 : Continuer dans le même véhicule (la course).
-            tripPF[tripId].forEach(tuple -> {
-                int arrMins = PackedCriteria.arrMins(tuple);
-                int changes = PackedCriteria.changes(tuple);
-                int payload = PackedCriteria.payload(tuple);
-                f.add(arrMins, changes, payload);
-            });
+            ParetoFront.Builder bT = builder.forTrip(tripId);
+            if (bT != null) {
+                f.addAll(bT);
+            }
+//            tripPF[tripId].forEach(tuple -> {
+//                int arrMins = PackedCriteria.arrMins(tuple);
+//                int changes = PackedCriteria.changes(tuple);
+//                int payload = PackedCriteria.payload(tuple);
+//                f.add(arrMins, changes, payload);
+//            });
 
             // Option 3 : Changer de véhicule à l'arrivée de la liaison.
-            stationPF[arrivalStation].forEach(tuple -> {
-                int tupleDepMins = PackedCriteria.depMins(tuple);
-                if (tupleDepMins >= arrMinsOfConn) {
-                    int arrMins = PackedCriteria.arrMins(tuple);
-                    int changes = PackedCriteria.changes(tuple) + 1;
-                    int payload = PackedCriteria.payload(tuple);
-                    f.add(arrMins, changes, payload);
-                }
-            });
+            ParetoFront.Builder bS = builder.forStation(timetable.stationId(connections.arrStopId(currentCid)));
+            int payload = Bits32_24_8.pack(currentCid, 0);
+
+            if (bS != null) {
+                bS.forEach(tuple -> {
+                    int tupleDepMins = PackedCriteria.depMins(tuple);
+                    if (tupleDepMins >= arrMinsOfConn) {
+                        int arrMins = PackedCriteria.arrMins(tuple);
+                        int changes = PackedCriteria.changes(tuple);
+                        long newCriteria = PackedCriteria.pack(arrMins, changes, payload);
+                        f.add(PackedCriteria.withAdditionalChange(newCriteria));
+                    }
+                });
+            }
 
             // Optimisation 1 : Si la frontière calculée pour la connexion est vide,
             // on passe à la suivante.
@@ -106,26 +105,45 @@ public final record Router(TimeTable timetable) {
             }
 
             // Mise à jour de la frontière de la course correspondante.
-            tripPF[tripId].addAll(f);
+            if (bT == null) {
+                builder.setForTrip(tripId, new ParetoFront.Builder(f));
+            } else {
+                bT.addAll(f);
+            }
+
 
             // Optimisation 2 : Mise à jour conditionnelle de la frontière de la gare de départ.
-            if (!stationPF[departureStation].fullyDominates(f, depTime)) {
-                f.forEach(tuple -> {
-                    long modifiedTuple = PackedCriteria.withDepMins(tuple, depTime);
-                    stationPF[departureStation].add(modifiedTuple);
+            int arrivingAt = transfers.arrivingAt(departureStation);
+            for(int j = PackedRange.startInclusive(arrivingAt); j < PackedRange.endExclusive(arrivingAt); j++) {
+                int depMinusTransfer = depTime - transfers.minutes(j);
+                ParetoFront.Builder DbS = builder.forStation(transfers.depStationId(j));
+
+                if(DbS == null) {
+                    builder.setForStation(transfers.depStationId(j), new ParetoFront.Builder());
+                }
+
+                ParetoFront.Builder finalDbS = builder.forStation(transfers.depStationId(j));;
+                if(finalDbS.fullyDominates(f, depTime)) {
+                    continue;
+                }
+
+                f.forEach((tuple) -> {
+                    int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(tuple));
+                    int TripPosition = connections.tripPos(connectionId);
+                    
+                    int newPayload = Bits32_24_8.pack(currentCid, TripPosition - connections.tripPos(currentCid));
+                    
+                    long newCriteria = PackedCriteria.withDepMins(PackedCriteria.pack(PackedCriteria.arrMins(tuple), PackedCriteria.changes(tuple), newPayload), depMinusTransfer);
+                    finalDbS.add(newCriteria);
                 });
+
+
             }
+
         }
 
-        // Construction finale :
-        // création d'une liste immuable des frontières de Pareto pour chaque gare.
-        List<ParetoFront> stationFronts = new ArrayList<>(nStations);
-        for (int i = 0; i < nStations; i++) {
-            stationFronts.add(stationPF[i].build());
-        }
 
-        // Retour du profil final encapsulant l'horaire, la date,
-        // la gare de destination et les frontières.
-        return new Profile(timetable, date, destinationStationId, stationFronts);
+        return builder.build();
     }
 }
+

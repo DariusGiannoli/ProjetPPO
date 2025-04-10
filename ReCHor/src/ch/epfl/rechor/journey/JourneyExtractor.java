@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
  * Classe utilitaire permettant d'extraire des voyages à partir d'un profil.
  * Ce fichier a été simplifié pour clarifier la logique et réduire la complexité
  * en extrayant des méthodes auxiliaires et en regroupant le décodage du critère.
- *
+ * <p>
  * La logique d'extraction ne change pas ; seules des améliorations de lisibilité
  * et de modularisation ont été apportées.
  *
@@ -34,14 +34,15 @@ public final class JourneyExtractor {
      * d'un critère empaqueté.
      */
     private record CriteriaData(int connectionId, int interStops, int changes,
-                                int endMins, int depMins) {}
+                                int endMins, int depMins) {
+    }
 
     /**
      * Décodage d'un critère empaqueté en ses composantes.
      *
      * @param criteria le critère empaqueté
      * @return un objet CriteriaData contenant l'id de connexion, le nombre d'arrêts intermédiaires,
-     *         le nombre de changements, l'heure d'arrivée cible et l'heure de départ.
+     * le nombre de changements, l'heure d'arrivée cible et l'heure de départ.
      */
     private static CriteriaData decodeCriteria(long criteria) {
         int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(criteria));
@@ -56,7 +57,8 @@ public final class JourneyExtractor {
     /**
      * Constructeur privé pour empêcher l'instanciation de cette classe utilitaire.
      */
-    private JourneyExtractor() {}
+    private JourneyExtractor() {
+    }
 
     /**
      * Extrait tous les voyages optimaux permettant d'aller de la gare de départ donnée
