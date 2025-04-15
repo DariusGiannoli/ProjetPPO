@@ -4,17 +4,15 @@ import ch.epfl.rechor.Bits32_24_8;
 import ch.epfl.rechor.PackedRange;
 import ch.epfl.rechor.timetable.TimeTable;
 import ch.epfl.rechor.timetable.Connections;
-import ch.epfl.rechor.timetable.Trips;
 import ch.epfl.rechor.timetable.Stations;
 import ch.epfl.rechor.timetable.Transfers;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.NoSuchElementException;
 
 
-public final record Router(TimeTable timetable) {
+public record Router(TimeTable timetable) {
 
     /**
      * Calcule le profil des voyages optimaux permettant de se rendre à la gare de destination
@@ -75,12 +73,6 @@ public final record Router(TimeTable timetable) {
             if (bT != null) {
                 f.addAll(bT);
             }
-//            tripPF[tripId].forEach(tuple -> {
-//                int arrMins = PackedCriteria.arrMins(tuple);
-//                int changes = PackedCriteria.changes(tuple);
-//                int payload = PackedCriteria.payload(tuple);
-//                f.add(arrMins, changes, payload);
-//            });
 
             // Option 3 : Changer de véhicule à l'arrivée de la liaison.
             ParetoFront.Builder bS = builder.forStation(timetable.stationId(connections.arrStopId(currentCid)));
@@ -130,9 +122,9 @@ public final record Router(TimeTable timetable) {
                 f.forEach((tuple) -> {
                     int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(tuple));
                     int TripPosition = connections.tripPos(connectionId);
-                    
+
                     int newPayload = Bits32_24_8.pack(currentCid, TripPosition - connections.tripPos(currentCid));
-                    
+
                     long newCriteria = PackedCriteria.withDepMins(PackedCriteria.pack(PackedCriteria.arrMins(tuple), PackedCriteria.changes(tuple), newPayload), depMinusTransfer);
                     finalDbS.add(newCriteria);
                 });
