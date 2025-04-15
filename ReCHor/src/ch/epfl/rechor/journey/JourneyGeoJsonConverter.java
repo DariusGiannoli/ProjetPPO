@@ -12,6 +12,8 @@ import java.util.*;
  * @author Darius Giannoli (380759)
  */
 public class JourneyGeoJsonConverter {
+    private final static double roundingConstant = Math.pow(10, 5);
+
 
     /**
      * Constructeur privé pour que la classe soit non instanciable.
@@ -46,7 +48,7 @@ public class JourneyGeoJsonConverter {
 
     /**
      * Prend un index d'étape dans le voyage et ajoute les coordonnées des arrêts de départ
-     * et d'arrivée au document GeoJSON
+     * et d'arrivée ainsi que les arrêts intermédiaires au document GeoJSON
      * si ces coordonnées ne sont pas déjà présentes dans le document.
      *
      * @param journey le voyage à convertir en document GeoJSON
@@ -55,46 +57,49 @@ public class JourneyGeoJsonConverter {
      * @param i l'index de l'étape dont on veut extraire les coordonnées.
      */
     private static void addCoordinateToArray(Journey journey, List<Json> coordinates, int i) {
-        double roundingConstant = Math.pow(10, 5);
 
-        double longitude = Math.ceil(journey.legs().get(i).depStop().longitude() * roundingConstant)
+        Stop stop = journey.legs().get(i).depStop();
+
+        createArrayStop(stop, coordinates);
+
+        if(journey.legs().get(i) instanceof Journey.Leg.Transport) {
+            for (Journey.Leg.IntermediateStop interStop : journey.legs().get(i).intermediateStops()) {
+                stop = interStop.stop();
+
+                createArrayStop(stop, coordinates);
+            }
+        }
+
+        stop = journey.legs().get(i).arrStop();
+
+        createArrayStop(stop, coordinates);
+
+    }
+
+    /**
+     * Ajoute à la liste coordinates les coordonnées de l'arrêt donné en argument si elles ne sont
+     * pas déja présentes dans la liste.
+     * @param stop l'arrêt dont on ajoute les coordonnées à la liste.
+     * @param coordinates la liste des coordonnées du document GeoJSON
+     */
+    private static void createArrayStop(Stop stop, List<Json> coordinates) {
+        double longitude = Math.ceil(stop.longitude() * roundingConstant)
                 / roundingConstant;
-        double latitude = Math.ceil(journey.legs().get(i).depStop().latitude() * roundingConstant)
+        double latitude = Math.ceil(stop.latitude() * roundingConstant)
                 / roundingConstant;
 
-        Json.JNumber JsonLongitude = new Json.JNumber(longitude);
-        Json.JNumber JsonLatitude = new Json.JNumber(latitude);
 
         List<Json> depCoordinate = new ArrayList<>();
 
-        depCoordinate.add(JsonLongitude);
-        depCoordinate.add(JsonLatitude);
+        depCoordinate.add(new Json.JNumber(longitude));
+        depCoordinate.add(new Json.JNumber(latitude));
 
-        Json.JArray CoordinateArray = new Json.JArray(depCoordinate);
+        Json.JArray array = new Json.JArray(depCoordinate);
 
-        if(!coordinates.contains(CoordinateArray)) {
-            coordinates.add(CoordinateArray);
-        }
-
-
-        longitude = Math.ceil(journey.legs().get(i).arrStop().longitude() * roundingConstant)
-                / roundingConstant;
-        latitude = Math.ceil(journey.legs().get(i).arrStop().latitude() * roundingConstant)
-                / roundingConstant;
-
-        JsonLongitude = new Json.JNumber(longitude);
-        JsonLatitude = new Json.JNumber(latitude);
-
-        List<Json> arrCoordinate = new ArrayList<>();
-
-        arrCoordinate.add(JsonLongitude);
-        arrCoordinate.add(JsonLatitude);
-
-        CoordinateArray = new Json.JArray(arrCoordinate);
-
-        if(!coordinates.contains(CoordinateArray)) {
-            coordinates.add(CoordinateArray);
+        if(!coordinates.contains(array)) {
+            coordinates.add(array);
         }
 
     }
+
 }
