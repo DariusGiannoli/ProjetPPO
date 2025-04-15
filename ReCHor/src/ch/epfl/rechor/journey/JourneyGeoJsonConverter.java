@@ -33,7 +33,7 @@ public class JourneyGeoJsonConverter {
         Map<String, Json> map = new LinkedHashMap<>();
 
         for(int i = 0; i < journey.legs().size(); i++){
-            addCoordinateToArray(journey, coordinates, i);
+            addCoordinateToArray(journey.legs().get(i), coordinates);
         }
 
         Json.JArray array = new Json.JArray(coordinates);
@@ -51,28 +51,21 @@ public class JourneyGeoJsonConverter {
      * et d'arrivée ainsi que les arrêts intermédiaires au document GeoJSON
      * si ces coordonnées ne sont pas déjà présentes dans le document.
      *
-     * @param journey le voyage à convertir en document GeoJSON
+     * @param leg l'étape dont on ajoute les arrêts au document GeoJSON
      * @param coordinates une list de tous les tableaux JSON de coordonnées
      *                    ajoutés au document GeoJSON
-     * @param i l'index de l'étape dont on veut extraire les coordonnées.
      */
-    private static void addCoordinateToArray(Journey journey, List<Json> coordinates, int i) {
+    private static void addCoordinateToArray(Journey.Leg leg, List<Json> coordinates) {
 
-        Stop stop = journey.legs().get(i).depStop();
+        createArrayStop(leg.depStop(), coordinates);
 
-        createArrayStop(stop, coordinates);
-
-        if(journey.legs().get(i) instanceof Journey.Leg.Transport) {
-            for (Journey.Leg.IntermediateStop interStop : journey.legs().get(i).intermediateStops()) {
-                stop = interStop.stop();
-
-                createArrayStop(stop, coordinates);
+        if(leg instanceof Journey.Leg.Transport) {
+            for (Journey.Leg.IntermediateStop interStop : leg.intermediateStops()) {
+                createArrayStop(interStop.stop(), coordinates);
             }
         }
 
-        stop = journey.legs().get(i).arrStop();
-
-        createArrayStop(stop, coordinates);
+        createArrayStop(leg.arrStop(), coordinates);
 
     }
 
