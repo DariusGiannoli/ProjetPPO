@@ -1,219 +1,246 @@
-//package gui;
-//
-//import ch.epfl.rechor.FormatterFr;
-//import ch.epfl.rechor.journey.Journey;
-//import javafx.beans.value.ObservableValue;
-//import javafx.geometry.HPos;
-//import javafx.geometry.VPos;
-//import javafx.scene.Node;
-//import javafx.scene.control.*;
-//import javafx.scene.layout.*;
-//import javafx.scene.shape.Circle;
-//import javafx.scene.text.Text;
-//import javafx.scene.image.ImageView;
-//import javafx.scene.image.Image;
-//import javafx.scene.paint.Color;
-//import javafx.scene.shape.Line;
-//import javafx.stage.FileChooser;
-//import javafx.stage.Stage;
-//import java.io.IOException;
-//import java.net.URI;
-//import java.awt.Desktop;
-//import java.nio.file.Files;
-//import java.nio.file.Path;
-//
-///**
-// * UI détaillée d'un Journey.
-// * rootNode contient le ScrollPane + StackPane gérant vu "aucun voyage" vs. détails.
-// */
-//public record DetailUI(Node rootNode) {
-//
-//    /**
-//     * Crée l'interface des détails d'un voyage, et s'abonne à journeyObs.
-//     * @param journeyObs ObservableValue<Journey> dont on affiche la valeur.
-//     */
-//    public static DetailUI create(ObservableValue<Journey> journeyObs) {
-//        // 1) ScrollPane racine + CSS + id
-//        ScrollPane scroll = new ScrollPane();
-//        scroll.getStyleClass().add("detail");            // détail.css attachée via module-info
-//        scroll.getStylesheets().add("detail.css");        // §3.3.1 :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}
-//        scroll.setId("detail");
-//
-//        // 2) StackPane pour superposer : pas de voyage vs. détails
-//        StackPane stack = new StackPane();
-//        scroll.setContent(stack);
-//
-//        // 2.a) vue "aucun voyage"
-//        VBox noJourney = new VBox(new Text("Aucun voyage"));
-//        noJourney.setId("no-journey");                   // §3.3.1 :contentReference[oaicite:2]{index=2}&#8203;:contentReference[oaicite:3]{index=3}
-//
-//        // 2.b) conteneur des détails (sera rempli dynamiquement)
-//        VBox detailBox = new VBox();
-//        detailBox.setId("journey-details");
-//
-//        // ajouter dans l'ordre : détails dessous, puis "aucun voyage" au-dessus (visible par défaut)
-//        stack.getChildren().addAll(detailBox, noJourney);
-//
-//        // 3) Listener sur la valeur observable
-//        journeyObs.addListener((obs, oldJ, newJ) -> {
-//            boolean has = newJ != null;
-//            detailBox.getChildren().clear();
-//            noJourney.setVisible(!has);
-//            if (has) {
-//                // 3.a) GridPane des étapes
-//                GridPane grid = buildStepsGrid(newJ);
-//                // 3.b) annotations (cercles + lignes)
-//                Pane annotations = buildAnnotations(grid);
-//                // 3.c) boutons bas
-//                HBox buttons = buildButtons(newJ);
-//
-//                StackPane stepsWithAnno = new StackPane(grid, annotations);
-//                detailBox.getChildren().addAll(stepsWithAnno, buttons);
-//            }
-//        });
-//
-//        // déclencher une première évaluation
-//        if (journeyObs.getValue() != null) {
-//            journeyObs.getValue(); // listener se lancera automatiquement
-//        }
-//
-//        return new DetailUI(scroll);
-//    }
-//
-//    // Construit le GridPane selon §3.3.2 (colonnes 0–3, alignements, CSS, ids…)
-//    private static GridPane buildStepsGrid(Journey j) {
-//        GridPane grid = new GridPane();
-//        // configuration des colonnes, alignements par défaut...
-//        for (int c = 0; c < 4; c++) {
-//            ColumnConstraints cc = new ColumnConstraints();
-//            if (c == 0) cc.setHalignment(HPos.RIGHT);
-//            else if (c == 2) cc.setHalignment(HPos.LEFT);
-//            grid.getColumnConstraints().add(cc);
-//        }
-//        // parcourt chaque étape du journey
-//        int row = 0;
-//        for (Journey.Leg leg : j.legs()) {
-//            if (leg.isFoot()) {
-//                // 1 ligne, texte formaté par FormatterFr
-//                Text txt = new Text(FormatterFr.formatLeg(leg));
-//                grid.add(txt, 2, row, 2, 1);
-//                row++;
-//            } else {
-//                // 3 ou 4 lignes pour véhicule
-//                // ligne 0 : heure départ, cercle, gare, quai
-//                Text depTime = new Text(leg.departureTime().toString());
-//                depTime.getStyleClass().add("departure");
-//                Circle cDep = new Circle(3, Color.BLACK);
-//                Text depStation = new Text(leg.from().name());
-//                Text depTrack = new Text(leg.departureTrack());
-//                depTrack.getStyleClass().add("departure");
-//                grid.addRow(row, depTime, cDep, depStation, depTrack);
-//
-//                // ligne 1 : icône + ligne/destination
-//                Image icon = VehicleIcons.iconFor(leg.vehicle());
-//                ImageView iv = new ImageView(icon);
-//                iv.setFitWidth(31);
-//                iv.setFitHeight(31);
-//                Text routeDest = new Text(FormatterFr.formatRouteDestination(leg));
-//                grid.add(iv, 0, row+1);
-//                grid.add(routeDest, 2, row+1, 2, 1);
-//                GridPane.setValignment(iv, VPos.CENTER);
-//
-//                int startRow = row;
-//                int nextRow = row + 2;
-//
-//                // ligne 2 (optionnelle) : arrêts intermédiaires
-//                if (!leg.stops().isEmpty()) {
-//                    Accordion acc = new Accordion();
-//                    int count = leg.stops().size();
-//                    String title = count + " arrêts, " + leg.duration().toMinutes() + " min";
-//                    VBox stopsBox = new VBox();
-//                    for (Stop s : leg.stops()) {
-//                        HBox h = new HBox(
-//                                new Text(s.arrival().toString()),
-//                                new Text(s.departure().toString()),
-//                                new Text(s.station().name())
-//                        );
-//                        stopsBox.getChildren().add(h);
-//                    }
-//                    TitledPane tp = new TitledPane(title, stopsBox);
-//                    acc.getPanes().add(tp);
-//                    acc.setExpanded(false);
-//                    grid.add(acc, 2, nextRow, 2, 1);
-//                    nextRow++;
-//                }
-//
-//                // dernière ligne : heure arrivée, cercle, gare, quai
-//                Text arrTime = new Text(leg.arrivalTime().toString());
-//                Circle cArr = new Circle(3, Color.BLACK);
-//                Text arrStation = new Text(leg.to().name());
-//                Text arrTrack = new Text(leg.arrivalTrack());
-//                grid.addRow(nextRow, arrTime, cArr, arrStation, arrTrack);
-//
-//                row = nextRow + 1;
-//            }
-//        }
-//
-//        grid.getStyleClass().add("legs");               // §3.3.1 :contentReference[oaicite:4]{index=4}&#8203;:contentReference[oaicite:5]{index=5}
-//        grid.setId("legs");
-//        return grid;
-//    }
-//
-//    // Crée les lignes reliant les cercles après layout (§3.3.4.2)
-//    private static Pane buildAnnotations(GridPane grid) {
-//        return new Pane() {
-//            @Override
-//            protected void layoutChildren() {
-//                super.layoutChildren();
-//                getChildren().clear();
-//                // rechercher tous les cercles de départ+arrivée
-//                List<Circle> circles = grid.lookupAll(".circle")
-//                        .stream()
-//                        .map(n -> (Circle)n)
-//                        .toList();
-//                // relier par paires successives
-//                for (int i = 0; i + 1 < circles.size(); i += 2) {
-//                    Circle a = circles.get(i), b = circles.get(i+1);
-//                    Line line = new Line();
-//                    var pa = a.getBoundsInParent();
-//                    var pb = b.getBoundsInParent();
-//                    line.setStartX(pa.getMinX() + pa.getWidth()/2);
-//                    line.setStartY(pa.getMinY() + pa.getHeight()/2);
-//                    line.setEndX(pb.getMinX() + pb.getWidth()/2);
-//                    line.setEndY(pb.getMinY() + pb.getHeight()/2);
-//                    line.setStrokeWidth(2);
-//                    line.setStroke(Color.RED);
-//                    getChildren().add(line);
-//                }
-//            }
-//        };
-//    }
-//
-//    // HBox avec boutons « Carte » et « Calendrier » (§3.3.1)
-//    private static HBox buildButtons(Journey j) {
-//        Button map = new Button("Carte");
-//        map.setOnAction(e -> {
-//            // construction de l’URI uMap (§2.2 & §3.3.4.3)
-//            String geoJson = j.toGeoJson(); // méthode à fournir dans Journey
-//            URI uri = URI.create("https://umap.osm.ch/fr/map/?data=" +
-//                    geoJson.replace(" ", ""));
-//            Desktop.getDesktop().browse(uri);
-//        });
-//
-//        Button cal = new Button("Calendrier");
-//        cal.setOnAction(e -> {
-//            FileChooser fc = new FileChooser();
-//            fc.setInitialFileName("voyage_" + j.date() + ".ics");
-//            Path p = fc.showSaveDialog(new Stage()).toPath();
-//            try {
-//                Files.writeString(p, j.toICalendar()); // méthode à fournir dans Journey
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
-//        });
-//
-//        HBox box = new HBox(10, map, cal);
-//        box.setId("buttons");                           // §3.3.1 :contentReference[oaicite:6]{index=6}&#8203;:contentReference[oaicite:7]{index=7}
-//        return box;
-//    }
-//}
+package ch.epfl.rechor.gui;
+
+import ch.epfl.rechor.journey.Journey;
+import ch.epfl.rechor.journey.Journey.Leg;
+import ch.epfl.rechor.journey.Journey.Leg.Foot;
+import ch.epfl.rechor.journey.Journey.Leg.Transport;
+import ch.epfl.rechor.FormatterFr;
+import ch.epfl.rechor.journey.JourneyGeoJsonConverter;
+import ch.epfl.rechor.journey.JourneyIcalConverter;
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.HPos;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.util.Pair;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.net.URI;
+import java.nio.file.Files;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 3.3 Enregistrement DetailUI – représente la vue détaillée d’un voyage.
+ *
+ */
+public record DetailUI(Node rootNode) {
+
+    public static DetailUI create(ObservableValue<Journey> journeyO) {
+        // 1) racine scrollable
+        ScrollPane scroll = new ScrollPane();
+        scroll.setId("detail");
+        scroll.getStylesheets().add("detail.css");
+        scroll.setFitToWidth(true);
+
+        // 2) aucun voyage sélectionné
+        VBox noJourney = new VBox();
+        noJourney.setId("no-journey");
+        noJourney.setFillWidth(true);
+        noJourney.setAlignment(javafx.geometry.Pos.CENTER);
+        noJourney.getChildren().add(new Text("Aucun voyage"));
+
+        // 3) zone d'annotations (cercles + lignes)
+        Pane annotations = new Pane();
+        annotations.setId("annotations");
+
+        // 4) grille des étapes
+        DetailGridPane legsGrid = new DetailGridPane();
+        legsGrid.setId("legs");
+
+        // On empile d'abord `annotations` puis `legsGrid` (le dernier enfant est au sommet)
+        StackPane stepsPane = new StackPane(annotations, legsGrid);
+
+
+        // 5) boutons Carte / Calendrier
+        Button btnMap      = new Button("Carte");      btnMap.setId("Carte");
+        Button btnCalendar = new Button("Calendrier"); btnCalendar.setId("Calendrier");
+        HBox buttons = new HBox(10, btnMap, btnCalendar);
+        buttons.setId("buttons");
+        buttons.setAlignment(javafx.geometry.Pos.CENTER);
+
+        // 6) détail (grille + boutons)
+        VBox detailBox = new VBox(5, stepsPane, buttons);
+        detailBox.setVisible(false);
+
+        // 7) superposition "aucun voyage" / détail
+        StackPane rootStack = new StackPane(noJourney, detailBox);
+        scroll.setContent(rootStack);
+
+        DetailUI ui = new DetailUI(scroll);
+
+        // 8) mise à jour lors du changement de Journey
+        Runnable update = () -> {
+            Journey j = journeyO.getValue();
+            if (j == null) {
+                noJourney.setVisible(true);
+                detailBox.setVisible(false);
+            } else {
+                noJourney.setVisible(false);
+                detailBox.setVisible(true);
+                legsGrid.updateLegs(j);
+            }
+        };
+        journeyO.addListener((obs, o, n) -> update.run());
+        update.run();
+
+        // 9) actions des boutons
+        btnMap.setOnAction(e -> {
+            try {
+                String geo = JourneyGeoJsonConverter.toGeoJson(journeyO.getValue());
+                URI uri = new URI("https", "umap.osm.ch", "/fr/map", "data=" + geo, null);
+                Desktop.getDesktop().browse(uri);
+            } catch (Exception ex) { /* ignorer */ }
+        });
+        btnCalendar.setOnAction(e -> {
+            try {
+                FileChooser fc = new FileChooser();
+                LocalDate d = journeyO.getValue().depTime().toLocalDate();
+                fc.setInitialFileName("voyage_" + d + ".ics");
+                File f = fc.showSaveDialog(null);
+                if (f != null) {
+                    String ical = JourneyIcalConverter.toIcalendar(journeyO.getValue());
+                    Files.writeString(f.toPath(), ical);
+                }
+            } catch (Exception ex) { /* ignorer */ }
+        });
+
+        return ui;
+    }
+
+    /** GridPane qui dessine cercles et lignes rouges entre étapes. */
+    private static class DetailGridPane extends GridPane {
+        private final List<Pair<Circle,Circle>> circlePairs = new ArrayList<>();
+
+        DetailGridPane() {
+            ColumnConstraints c0 = new ColumnConstraints(); c0.setHalignment(HPos.RIGHT);
+            ColumnConstraints c1 = new ColumnConstraints(10);  c1.setHalignment(HPos.CENTER);
+            ColumnConstraints c23 = new ColumnConstraints();   c23.setHgrow(Priority.ALWAYS);
+            getColumnConstraints().addAll(c0, c1, c23, c23);
+            setVgap(5); setHgap(5);
+        }
+
+        void updateLegs(Journey journey) {
+            getChildren().clear();
+            circlePairs.clear();
+            int row = 0;
+            for (Leg leg : journey.legs()) {
+                if (leg instanceof Foot foot) {
+                    Text t = new Text(FormatterFr.formatLeg(foot));
+                    add(t, 2, row, 2, 1);
+                    row++;
+                } else if (leg instanceof Transport tx) {
+                    // départ
+                    Text depTime = new Text(FormatterFr.formatTime(tx.depTime()));
+                    depTime.getStyleClass().add("departure");
+                    add(depTime, 0, row);
+
+                    Circle cDep = new Circle(3, Color.BLACK);
+                    add(cDep, 1, row);
+
+                    add(new Text(tx.depStop().name()), 2, row);
+
+                    String dp = FormatterFr.formatPlatformName(tx.depStop());
+                    if (!dp.isEmpty()) {
+                        Text platDep = new Text(dp);
+                        platDep.getStyleClass().add("departure");
+                        add(platDep, 3, row);
+                    }
+                    row++;
+
+                    // icône + destination
+                    Image img = new Image(tx.vehicle().name() + ".png");
+                    ImageView icon = new ImageView(img);
+                    icon.setFitWidth(31);
+                    icon.setFitHeight(31);
+                    icon.setPreserveRatio(true);
+                    icon.setSmooth(true);
+                    add(icon, 0, row, 1,
+                            tx.intermediateStops().isEmpty() ? 1 : 2
+                    );
+
+                    Text routeDest = new Text(FormatterFr.formatRouteDestination(tx));
+                    add(routeDest, 2, row, 2, 1);
+                    row++;
+
+                    // arrêts intermédiaires
+                    if (!tx.intermediateStops().isEmpty()) {
+                        int n   = tx.intermediateStops().size();
+                        long dur = tx.duration().toMinutes();
+                        Accordion acc = new Accordion();
+                        acc.setId("intermediate");
+                        TitledPane tp = new TitledPane(
+                                n + " arrêts, " + dur + " min",
+                                buildIntermediateGrid(tx.intermediateStops())
+                        );
+                        acc.getPanes().add(tp);
+                        add(acc, 2, row, 2, 1);
+                        row++;
+                    }
+
+                    // arrivée
+                    Text arrTime = new Text(FormatterFr.formatTime(tx.arrTime()));
+                    add(arrTime, 0, row);
+
+                    Circle cArr = new Circle(3, Color.BLACK);
+                    add(cArr, 1, row);
+
+                    add(new Text(tx.arrStop().name()), 2, row);
+
+                    String ap = FormatterFr.formatPlatformName(tx.arrStop());
+                    if (!ap.isEmpty()) {
+                        add(new Text(ap), 3, row);
+                    }
+
+                    circlePairs.add(new Pair<>(cDep, cArr));
+                    row++;
+                }
+            }
+        }
+
+        private GridPane buildIntermediateGrid(
+                List<Leg.IntermediateStop> stops
+        ) {
+            GridPane g = new GridPane();
+            g.setId("intermediate-stops");
+            g.getStyleClass().add("intermediate-stops");
+            g.setHgap(5);
+            int r = 0;
+            for (var s : stops) {
+                g.add(new Text(FormatterFr.formatTime(s.arrTime())), 0, r);
+                g.add(new Text(FormatterFr.formatTime(s.depTime())), 1, r);
+                g.add(new Text(s.stop().name()), 2, r);
+                r++;
+            }
+            return g;
+        }
+
+        @Override
+        protected void layoutChildren() {
+            super.layoutChildren();
+            Pane annot = (Pane)((StackPane)getParent()).getChildren().get(0);
+            annot.getChildren().clear();
+            for (var p : circlePairs) {
+                Circle d = p.getKey(), a = p.getValue();
+                var db = d.localToScene(d.getBoundsInLocal());
+                var ab = a.localToScene(a.getBoundsInLocal());
+                Line l = new Line(
+                        db.getMinX()+db.getWidth()/2, db.getMinY()+db.getHeight()/2,
+                        ab.getMinX()+ab.getWidth()/2, ab.getMinY()+ab.getHeight()/2
+                );
+                l.setStrokeWidth(2);
+                l.setStroke(Color.RED);
+                annot.getChildren().add(l);
+            }
+        }
+    }
+}
