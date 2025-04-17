@@ -233,10 +233,12 @@ public record DetailUI(Node rootNode) {
                 Circle d = p.getKey(), a = p.getValue();
                 var db = d.localToScene(d.getBoundsInLocal());
                 var ab = a.localToScene(a.getBoundsInLocal());
+
                 Line l = new Line(
-                        db.getMinX()+db.getWidth()/2, db.getMinY()+db.getHeight()/2,
-                        ab.getMinX()+ab.getWidth()/2, ab.getMinY()+ab.getHeight()/2
+                        db.getCenterX() - 1, db.getMinY()+db.getHeight()/2,
+                        ab.getCenterX() - 1, ab.getMinY()+ab.getHeight()/2
                 );
+
                 l.setStrokeWidth(2);
                 l.setStroke(Color.RED);
                 annot.getChildren().add(l);
