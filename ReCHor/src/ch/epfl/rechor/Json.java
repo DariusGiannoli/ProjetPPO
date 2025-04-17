@@ -2,6 +2,7 @@ package ch.epfl.rechor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 /**
  * L'interface Json représente un document JSON.
@@ -12,8 +13,14 @@ import java.util.Map;
  * @author Darius Giannoli (380759)
  */
 public sealed interface Json {
-    String comma = ",";
-    String quote = "\"";
+    // Ponctuation JSON
+    String COMMA     = ",";
+    String COLON     = ":";
+    String LBRACE    = "{";
+    String RBRACE    = "}";
+    String LBRACKET  = "[";
+    String RBRACKET  = "]";
+    String QUOTE     = "\"";
 
     /**
      * Représente un tableau JSON
@@ -21,18 +28,14 @@ public sealed interface Json {
      * @param list les éléments du tableau de type Json
      */
     record JArray(List<Json> list) implements Json {
+        @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("[");
-            for(int i = 0; i < list.size(); i++) {
-                if(i == 0) {
-                    sb.append(list.get(i).toString());
-                } else {
-                    sb.append(comma).append(list.get(i).toString());
-                }
+            // [elem1,elem2,...]
+            StringJoiner sj = new StringJoiner(COMMA, LBRACKET, RBRACKET);
+            for (Json e : list) {
+                sj.add(e.toString());
             }
-            sb.append("]");
-            return sb.toString();
+            return sj.toString();
         }
     }
 
@@ -43,18 +46,16 @@ public sealed interface Json {
      * @param map table associative qui associe des valeurs de type Json à des chaînes de caractères
      */
     record JObject(Map<String, Json> map) implements Json {
+        @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("{");
+            // {"key":value,"key2":value2,...}
+            StringJoiner sj = new StringJoiner(COMMA, LBRACE, RBRACE);
             for (Map.Entry<String, Json> e : map.entrySet()) {
-                String k = e.getKey();
-                Json v = e.getValue();
-                sb.append(quote).append(k).append(quote)
-                        .append(":").append(v.toString()).append(comma);
+                sj.add(QUOTE + e.getKey() + QUOTE
+                        + COLON
+                        + e.getValue().toString());
             }
-            sb.deleteCharAt(sb.length() - 1);
-            sb.append("}");
-            return sb.toString();
+            return sj.toString();
         }
     }
 
@@ -64,8 +65,9 @@ public sealed interface Json {
      * @param string la chaine de caractères dont le contenu est celle de la chaine JSON
      */
     record JString(String string) implements Json {
+        @Override
         public String toString() {
-            return quote + string + quote;
+            return QUOTE + string + QUOTE;
         }
     }
 
@@ -76,6 +78,7 @@ public sealed interface Json {
      * @param number double dont la valeur est celle du nombre JSON
      */
     record JNumber(double number) implements Json {
+        @Override
         public String toString() {
             return Double.toString(number);
         }

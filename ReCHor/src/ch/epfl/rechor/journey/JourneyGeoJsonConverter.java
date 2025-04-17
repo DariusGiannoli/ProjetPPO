@@ -12,7 +12,7 @@ import java.util.*;
  * @author Darius Giannoli (380759)
  */
 public class JourneyGeoJsonConverter {
-    private final static double roundingConstant = Math.pow(10, 5);
+    private static final double roundingConstant = Math.pow(10, 5);
 
 
     /**
