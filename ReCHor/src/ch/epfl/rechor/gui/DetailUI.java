@@ -227,7 +227,7 @@ public record DetailUI(Node rootNode) {
         @Override
         protected void layoutChildren() {
             super.layoutChildren();
-            Pane annot = (Pane)((StackPane)getParent()).getChildren().get(0);
+            Pane annot = (Pane)((StackPane)getParent()).getChildren().getFirst();
             annot.getChildren().clear();
             for (var p : circlePairs) {
                 Circle d = p.getKey(), a = p.getValue();

@@ -12,6 +12,14 @@ import java.time.LocalDate;
 import java.util.NoSuchElementException;
 
 
+/**
+ * Représente un objet capable de calculer le profil de tous les voyages optimaux permettant de se
+ * rendre de n'importe quelle gare du réseau à une gare d'arrivée donnée, un jour donné.
+ * @param timetable table des horaires de transport public indéxés.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
 public record Router(TimeTable timetable) {
 
     /**
@@ -24,13 +32,13 @@ public record Router(TimeTable timetable) {
      */
     public Profile profile(LocalDate date, int destinationStationId) {
         // Récupération des gares et du nombre total de gares.
-        Profile.Builder builder = new Profile.Builder(timetable, date, destinationStationId);
+        Profile.Builder profileBuilder = new Profile.Builder(timetable, date, destinationStationId);
         Stations stations = timetable.stations();
         int nStations = stations.size();
 
         // Pré-calcul des temps de marche depuis chaque gare vers la destination.
-        int[] walkTimes = new int[nStations];
         Transfers transfers = timetable.transfers();
+        int[] walkTimes = new int[nStations];
         for (int i = 0; i < nStations; i++) {
             try {
                 walkTimes[i] = transfers.minutesBetween(i, destinationStationId);
@@ -46,96 +54,150 @@ public record Router(TimeTable timetable) {
         // Parcours de chaque liaison par ordre d'index
         // (les connexions sont déjà triées par ordre décroissant d'heure de départ).
         for (int cId = 0; cId < nConnections; cId++) {
-            final int currentCid = cId;
-            final int arrivalStop = connections.arrStopId(currentCid);
+            final int arrivalStop = connections.arrStopId(cId);
             final int arrivalStation = timetable.stationId(arrivalStop);
-            final int arrMinsOfConn = connections.arrMins(currentCid);
-            final int tripId = connections.tripId(currentCid);
-            final int depTime = connections.depMins(currentCid);
-            final int departureStop = connections.depStopId(currentCid);
-            final int departureStation = timetable.stationId(departureStop);
+            final int arrMinsOfConn = connections.arrMins(cId);
+            final int tripId = connections.tripId(cId);
+
 
             // Création d'un Builder pour accumuler
             // la frontière temporaire de la connexion courante.
-            ParetoFront.Builder f = new ParetoFront.Builder();
+            ParetoFront.Builder builder = new ParetoFront.Builder();
 
             // Option 1 : Descendre à l'arrivée de la liaison et marcher jusqu'à la destination,
             // si le temps de marche depuis la gare d'arrivée est faisable.
-            if (walkTimes[arrivalStation] >= 0) {
-                int arrivalTimeWithWalk = arrMinsOfConn + walkTimes[arrivalStation];
-                int newPayload = Bits32_24_8.pack(currentCid, 0);
-                // Le tuple est ajouté avec 0 changement
-                f.add(PackedCriteria.pack(arrivalTimeWithWalk, 0, newPayload));
-            }
+            firstOption(walkTimes[arrivalStation], arrMinsOfConn, cId, builder);
 
             // Option 2 : Continuer dans le même véhicule (la course).
-            ParetoFront.Builder bT = builder.forTrip(tripId);
-            if (bT != null) {
-                f.addAll(bT);
-            }
+            ParetoFront.Builder builderForTrip = profileBuilder.forTrip(tripId);
+
+            secondOption(builderForTrip, builder);
 
             // Option 3 : Changer de véhicule à l'arrivée de la liaison.
-            ParetoFront.Builder bS = builder.forStation(timetable.stationId(connections.arrStopId(currentCid)));
-            int payload = Bits32_24_8.pack(currentCid, 0);
+            ParetoFront.Builder builderForStation = profileBuilder.forStation
+                    (timetable.stationId(connections.arrStopId(cId)));
 
-            if (bS != null) {
-                bS.forEach(tuple -> {
-                    int tupleDepMins = PackedCriteria.depMins(tuple);
-                    if (tupleDepMins >= arrMinsOfConn) {
-                        int arrMins = PackedCriteria.arrMins(tuple);
-                        int changes = PackedCriteria.changes(tuple);
-                        long newCriteria = PackedCriteria.pack(arrMins, changes, payload);
-                        f.add(PackedCriteria.withAdditionalChange(newCriteria));
-                    }
-                });
-            }
+            thirdOption(builderForStation, cId, arrMinsOfConn, builder);
 
             // Optimisation 1 : Si la frontière calculée pour la connexion est vide,
             // on passe à la suivante.
-            if (f.isEmpty()) {
+            if (builder.isEmpty()) {
                 continue;
             }
 
-            // Mise à jour de la frontière de la course correspondante.
-            if (bT == null) {
-                builder.setForTrip(tripId, new ParetoFront.Builder(f));
+            if (builderForTrip == null) {
+                profileBuilder.setForTrip(tripId, new ParetoFront.Builder(builder));
             } else {
-                bT.addAll(f);
+                builderForTrip.addAll(builder);
             }
 
-
-            // Optimisation 2 : Mise à jour conditionnelle de la frontière de la gare de départ.
-            int arrivingAt = transfers.arrivingAt(departureStation);
-            for(int j = PackedRange.startInclusive(arrivingAt); j < PackedRange.endExclusive(arrivingAt); j++) {
-                int depMinusTransfer = depTime - transfers.minutes(j);
-                ParetoFront.Builder DbS = builder.forStation(transfers.depStationId(j));
-
-                if(DbS == null) {
-                    builder.setForStation(transfers.depStationId(j), new ParetoFront.Builder());
-                }
-
-                ParetoFront.Builder finalDbS = builder.forStation(transfers.depStationId(j));;
-                if(finalDbS.fullyDominates(f, depTime)) {
-                    continue;
-                }
-
-                f.forEach((tuple) -> {
-                    int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(tuple));
-                    int TripPosition = connections.tripPos(connectionId);
-
-                    int newPayload = Bits32_24_8.pack(currentCid, TripPosition - connections.tripPos(currentCid));
-
-                    long newCriteria = PackedCriteria.withDepMins(PackedCriteria.pack(PackedCriteria.arrMins(tuple), PackedCriteria.changes(tuple), newPayload), depMinusTransfer);
-                    finalDbS.add(newCriteria);
-                });
-
-
-            }
+           secondOptimisation(transfers, connections, builder, profileBuilder, cId);
 
         }
 
+        return profileBuilder.build();
+    }
 
-        return builder.build();
+    /**
+     *  Option 1 de l'algorithme : Descendre à l'arrivée de la liaison et
+     *  marcher jusqu'à la destination si le temps de marche depuis la gare d'arrivée est faisable.
+     * @param walkTime temps de marche depuis la gare d'arrivée vers la destination.
+     * @param arrMinsOfConn l'heure d'arrivée de la liaison en minutes.
+     * @param currentConnectionId l'id de la liaison.
+     * @param builder le bâtisseur de frontière de Pareto auquel on ajoute le tuple.
+     */
+    private void firstOption(int walkTime, int arrMinsOfConn,
+                            int currentConnectionId, ParetoFront.Builder builder) {
+        if (walkTime >= 0) {
+            int arrivalTimeWithWalk = arrMinsOfConn + walkTime;
+            int newPayload = Bits32_24_8.pack(currentConnectionId, 0);
+            // Le tuple est ajouté avec 0 changement
+            builder.add(PackedCriteria.pack(arrivalTimeWithWalk, 0, newPayload));
+        }
+    }
+
+    /**
+     * Option 2 de l'algorithme : Continuer dans le même véhicule (la course).
+     * @param builderForTrip le bâtisseur de frontière de Pareto pour la course à laquelle
+     *                       appartient la liaison.
+     * @param builder le bâtisseur de frontière de Pareto auquel on ajoute builderForTrip.
+     */
+    private void secondOption(ParetoFront.Builder builderForTrip, ParetoFront.Builder builder) {
+        if (builderForTrip != null) {
+            builder.addAll(builderForTrip);
+        }
+    }
+
+    /**
+     * // Option 3 de l'algorithme : Changer de véhicule à l'arrivée de la liaison.
+     * @param builderStation le bâtisseur de frontière de Pareto pour la gare d'arrivée de la
+     *                       liaison.
+     * @param connectionId l'id de la liaison.
+     * @param arrMinsOfConn l'heure d'arrivée de la liaison en minutes.
+     * @param builder le bâtisseur de frontière de Pareto auquel on ajoute builderStation.
+     */
+    private void thirdOption(ParetoFront.Builder builderStation, int connectionId,
+                            int arrMinsOfConn, ParetoFront.Builder builder) {
+        int payload = Bits32_24_8.pack(connectionId, 0);
+
+        if (builderStation != null) {
+            builderStation.forEach(tuple -> {
+                int tupleDepMins = PackedCriteria.depMins(tuple);
+                if (tupleDepMins >= arrMinsOfConn) {
+                    int arrMins = PackedCriteria.arrMins(tuple);
+                    int changes = PackedCriteria.changes(tuple);
+                    long newCriteria = PackedCriteria.pack(arrMins, changes, payload);
+                    builder.add(PackedCriteria.withAdditionalChange(newCriteria));
+                }
+            });
+        }
+    }
+
+    /**
+     * @param transfers les transfers indéxés.
+     * @param connections les liaisons indéxées.
+     * @param builder le bâtisseur de frontière de Pareto temporaire de la connexion courante.
+     * @param profileBuilder le bâtisseur du profil augmenté en construction.
+     * @param currentConnectionId id de la liaison.
+     */
+    public void secondOptimisation(Transfers transfers, Connections connections,
+                                   ParetoFront.Builder builder, Profile.Builder profileBuilder,
+                                   int currentConnectionId) {
+        int departureStation = timetable.stationId(connections.depStopId(currentConnectionId));
+        int depTime = connections.depMins(currentConnectionId);
+
+        int arrivingAt = transfers.arrivingAt(departureStation);
+        for(int j = PackedRange.startInclusive(arrivingAt);
+            j < PackedRange.endExclusive(arrivingAt); j++) {
+            int depMinusTransfer = depTime - transfers.minutes(j);
+            ParetoFront.Builder secondStationBuilder =
+                    profileBuilder.forStation(transfers.depStationId(j));
+
+            if(secondStationBuilder == null) {
+                profileBuilder.setForStation(transfers.depStationId(j), new ParetoFront.Builder());
+            }
+
+            ParetoFront.Builder finalStationBuilder = profileBuilder.
+                    forStation(transfers.depStationId(j));;
+            if(finalStationBuilder.fullyDominates(builder, depTime)) {
+                continue;
+            }
+
+            builder.forEach((tuple) -> {
+                int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(tuple));
+                int TripPosition = connections.tripPos(connectionId);
+
+                int newPayload = Bits32_24_8.pack(currentConnectionId,
+                        TripPosition - connections.tripPos(currentConnectionId));
+
+                long newCriteria = PackedCriteria.withDepMins(
+                        PackedCriteria.pack(PackedCriteria.arrMins(tuple),
+                                PackedCriteria.changes(tuple), newPayload), depMinusTransfer);
+                finalStationBuilder.add(newCriteria);
+            });
+
+
+        }
     }
 }
 
