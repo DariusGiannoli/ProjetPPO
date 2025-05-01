@@ -207,9 +207,7 @@ public record DetailUI(Node rootNode) {
             }
         }
 
-        private GridPane buildIntermediateGrid(
-                List<Leg.IntermediateStop> stops
-        ) {
+        private GridPane buildIntermediateGrid(List<Leg.IntermediateStop> stops) {
             GridPane g = new GridPane();
             g.setId("intermediate-stops");
             g.getStyleClass().add("intermediate-stops");
