@@ -5,6 +5,8 @@ import ch.epfl.rechor.journey.Stop;
 import ch.epfl.rechor.journey.Journey.Leg.Foot;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * Classe utilitaire finale pour formatter les informations relatives aux trajets.
@@ -35,6 +37,12 @@ public final class FormatterFr {
     // Tailles initiales pour StringBuilder selon les différentes utilisations
     private static final int SB_CAPACITY_MEDIUM = 64;   // Pour formatLeg(Foot)
     private static final int SB_CAPACITY_LARGE = 128;   // Pour formatLeg(Transport)
+
+    private static final DateTimeFormatter TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("HH'h'mm", Locale.FRENCH);
+    private static final DateTimeFormatter TIME_FORMATTER_SUB10 =
+            DateTimeFormatter.ofPattern("H'h'mm", Locale.FRENCH);
+
 
     /** Constructeur privé pour empêcher l'instanciation de cette classe utilitaire.*/
     private FormatterFr() {}
@@ -82,7 +90,7 @@ public final class FormatterFr {
      * @return une chaîne représentant l'heure au format "HHhmm".
      */
     public static String formatTime(LocalDateTime dateTime) {
-        return dateTime.getHour() + HOUR + formatTwoDigits(dateTime.getMinute());
+        return dateTime.getHour() < 10 ? dateTime.format(TIME_FORMATTER_SUB10) : dateTime.format(TIME_FORMATTER);
     }
 
     /**

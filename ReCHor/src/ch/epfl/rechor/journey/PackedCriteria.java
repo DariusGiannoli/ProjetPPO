@@ -117,10 +117,10 @@ public final class PackedCriteria {
      * @throws IllegalArgumentException si criteria ne contient pas d'heure de départ
      */
     public static int depMins(long criteria) {
-        long depComplement = (criteria >>> SHIFT_DEP) & BITS_12_MASK;
+        int depComplement = (int) ((criteria >>> SHIFT_DEP) & BITS_12_MASK);
         Preconditions.checkArgument(depComplement != 0);
 
-        return (int) (BITS_12_MASK - depComplement - MINUTES_OFFSET);
+        return minutesComplement(depComplement);
     }
 
     /**
@@ -147,7 +147,7 @@ public final class PackedCriteria {
     public static long withDepMins(long criteria, int depMins) {
         Preconditions.checkArgument(depMins >= MIN_MINUTES && depMins < MAX_MINUTES);
 
-        int depComplement = BITS_12_MASK - (depMins + MINUTES_OFFSET);
+        int depComplement = minutesComplement(depMins);
         long cleared = withoutDepMins(criteria);
 
         return cleared | ((long) depComplement << SHIFT_DEP);
@@ -199,5 +199,15 @@ public final class PackedCriteria {
         long payloadLong = Integer.toUnsignedLong(payload);
 
         return newCriteria | payloadLong;
+    }
+
+    /**
+     * Décales les minutes pour obtenir les heures de départ et d'arrivée réelles.
+     *
+     * @param minutes les minutes à décaler pour avoir le bon format.
+     * @return retourne l'heure de départ et d'arrivée réelle (entre -240 et 2879) en minutes.
+     */
+    private static int minutesComplement(int minutes) {
+        return BITS_12_MASK - (minutes + MINUTES_OFFSET);
     }
 }
