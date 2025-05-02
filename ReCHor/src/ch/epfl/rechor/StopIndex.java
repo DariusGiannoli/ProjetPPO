@@ -75,6 +75,7 @@ public final class StopIndex {
 
         // 5) trier par score décroissant, limiter, et ne retourner que les noms
         return bestScore.entrySet().stream()
+                .sorted(Map.Entry.<String,Integer>comparingByKey(Comparator.naturalOrder()))
                 .sorted(Map.Entry.<String,Integer>comparingByValue(Comparator.reverseOrder()))
                 .limit(maxResults)
                 .map(Map.Entry::getKey)
@@ -116,6 +117,8 @@ public final class StopIndex {
         if (end == name.length() || !Character.isLetter(name.charAt(end))) {
             base *= 2;
         }
+
         return base;
+
     }
 }
