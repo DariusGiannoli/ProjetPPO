@@ -62,8 +62,12 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         return new SummaryUI(listView, selected);
     }
 
-    // Sélectionne dans la liste le premier voyage dont l'heure de départ >= time,
-    // ou le dernier si aucun n'est plus tard.
+    /**
+     * Sélectionne dans la liste le premier voyage dont l'heure de départ est supérieure ou égale à
+     * l'heure indiquée, ou le dernier si aucun n'est plus tard.
+     * @param view instance de ListView qui affiche l'ensemble des voyages.
+     * @param time l'heure de départ désirée.
+     */
     private static void selectJourney(ListView<Journey> view, LocalTime time) {
         var items = view.getItems();
         if (items == null || items.isEmpty() || time == null) return;
@@ -76,7 +80,9 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         view.getSelectionModel().select(idx);
     }
 
-    // Cellule personnalisée affichant un résumé de Voyage
+    /**
+     * Cellule personnalisée affichant un résumé de Voyage
+     */
     private static class JourneyCell extends ListCell<Journey> {
         private final BorderPane root = new BorderPane();
         private final Text departureText = new Text();
@@ -85,6 +91,9 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private final Pane changePane    = createChangePane();
         private final HBox durationBox   = new HBox();
 
+        /**
+         * Constructeur de JourneyCell, qui crée le graphe de scène correspondant à la cellule.
+         */
         JourneyCell() {
             root.getStyleClass().add("journey");
             departureText.getStyleClass().add("departure");
@@ -98,6 +107,12 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             root.setBottom(durationBox);
         }
 
+        /**
+         * Cette methode a pour but de remplir les différents éléments du graphe
+         * de scène construit par le constructeur avec les données du voyage à afficher.
+         * @param journey Le voyage dont on doit afficher le résumé dans la cellule.
+         * @param empty   si la valeur est faux, alors le text et l'affichage seront null.
+         */
         @Override
         protected void updateItem(Journey journey, boolean empty) {
             super.updateItem(journey, empty);
@@ -107,20 +122,20 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 // Nettoyage
                 routeBox.getChildren().clear();
                 durationBox.getChildren().clear();
-                // Retire toutes les cercles (mais pas la ligne)
+                // Retire tous les cercles (mais pas la ligne)
                 changePane.getChildren().removeIf(n -> n instanceof Circle);
 
                 // Récupère premier et dernier transport
                 var transports = journey.legs().stream()
                         .filter(l -> l instanceof Transport)
                         .map(l -> (Transport) l)
-                        .collect(Collectors.toList());
+                        .toList();
                 if (transports.isEmpty()) {
                     setGraphic(root);
                     return;
                 }
-                Transport first = transports.get(0);
-                Transport last  = transports.get(transports.size() - 1);
+                Transport first = transports.getFirst();
+                Transport last  = transports.getLast();
 
                 // Texte heures
                 departureText.setText(FormatterFr.formatTime(first.depTime()));
@@ -170,7 +185,11 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             }
         }
 
-        // Crée le Pane qui dessine la ligne et positionne les cercles
+        /**
+         * Crée le panneau qui dessine la ligne représentant le voyage et
+         * positionne les cercles qui représentent les changements sur cette dernière.
+         * @return le panneau contenant la ligne en les cercles au format voulu.
+         */
         private static Pane createChangePane() {
             Pane pane = new Pane() {
                 private final Line line = new Line();
@@ -178,6 +197,11 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     getChildren().add(line);
                     setPrefSize(0, 0);
                 }
+
+                /**
+                 * Cette methode est redéfinie afin de dimensionner et positionner correctement
+                 * la ligne et les disques dans le panneau.
+                 */
                 @Override
                 protected void layoutChildren() {
                     double w = getWidth();
@@ -188,7 +212,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     line.setStartY(y);
                     line.setEndX(w - m);
                     line.setEndY(y);
-                    // positionne les cercles restantes
+                    // positionne les cercles réstants
                     for (var n : getChildren()) {
                         if (n instanceof Circle c) {
                             double rel = (double) c.getUserData();

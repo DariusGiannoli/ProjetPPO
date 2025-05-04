@@ -23,7 +23,7 @@ public final class VehicleIcons {
 
     /**
      * Retourne l'icône JavaFX correspondante au type de véhicule donné.
-     * Pour chaque Vehicle, on charge « VEHICLENAME.png » depuis le dossier resources
+     * Pour chaque Vehicle, on charge «VEHICLENAME.png» depuis le dossier resources
      * et on ne le fait qu’une seule fois grâce au cache.
      *
      * @param vehicle le type de véhicule

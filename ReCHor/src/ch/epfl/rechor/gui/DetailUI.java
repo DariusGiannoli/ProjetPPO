@@ -30,11 +30,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 3.3 Enregistrement DetailUI – représente la vue détaillée d’un voyage.
+ * Enregistrement DetailUI – représente la vue détaillée d’un voyage.
  *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
  */
 public record DetailUI(Node rootNode) {
 
+    /**
+     * Crée le graphe de scène et de retourner une instance de DetailUI contenant une référence à sa
+     * racine.
+     * @param journeyO valeur observable contenant le voyage dont les détails doivent être
+     *                 affichés dans l'interface graphique.
+     * @return retourner une instance de DetailUI contenant une référence à sa racine.
+     */
     public static DetailUI create(ObservableValue<Journey> journeyO) {
         // 1) racine scrollable
         ScrollPane scroll = new ScrollPane();
@@ -117,10 +126,15 @@ public record DetailUI(Node rootNode) {
         return ui;
     }
 
-    /** GridPane qui dessine cercles et lignes rouges entre étapes. */
+    /**
+     * GridPane qui dessine cercles et lignes rouges entre étapes.
+     */
     private static class DetailGridPane extends GridPane {
         private final List<Pair<Circle,Circle>> circlePairs = new ArrayList<>();
 
+        /**
+         * Constructeur de DetailGridPane.
+         */
         DetailGridPane() {
             ColumnConstraints c0 = new ColumnConstraints(); c0.setHalignment(HPos.RIGHT);
             ColumnConstraints c1 = new ColumnConstraints(10);  c1.setHalignment(HPos.CENTER);
@@ -129,6 +143,11 @@ public record DetailUI(Node rootNode) {
             setVgap(5); setHgap(5);
         }
 
+        /**
+         * Cette méthode permet de gérer correctement la mise à jour de la valeur observable
+         * passée à create.
+         * @param journey le voyage passé à la methode create qu'il faut afficher.
+         */
         void updateLegs(Journey journey) {
             getChildren().clear();
             circlePairs.clear();
@@ -207,6 +226,11 @@ public record DetailUI(Node rootNode) {
             }
         }
 
+        /**
+         * @param stops la liste des arrêts intermédiaires d'une étape en transport.
+         * @return la grille des arrêts intermédiaires donnés en argument au format voulu avec
+         * l'heure d'arrivée et de départ.
+         */
         private GridPane buildIntermediateGrid(List<Leg.IntermediateStop> stops) {
             GridPane g = new GridPane();
             g.setId("intermediate-stops");
@@ -222,6 +246,11 @@ public record DetailUI(Node rootNode) {
             return g;
         }
 
+        /**
+         * La redefinition de layoutChildren parcours la liste des paires de cercles à relier entre
+         * eux et crée les lignes reliant les centres des cercles
+         * dans un panneau séparé de la grille.
+         */
         @Override
         protected void layoutChildren() {
             super.layoutChildren();

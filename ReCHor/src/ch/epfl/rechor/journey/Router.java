@@ -178,7 +178,7 @@ public record Router(TimeTable timetable) {
             }
 
             ParetoFront.Builder finalStationBuilder = profileBuilder.
-                    forStation(transfers.depStationId(j));;
+                    forStation(transfers.depStationId(j));
             if(finalStationBuilder.fullyDominates(builder, depTime)) {
                 continue;
             }
@@ -196,8 +196,8 @@ public record Router(TimeTable timetable) {
                 finalStationBuilder.add(newCriteria);
             });
 
-
         }
     }
 }
+
 
