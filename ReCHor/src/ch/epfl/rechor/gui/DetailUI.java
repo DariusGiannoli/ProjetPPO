@@ -106,7 +106,8 @@ public record DetailUI(Node rootNode) {
         btnMap.setOnAction(e -> {
             try {
                 String geo = JourneyGeoJsonConverter.toGeoJson(journeyO.getValue());
-                URI uri = new URI("https", "umap.osm.ch", "/fr/map", "data=" + geo, null);
+                URI uri = new URI("https", "umap.osm.ch", "/fr/map",
+                        "data=" + geo, null);
                 Desktop.getDesktop().browse(uri);
             } catch (Exception ex) { /* ignorer */ }
         });
