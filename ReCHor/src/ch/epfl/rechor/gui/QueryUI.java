@@ -1,4 +1,4 @@
-// QueryUI.java
+// File: ch/epfl/rechor/gui/QueryUI.java
 package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.StopIndex;
@@ -16,6 +16,8 @@ import javafx.util.converter.LocalTimeStringConverter;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+
+
 
 /**
  * Interface de requête : arrêts, date et heure.

@@ -1,4 +1,4 @@
-// StopField.java
+// File: ch/epfl/rechor/gui/StopField.java
 package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.StopIndex;
@@ -9,11 +9,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Popup;
 
 /**
  * Combinaison d'un TextField et d'une Popup pour sélectionner un arrêt.
- * La valeur observable stopO ne change que lorsque le champ perd le focus.
+ * La valeur observable stopO change également lorsque l'utilisateur appuie sur Entrée
+ * ou clique sur un élément de la liste.
  */
 public record StopField(TextField textField, ObservableValue<String> stopO) {
     /**
@@ -21,11 +23,8 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
      */
     public static StopField create(StopIndex index) {
         TextField tf = new TextField();
-        tf.setPromptText("Nom de l'arrêt de départ");
-
+        // (le promptText sera fixé par QueryUI)
         ReadOnlyStringWrapper selected = new ReadOnlyStringWrapper("");
-        ObservableValue<String> stopProp = selected.getReadOnlyProperty();
-
         Popup popup = new Popup();
         popup.setHideOnEscape(false);
         ListView<String> list = new ListView<>();
@@ -33,7 +32,31 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         list.setMaxHeight(240);
         popup.getContent().add(list);
 
-        // Navigation clavier ↑/↓
+        // Méthode utilitaire pour valider la sélection
+        Runnable commitSelection = () -> {
+            String sel = list.getSelectionModel().getSelectedItem();
+            if (sel != null) {
+                tf.setText(sel);
+                selected.set(sel);
+            }
+            popup.hide();
+        };
+
+        // 1) Commit sur Entrée (onAction)
+        tf.setOnAction(e -> {
+            commitSelection.run();
+            e.consume();
+        });
+
+        // 2) Commit sur clic dans la liste
+        list.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            if (e.getClickCount() == 1) {
+                commitSelection.run();
+                e.consume();
+            }
+        });
+
+        // 3) Navigation clavier ↑/↓ et commit sur Entrée
         tf.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.UP) {
                 if (list.getSelectionModel().getSelectedIndex() > 0)
@@ -43,10 +66,13 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
                 if (list.getSelectionModel().getSelectedIndex() < list.getItems().size() - 1)
                     list.getSelectionModel().selectNext();
                 e.consume();
+            } else if (e.getCode() == KeyCode.ENTER) {
+                commitSelection.run();
+                e.consume();
             }
         });
 
-        // Afficher/cacher la popup à l'entrée/sortie du focus
+        // 4) Afficher/cacher la popup à l'entrée/sortie du focus
         tf.focusedProperty().addListener((obs, was, isNow) -> {
             if (isNow) {
                 // montrer et remplir la liste
@@ -63,20 +89,11 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
                 });
             } else {
                 // cacher et copier la sélection
-                tf.textProperty().removeListener((o, old, nw) -> {});
-                popup.hide();
-                String sel = list.getSelectionModel().getSelectedItem();
-                if (sel != null) {
-                    tf.setText(sel);
-                    selected.set(sel);
-                } else {
-                    tf.clear();
-                    selected.set("");
-                }
+                commitSelection.run();
             }
         });
 
-        return new StopField(tf, stopProp);
+        return new StopField(tf, selected.getReadOnlyProperty());
     }
 
     /**
@@ -84,11 +101,6 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
      */
     public void setTo(String stop) {
         textField.setText(stop);
-        ((ReadOnlyStringWrapper) selectedProperty()).set(stop);
-    }
-
-    // Récupère la property interne pour le set
-    private ReadOnlyStringWrapper selectedProperty() {
-        return (ReadOnlyStringWrapper) ((ReadOnlyStringWrapper) stopO).getBean();
+        ((ReadOnlyStringWrapper)((ReadOnlyStringWrapper)stopO).getBean()).set(stop);
     }
 }
