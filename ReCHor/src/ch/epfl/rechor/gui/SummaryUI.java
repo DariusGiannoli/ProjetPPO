@@ -160,7 +160,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 changePane.getChildren().add(depCircle);
                 // changements (foot legs)
                 for (Leg leg : journey.legs()) {
-                    if (leg instanceof Foot foot) {
+                    if (leg instanceof Foot foot && !leg.depStop().equals(journey.depStop()) && !leg.arrStop().equals(journey.arrStop())) {
                         double rel = Duration.between(first.depTime().toLocalTime(),
                                 foot.depTime()).toSeconds() / totalSec;
                         var tCircle = new Circle(3);
