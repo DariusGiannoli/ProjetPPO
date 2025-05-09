@@ -63,7 +63,7 @@ public record DetailUI(Node rootNode) {
         annotations.setId("annotations");
 
         // 4) grille des étapes
-        DetailGridPane legsGrid = new DetailGridPane();
+        DetailGridPane legsGrid = new DetailGridPane(annotations);
         legsGrid.setId("legs");
 
         // On empile d'abord `annotations` puis `legsGrid` (le dernier enfant est au sommet)
@@ -133,15 +133,17 @@ public record DetailUI(Node rootNode) {
     private static class DetailGridPane extends GridPane {
         private final List<Pair<Circle,Circle>> circlePairs = new ArrayList<>();
 
+        private final Pane annotations;
         /**
          * Constructeur de DetailGridPane.
          */
-        DetailGridPane() {
+        DetailGridPane(Pane annotations) {
             ColumnConstraints c0 = new ColumnConstraints(); c0.setHalignment(HPos.RIGHT);
             ColumnConstraints c1 = new ColumnConstraints(10);  c1.setHalignment(HPos.CENTER);
             ColumnConstraints c23 = new ColumnConstraints();   c23.setHgrow(Priority.ALWAYS);
             getColumnConstraints().addAll(c0, c1, c23, c23);
             setVgap(5); setHgap(5);
+            this.annotations = annotations;
         }
 
         /**
@@ -255,22 +257,27 @@ public record DetailUI(Node rootNode) {
         @Override
         protected void layoutChildren() {
             super.layoutChildren();
-            Pane annot = (Pane)((StackPane)getParent()).getChildren().getFirst();
-            annot.getChildren().clear();
+            List<Line> lines = new ArrayList<>();
+
+
             for (var p : circlePairs) {
                 Circle d = p.getKey(), a = p.getValue();
-                var db = d.localToScene(d.getBoundsInLocal());
-                var ab = a.localToScene(a.getBoundsInLocal());
+                var db = d.getBoundsInParent();
+                var ab = a.getBoundsInParent();
 
                 Line l = new Line(
-                        db.getCenterX() - 1, db.getMinY()+db.getHeight()/2,
-                        ab.getCenterX() - 1, ab.getMinY()+ab.getHeight()/2
+                        db.getCenterX(), db.getMinY()+db.getHeight()/2,
+                        ab.getCenterX(), ab.getMinY()+ab.getHeight()/2
                 );
 
                 l.setStrokeWidth(2);
                 l.setStroke(Color.RED);
-                annot.getChildren().add(l);
+                System.out.println(l.getStartX() + " " + l.getStartY());
+                lines.add(l);
+                System.out.println(annotations.getChildren().size());
             }
+            annotations.getChildren().setAll(lines);
+
         }
     }
 }
