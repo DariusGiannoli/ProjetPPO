@@ -78,6 +78,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         }
         if (idx >= items.size()) idx = items.size() - 1;
         view.getSelectionModel().select(idx);
+        view.scrollTo(idx);
     }
 
     /**

@@ -3,6 +3,8 @@ package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.StopIndex;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.control.ListView;
@@ -24,7 +26,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
     public static StopField create(StopIndex index) {
         TextField tf = new TextField();
         // (le promptText sera fixé par QueryUI)
-        ReadOnlyStringWrapper selected = new ReadOnlyStringWrapper("");
+        SimpleStringProperty selected = new ReadOnlyStringWrapper("");
         Popup popup = new Popup();
         popup.setHideOnEscape(false);
         ListView<String> list = new ListView<>();
@@ -93,7 +95,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
             }
         });
 
-        return new StopField(tf, selected.getReadOnlyProperty());
+        return new StopField(tf, selected);
     }
 
     /**
@@ -101,6 +103,8 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
      */
     public void setTo(String stop) {
         textField.setText(stop);
-        ((ReadOnlyStringWrapper)((ReadOnlyStringWrapper)stopO).getBean()).set(stop);
+        if(stopO instanceof SimpleStringProperty stop0) {
+            stop0.set(stop);
+        }
     }
 }

@@ -81,7 +81,7 @@ public final class BufferedTransfers implements Transfers {
         // Initialiser chaque entrée avec un intervalle vide (convention : PackedRange.pack(0, 0))
         Arrays.fill(table, PackedRange.pack(0, 0));
 
-        // Parcourir le buffer et regrouper les enregistrements par gare d'arrivée
+        // Parcourir le buffer 2 fois et regrouper les enregistrements par gare d'arrivée
         int i = 0;
         while (i < numChanges) {
             int currentArrStation = structuredBuffer.getU16(ARR_STATION_ID, i);

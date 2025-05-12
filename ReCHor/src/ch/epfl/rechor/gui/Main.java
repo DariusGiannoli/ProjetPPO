@@ -38,11 +38,6 @@ public class Main extends Application {
         // 1) Charger les données horaires depuis ./timetable
         TimeTable tt = FileTimeTable.in(Path.of("timetable"));
 
-        BorderPane root = new BorderPane();
-
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
-
         // 2) Construire la liste des noms principaux depuis tt.stations()
         final List<String> mainNames = IntStream.range(0, tt.stations().size())
                 .mapToObj(tt.stations()::name)
@@ -94,17 +89,20 @@ public class Main extends Application {
 
         // 8) Construire le résumé et le détail
         SummaryUI summaryUI = SummaryUI.create(journeysO, queryUI.timeO());
-        DetailUI detailUI = DetailUI.create(summaryUI.selectedJourneyO());
+        DetailUI  detailUI  = DetailUI.create(summaryUI.selectedJourneyO());
 
         // 9) Mettre résumé et détail dans un SplitPane
         SplitPane split = new SplitPane(summaryUI.rootNode(),
-                detailUI.rootNode());
+                detailUI .rootNode());
 
         // 10) Assembler le tout dans un BorderPane
-        root.setTop(queryUI.rootNode());
+        BorderPane root = new BorderPane();
+        root.setTop(   queryUI.rootNode());
         root.setCenter(split);
 
         // 11) Configurer et afficher la scène
+        Scene scene = new Scene(root, 800, 600);
+        stage.setScene(scene);
         stage.setMinWidth(800);
         stage.setMinHeight(600);
         stage.setTitle("ReCHor");
@@ -115,6 +113,6 @@ public class Main extends Application {
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }
