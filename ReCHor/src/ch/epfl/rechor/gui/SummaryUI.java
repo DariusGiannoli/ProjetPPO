@@ -19,6 +19,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -151,8 +152,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 routeBox.getChildren().addAll(icon, routeDest);
 
                 // Cercles sur la ligne
-                Duration total = Duration.between(first.depTime().toLocalTime(),
-                        last.arrTime().toLocalTime());
+                Duration total = Duration.between(first.depTime(),
+                        last.arrTime());
                 double totalSec = total.toSeconds();
                 // départ
                 var depCircle = new Circle(3);
@@ -178,8 +179,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
                 // Durée
                 var durText = new Text(FormatterFr.formatDuration(
-                        Duration.between(first.depTime().toLocalTime(),
-                                last.arrTime().toLocalTime())));
+                        Duration.between(first.depTime(),
+                                last.arrTime())));
                 durationBox.getChildren().add(durText);
 
                 setGraphic(root);

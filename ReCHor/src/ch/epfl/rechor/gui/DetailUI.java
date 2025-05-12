@@ -272,9 +272,7 @@ public record DetailUI(Node rootNode) {
 
                 l.setStrokeWidth(2);
                 l.setStroke(Color.RED);
-                System.out.println(l.getStartX() + " " + l.getStartY());
                 lines.add(l);
-                System.out.println(annotations.getChildren().size());
             }
             annotations.getChildren().setAll(lines);
 
