@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.LocalTimeStringConverter;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -49,8 +50,8 @@ public record QueryUI(
         swap.setOnAction(e -> {
             String d = depField.textField().getText();
             String a = arrField.textField().getText();
-            depField.setTo(a);
             arrField.setTo(d);
+            depField.setTo(a);
         });
 
         HBox topo = new HBox(5,
@@ -60,14 +61,15 @@ public record QueryUI(
         );
 
         // DatePicker
+
         DatePicker datePicker = new DatePicker(LocalDate.now());
         datePicker.setId("date");
 
+
         // TimeFormatter pour LocalTime
         DateTimeFormatter fmtDisplay = DateTimeFormatter.ofPattern("HH:mm");
-        DateTimeFormatter fmtParse   = DateTimeFormatter.ofPattern("H:mm");
         TextFormatter<LocalTime> tfmt = new TextFormatter<>(
-                new LocalTimeStringConverter(fmtDisplay, fmtParse)
+                new LocalTimeStringConverter(fmtDisplay, null), LocalTime.now()
         );
         TextField timeField = new TextField();
         timeField.setId("time");
