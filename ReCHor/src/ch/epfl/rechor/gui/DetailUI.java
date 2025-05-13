@@ -29,6 +29,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.awt.Desktop.getDesktop;
+
 /**
  * Enregistrement DetailUI – représente la vue détaillée d’un voyage.
  *
@@ -109,7 +111,7 @@ public record DetailUI(Node rootNode) {
                 String geo = JourneyGeoJsonConverter.toGeoJson(journeyO.getValue());
                 URI uri = new URI("https", "umap.osm.ch", "/fr/map",
                         "data=" + geo, null);
-                Desktop.getDesktop().browse(uri);
+                getDesktop().browse(uri);
             } catch (Exception ex) { /* ignorer */ }
         });
         btnCalendar.setOnAction(e -> {
