@@ -66,7 +66,6 @@ public class JourneyGeoJsonConverter {
         }
 
         createArrayStop(leg.arrStop(), coordinates);
-
     }
 
     /**

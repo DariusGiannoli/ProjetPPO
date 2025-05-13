@@ -19,10 +19,10 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+
 import java.time.LocalTime;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * SummaryUI – affiche la vue d'ensemble de tous les voyages.
