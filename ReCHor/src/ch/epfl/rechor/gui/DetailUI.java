@@ -93,6 +93,7 @@ public record DetailUI(Node rootNode) {
             if (j == null) {
                 noJourney.setVisible(true);
                 detailBox.setVisible(false);
+                legsGrid.updateLegs(null);
             } else {
                 noJourney.setVisible(false);
                 detailBox.setVisible(true);
@@ -154,6 +155,7 @@ public record DetailUI(Node rootNode) {
         void updateLegs(Journey journey) {
             getChildren().clear();
             circlePairs.clear();
+            if(journey != null) {
             int row = 0;
             for (Leg leg : journey.legs()) {
                 if (leg instanceof Foot foot) {
@@ -196,7 +198,7 @@ public record DetailUI(Node rootNode) {
 
                     // arrêts intermédiaires
                     if (!tx.intermediateStops().isEmpty()) {
-                        int n   = tx.intermediateStops().size();
+                        int n = tx.intermediateStops().size();
                         long dur = tx.duration().toMinutes();
                         Accordion acc = new Accordion();
                         acc.setId("intermediate");
@@ -225,6 +227,7 @@ public record DetailUI(Node rootNode) {
 
                     circlePairs.add(new Pair<>(cDep, cArr));
                     row++;
+                }
                 }
             }
         }
