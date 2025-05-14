@@ -78,10 +78,11 @@ public final class StopIndex {
 
         Map<String, Integer> bestScore = new HashMap<>();
         for (String name : allNames) {
-            int total = scoreIfMatchesAll(name, subs, patterns);
-            if (total == 0) {
+            if (patterns.stream().anyMatch(p -> !p.matcher(name).find())) {
                 continue;
             }
+            int total = scoreIfMatchesAll(name, subs, patterns);
+
             String main = nameToMain.get(name);
             bestScore.merge(main, total, Math::max);
         }

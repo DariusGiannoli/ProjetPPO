@@ -44,19 +44,6 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
             popup.hide();
         };
 
-//        // 1) Commit sur Entrée (onAction)
-//        tf.setOnAction(e -> {
-//            commitSelection.run();
-//            e.consume();
-//        });
-
-//        // 2) Commit sur clic dans la liste
-//        list.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-//            if (e.getClickCount() == 1) {
-//                commitSelection.run();
-//                e.consume();
-//            }
-//        });
 
         // 3) Navigation clavier ↑/↓ et commit sur Entrée
         tf.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
