@@ -89,7 +89,7 @@ public final class StopIndex {
 
         return bestScore.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder())
-                        .thenComparing(Map.Entry.comparingByKey()))
+                        .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
                 .limit(maxResults)
                 .map(Map.Entry::getKey)
                 .toList();
