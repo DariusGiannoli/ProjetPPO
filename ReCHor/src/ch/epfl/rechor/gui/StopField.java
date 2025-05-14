@@ -61,12 +61,16 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         // 3) Navigation clavier ↑/↓ et commit sur Entrée
         tf.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() == KeyCode.UP) {
-                if (list.getSelectionModel().getSelectedIndex() > 0)
+                if (list.getSelectionModel().getSelectedIndex() > 0){
                     list.getSelectionModel().selectPrevious();
+                    list.scrollTo(list.getSelectionModel().getSelectedIndex());
+                }
                 e.consume();
             } else if (e.getCode() == KeyCode.DOWN) {
-                if (list.getSelectionModel().getSelectedIndex() < list.getItems().size() - 1)
+                if (list.getSelectionModel().getSelectedIndex() < list.getItems().size() - 1) {
                     list.getSelectionModel().selectNext();
+                    list.scrollTo(list.getSelectionModel().getSelectedIndex());
+                }
                 e.consume();
             }
         });
