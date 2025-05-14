@@ -76,6 +76,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
                 tf.textProperty().addListener((o, old, nw) -> {
                     list.getItems().setAll(index.stopsMatching(nw, 30));
                     list.getSelectionModel().selectFirst();
+                    list.scrollTo(list.getSelectionModel().getSelectedIndex());
                 });
             } else {
                 // cacher et copier la sélection
