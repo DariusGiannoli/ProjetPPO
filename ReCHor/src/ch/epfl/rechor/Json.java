@@ -30,7 +30,6 @@ public sealed interface Json {
     record JArray(List<Json> list) implements Json {
         @Override
         public String toString() {
-            // [elem1,elem2,...]
             StringJoiner sj = new StringJoiner(COMMA, LBRACKET, RBRACKET);
             for (Json e : list) {
                 sj.add(e.toString());
@@ -38,7 +37,6 @@ public sealed interface Json {
             return sj.toString();
         }
     }
-
 
     /**
      * Représente un objet JSON et possède comme unique attribut une table associative
@@ -48,7 +46,6 @@ public sealed interface Json {
     record JObject(Map<String, Json> map) implements Json {
         @Override
         public String toString() {
-            // {"key":value,"key2":value2,...}
             StringJoiner sj = new StringJoiner(COMMA, LBRACE, RBRACE);
             for (Map.Entry<String, Json> e : map.entrySet()) {
                 sj.add(QUOTE + e.getKey() + QUOTE
@@ -70,7 +67,6 @@ public sealed interface Json {
             return QUOTE + string + QUOTE;
         }
     }
-
 
     /**
      * représente un nombre JSON
