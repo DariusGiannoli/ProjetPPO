@@ -15,7 +15,6 @@ public class JourneyGeoJsonConverter {
     /** Facteur pour arrondir les coordonnées à 5 décimales */
     private static final double roundingConstant = Math.pow(10, 5);
 
-
     /**
      * Constructeur privé pour que la classe soit non instanciable.
      */
@@ -28,7 +27,6 @@ public class JourneyGeoJsonConverter {
      * au format GeoJSON
      */
     public static String toGeoJson(Journey journey) {
-
         List<Json> coords = new ArrayList<>();
         for (Journey.Leg leg : journey.legs()) {
             addCoordinates(leg, coords);
