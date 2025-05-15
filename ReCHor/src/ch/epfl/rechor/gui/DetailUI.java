@@ -40,11 +40,16 @@ public record DetailUI(Node rootNode) {
     private static final double LINE_WIDTH = 2.0;
     private static final int ICON_SIZE = 31;
 
-
     private static final int COL_TIME     = 0;
     private static final int COL_CIRCLE   = 1;
     private static final int COL_STATION  = 2;
     private static final int COL_PLATFORM = 3;
+
+    private static Button makeButton(String text, String id) {
+        Button b = new Button(text);
+        b.setId(id);
+        return b;
+    }
 
     /**
      * Creates the scene graph and returns a DetailUI instance with a reference to its root.
@@ -77,17 +82,16 @@ public record DetailUI(Node rootNode) {
         StackPane stepsPane = new StackPane(annotations, legsGrid);
 
         // Map and Calendar buttons
-        Button btnMap = new Button("Carte");
-        btnMap.setId("Carte");
-        Button btnCalendar = new Button("Calendrier");
-        btnCalendar.setId("Calendrier");
+        Button btnMap      = makeButton("Carte",      "Carte");
+        Button btnCalendar = makeButton("Calendrier", "Calendrier");
+
         HBox buttons = new HBox(10, btnMap, btnCalendar);
         buttons.setId("buttons");
         buttons.setAlignment(javafx.geometry.Pos.CENTER);
 
         // Detail view (grid + buttons)
         VBox detailBox = new VBox(5, stepsPane, buttons);
-        detailBox.setVisible(false);
+        //detailBox.setVisible(false);
 
         // Root stack pane
         StackPane rootStack = new StackPane(noJourney, detailBox);
@@ -186,25 +190,7 @@ public record DetailUI(Node rootNode) {
             return new Circle(CIRCLE_RADIUS, Color.BLACK);
         }
 
-        /**
-         * Builds either the departure or arrival row for a given Transport leg.
-         *
-         * @param tx          the transport leg
-         * @param isDeparture true for departure‐style (adds the “departure” CSS class)
-         * @param circle      the circle to place in column 1
-         * @param row         the row index in the grid
-         * @return the next row index (row+1)
-         */
 
-        /**
-         * Renders either the departure- or arrival-row for a given Transport.
-         *
-         * @param tx          the transport leg
-         * @param isDeparture true = draw the departure; false = draw the arrival
-         * @param circle      the circle to place in COL_CIRCLE
-         * @param row         the grid row index
-         * @return the next row index
-         */
         private int addStopRow(Transport tx,
                                boolean isDeparture,
                                Circle circle,
@@ -235,7 +221,6 @@ public record DetailUI(Node rootNode) {
 
             return row + 1;
         }
-
 
         private int addTransportLeg(Transport tx, int row) {
             // departure
@@ -276,9 +261,9 @@ public record DetailUI(Node rootNode) {
             return row + 1;
         }
 
-        private ImageView createVehicleIcon(Vehicle vehicleName) {
+        private ImageView createVehicleIcon(Vehicle v) {
             // 1) délégation du load à VehicleIcons
-            Image image = VehicleIcons.iconFor(vehicleName);
+            Image image = VehicleIcons.iconFor(v);
 
             // 2) création + sizing en un point unique
             ImageView iv = new ImageView(image);
