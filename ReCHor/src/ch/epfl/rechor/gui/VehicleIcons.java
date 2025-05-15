@@ -1,4 +1,3 @@
-
 package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.journey.Vehicle;
@@ -8,17 +7,16 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Classe publique et non instanciable,
- * charge et met en cache une seule fois chaque icône de véhicule.
+ * Fournit l'accès aux icônes JavaFX des véhicules et assure leur chargement
+ * et mise en cache uniques afin d'éviter tout gaspillage de mémoire.
  *
  * Utilise EnumMap<Vehicle,Image> et computeIfAbsent .
  */
 public final class VehicleIcons {
-    // cache puissant et efficace pour un enum
-    private static final Map<Vehicle, Image> CACHE =
-            new EnumMap<>(Vehicle.class);
+    private static final String ICON_EXTENSION = ".png";
+    private static final Map<Vehicle, Image> CACHE = new EnumMap<>(Vehicle.class);
 
-    // pas d'instances
+    /** Constructeur privé, classe non instanciable */
     private VehicleIcons() {}
 
     /**
@@ -31,7 +29,7 @@ public final class VehicleIcons {
      */
     public static Image iconFor(Vehicle vehicle) {
         return CACHE.computeIfAbsent(vehicle,
-                v -> new Image(v.name() + ".png")
+                v -> new Image(v.name() + ICON_EXTENSION)
         );
     }
 }
