@@ -11,7 +11,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Popup;
 
 /**
@@ -74,7 +73,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
                 popup.show(tf.getScene().getWindow());
                 // mise à jour dynamique au fil de la saisie
                 tf.textProperty().addListener((o, old, nw) -> {
-                    list.getItems().setAll(index.stopsMatching(nw, 30));
+                    list.getItems().setAll(index.stopsMatching(tf.getText(), 30));
                     list.getSelectionModel().selectFirst();
                     list.scrollTo(list.getSelectionModel().getSelectedIndex());
                 });

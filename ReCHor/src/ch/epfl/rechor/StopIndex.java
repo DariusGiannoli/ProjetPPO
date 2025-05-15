@@ -124,14 +124,17 @@ public final class StopIndex {
         boolean hasUpper = sub.chars().anyMatch(Character::isUpperCase);
         int flags = Pattern.UNICODE_CASE | (hasUpper ? 0 : Pattern.CASE_INSENSITIVE);
 
+
         var sb = new StringBuilder();
         for (char c : sub.toCharArray()) {
             char low = Character.toLowerCase(c);
             if (ACCENT_EQUIVALENCES.containsKey(low)) {
-                // classe de tous les équivalents
-                sb.append(LBRACKET).append(ACCENT_EQUIVALENCES.get(low)).append(RBRACKET);
+                String variants = ACCENT_EQUIVALENCES.get(low);
+                if (Character.isUpperCase(c)) {
+                    variants = variants.toUpperCase();
+                }
+                sb.append(LBRACKET).append(variants).append(RBRACKET);
             } else {
-                // char littéral, protégé
                 sb.append(Pattern.quote(String.valueOf(c)));
             }
         }
