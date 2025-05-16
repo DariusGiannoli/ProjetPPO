@@ -107,7 +107,7 @@ public record DetailUI(Node rootNode) {
             detailBox.setVisible(j != null);
             legsGrid.updateLegs(j);
         };
-        journeyO.addListener((obs, o, n) -> update.run());
+        journeyO.subscribe((n) -> update.run());
         update.run();
 
         // 7) Actions

@@ -5,7 +5,6 @@ import ch.epfl.rechor.journey.Journey;
 import ch.epfl.rechor.journey.Journey.Leg;
 import ch.epfl.rechor.journey.Journey.Leg.Foot;
 import ch.epfl.rechor.journey.Journey.Leg.Transport;
-import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -38,7 +37,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             ObservableValue<T> obs,
             Consumer<T> consumer
     ) {
-        obs.addListener((o, oldVal, newVal) -> {
+        obs.subscribe((newVal) -> {
             if (newVal != null) {
                 consumer.accept(newVal);
             }
@@ -114,7 +113,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private final Text departureText      = new Text();
         private final Text arrivalText        = new Text();
         private final HBox routeBox           = new HBox(4);
-        private final Pane changePane         = createChangePane();
+//        private final Group circlesGroup = new Group();
+        private final Pane changePane = createChangePane();
         private final HBox durationBox        = new HBox();
 
         JourneyCell() {
@@ -210,6 +210,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
             // cercle arrivée
             changePane.getChildren().add(makeCircle("dep-arr", 1.0));
+
         }
 
         private void updateDuration(Duration total) {
