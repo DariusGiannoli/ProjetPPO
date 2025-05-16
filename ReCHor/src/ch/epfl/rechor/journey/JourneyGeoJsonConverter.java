@@ -39,22 +39,7 @@ public class JourneyGeoJsonConverter {
 
         return new Json.JObject(obj).toString();
 
-//        List<Json> coordinates = new ArrayList<>();
-//
-//        Map<String, Json> map = new LinkedHashMap<>();
-//
-//        for(int i = 0; i < journey.legs().size(); i++){
-//            addCoordinates(journey.legs().get(i), coordinates);
-//        }
-//
-//        Json.JArray array = new Json.JArray(coordinates);
-//
-//        map.put("type", new Json.JString("LineString"));
-//        map.put("coordinates", array);
-//
-//        Json.JObject geoJson = new Json.JObject(map);
-//
-//        return geoJson.toString();
+
     }
 
     /**
@@ -91,15 +76,6 @@ public class JourneyGeoJsonConverter {
         if (!coords.contains(point)) {
             coords.add(point);
         }
-//        List<Json> depCoordinate = new ArrayList<>();
-//
-//        depCoordinate.add(new Json.JNumber(lon));
-//        depCoordinate.add(new Json.JNumber(lat));
-//
-//        Json.JArray array = new Json.JArray(depCoordinate);
-//
-//        if(!coords.contains(array)) {
-//            coords.add(array);
-//        }
+
     }
 }

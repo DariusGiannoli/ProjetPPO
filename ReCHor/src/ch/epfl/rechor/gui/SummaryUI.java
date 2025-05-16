@@ -5,6 +5,7 @@ import ch.epfl.rechor.journey.Journey;
 import ch.epfl.rechor.journey.Journey.Leg;
 import ch.epfl.rechor.journey.Journey.Leg.Foot;
 import ch.epfl.rechor.journey.Journey.Leg.Transport;
+import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -203,7 +204,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     double rel = Duration
                             .between(first.depTime().toLocalTime(), foot.depTime())
                             .toSeconds() / totalSec;
-                    changePane.getChildren().add(makeCircle("change", rel));
+                    changePane.getChildren().add(makeCircle("transfer", rel));
                 }
             }
 
@@ -253,4 +254,5 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             return pane;
         }
     }
+
 }
