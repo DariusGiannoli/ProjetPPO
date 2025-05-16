@@ -4,8 +4,8 @@
 001B
 001G
 005B
+005D
 01
-03
 041F
 041G
 061A
@@ -48,7 +48,6 @@
 1Blau
 1a
 2
-2 Rot
 2/3
 20
 200S
@@ -59,14 +58,12 @@
 23
 24
 24R
-25
 28R
 2A-B
 2Rot
 2a
 2b
 3
-3 Gruen
 3/4
 30
 30/1
@@ -118,10 +115,13 @@
 630S
 631C
 631D
+632A
 641A
 650B
 650S
+651A
 661A
+697emma
 6A
 7
 70
@@ -130,6 +130,7 @@
 723A
 73
 770A
+770B
 7A
 8
 80/81
@@ -159,7 +160,6 @@ A3
 A4
 A5
 A6
-A83
 AB
 AC
 ASC 2352
@@ -193,6 +193,7 @@ Aarau, Allmendweg
 Aarau, Alte Badanstalt
 Aarau, Amthaus
 Aarau, Bahnhof
+Aarau, Bahnhof Süd
 Aarau, Bavaria
 Aarau, Berufsschule
 Aarau, Binzenhof
@@ -269,12 +270,6 @@ Abländschen, Jaungrund
 Abländschen, Mittelberg
 Abländschen, Zitbödeli
 Aboncourt
-Abondance, Abbaye
-Abondance, Champs Pantins
-Abondance, College D'Abondance
-Abondance, Melon
-Abondance, Sous Le Pas
-Abondance, Terres Noires
 Abtwil AG, Auwerstrasse
 Abtwil AG, Hofmatt
 Abtwil AG, Langegg
@@ -448,6 +443,7 @@ Aeschi SO, Bolkenstrasse
 Aeschi SO, Dorf
 Aeschi SO, Kirche
 Aeschi SO, Ost
+Aeschi SO, Schulhaus
 Aeschi b. Spiez, Adelmatt
 Aeschi b. Spiez, Alleestrasse
 Aeschi b. Spiez, Friedegg
@@ -474,6 +470,7 @@ Aeschlen b. O., Langenegg
 Aeschlen ob Gunten, Dorf
 Aeschlen ob Gunten, Erliboden
 Aeschlen ob Gunten, Mattikehr
+Aeschlen ob Gunten, Panorama
 Aetigkofen, Dorf
 Aetingen, Fröscheren
 Aetingen, Post
@@ -634,7 +631,6 @@ Albbruck, Kies
 Albbruck, Schachen
 Albbruck, Schanz
 Albbruck, Schule
-Albbruck, ehem. Papierfabrik
 Albens
 Alberswil, Burgrain
 Alberswil, Dorf
@@ -1069,6 +1065,7 @@ Amsteg, Grund/Seilbahn
 Amsteg, Post
 Amsteg, Schulhaus
 Amsteg, St. Anton
+Amsterdam Centraal
 Amtzell, Fohlenweide
 Amtzell, Geiselharz
 Amtzell, Hinterholz
@@ -1480,22 +1477,27 @@ Argenbühl, Baldenhofen
 Argenbühl, Buchweiher
 Argenbühl, Christazhofen
 Argenbühl, Davids
+Argenbühl, Eglofs
 Argenbühl, Eisenharz Ort
 Argenbühl, Enkenhofen
+Argenbühl, Gaischachen Geray
 Argenbühl, Gottrazhofen
 Argenbühl, Haizen
 Argenbühl, Kreuzbühl
 Argenbühl, Matzen
 Argenbühl, Mittelried
+Argenbühl, Moorbad
 Argenbühl, Neumühle
 Argenbühl, Reute
 Argenbühl, Ried
 Argenbühl, Sandraz
+Argenbühl, Schaulings
 Argenbühl, Seehalde
 Argenbühl, Siggen
 Argenbühl, Siggen Kirche
 Argenbühl, Siggener Höhe
 Argenbühl, Sägenweiher
+Argenbühl, Untervorholz
 Argentine
 Argentine-Gemelly-ou-Stade
 Argentine-La-Combe
@@ -1734,6 +1736,7 @@ Aubecourt
 Aubenas Gare Routière
 Aubenas Place de la Paix
 Aubiat
+Aubignas Pignatelles
 Aubonne, Bougy-St-Martin
 Aubonne, Curzilles
 Aubonne, La Levette
@@ -2053,6 +2056,7 @@ B 183
 B 184
 B 185
 B 186
+B 1873
 B 188
 B 189
 B 19
@@ -2061,6 +2065,7 @@ B 191
 B 192
 B 193
 B 195
+B 1973
 B 2
 B 20
 B 200
@@ -2148,6 +2153,7 @@ B 284
 B 285
 B 286
 B 287
+B 2873
 B 289
 B 29
 B 290
@@ -2664,6 +2670,7 @@ B 754
 B 7549
 B 756
 B 7569
+B 7572
 B 759
 B 76
 B 760
@@ -2769,7 +2776,6 @@ B 87
 B 870
 B 871
 B 875
-B 8772
 B 88
 B 880
 B 882
@@ -2832,8 +2838,7 @@ B 972
 B 973
 B 974
 B 976
-B 9774
-B 9775
+B 977
 B 983
 B 99
 B 991
@@ -2842,6 +2847,7 @@ B 993
 B 994
 B 995
 B 996
+B ou C
 B-D
 B06
 B1
@@ -2871,6 +2877,10 @@ BAT 106
 BAT 109
 BAT 11
 BAT 110
+BAT 1100
+BAT 1101
+BAT 1102
+BAT 1103
 BAT 111
 BAT 112
 BAT 113
@@ -3005,6 +3015,7 @@ BAT 3732
 BAT 3733
 BAT 3734
 BAT 3736
+BAT 3739
 BAT 3800
 BAT 3801
 BAT 3820
@@ -3074,7 +3085,6 @@ BAT 59
 BAT 6
 BAT 60
 BAT 61
-BAT 611
 BAT 613
 BAT 614
 BAT 615
@@ -3218,7 +3228,6 @@ Bad Buchau, Henauhof
 Bad Buchau, Kappel
 Bad Buchau, Kappel Gewerbegeb.
 Bad Buchau, Post
-Bad Ifferten
 Bad Krozingen
 Bad Krozingen, Schulzentrum
 Bad Niedernau
@@ -3509,6 +3518,8 @@ Baggwil, Dorf
 Baggwil, Graben
 Bagnac
 Bahn-2000-Strecke
+Baienbach
+Baienbach, Blitzenreuter Str.
 Baienfurt, Achtalschule
 Baienfurt, Feuerwehrhaus
 Baienfurt, Rainpadent
@@ -4233,6 +4244,42 @@ Bercher, gare
 Bercher, village
 Berentzwiller, Centre
 Berg
+Berg (RV), Abzw. Kernen
+Berg (RV), Abzw. Kleintobel
+Berg (RV), Abzw. Matzenhofen
+Berg (RV), Abzw. Unterloch
+Berg (RV), Aichach
+Berg (RV), Bachmaier
+Berg (RV), Baien
+Berg (RV), Basenberg
+Berg (RV), Berg Schule
+Berg (RV), Brunnenplatz
+Berg (RV), Dietenhofen
+Berg (RV), Ettishofen
+Berg (RV), Goldehub
+Berg (RV), Grosstoblerstrasse
+Berg (RV), Horrach
+Berg (RV), Inntobel
+Berg (RV), Kasernen
+Berg (RV), Kasernen Hauptstr.
+Berg (RV), KiGa Panoramastr.
+Berg (RV), Kleint. Im Schorren
+Berg (RV), Kleint. Martinstr.
+Berg (RV), Kleintobler Höhe
+Berg (RV), Matzenhofen
+Berg (RV), Oberbelzenhofen
+Berg (RV), Rafi
+Berg (RV), Ramsee
+Berg (RV), Rosenhäusle
+Berg (RV), Sonntagen
+Berg (RV), Strass
+Berg (RV), Tiergarten
+Berg (RV), Unterlupberg
+Berg (RV), Vockenweiler
+Berg (RV), Weiler
+Berg (RV), Weilerhalde
+Berg (RV),Abz. Grossbaumgarten
+Berg (RV),Wilhelm-Gindele-Str.
 Berg FR, Restaurant
 Berg Ortsmitte, Kressbronn
 Berg SG, Brühl
@@ -4487,6 +4534,7 @@ Bern, Unitobler
 Bern, Universität
 Bern, Untermattweg
 Bern, Viktoriaplatz
+Bern, Waisenhausplatz
 Bern, Wander
 Bern, Wankdorf Center
 Bern, Wankdorf City
@@ -4545,10 +4593,8 @@ Bernex, Blanchards
 Bernex, Chèvres
 Bernex, Cottenets
 Bernex, Cressy
-Bernex, Eglise
 Bernex, Guillon
 Bernex, Hainard
-Bernex, Langin
 Bernex, Les Oulaines
 Bernex, Loëx Hôpital
 Bernex, Loëx Lanance
@@ -4563,7 +4609,6 @@ Bernex, Pont-de-Lully
 Bernex, Pré-Marais
 Bernex, Pré-Polly
 Bernex, Saule
-Bernex, Station
 Bernex, Sézenove Ferrand
 Bernex, Sézenove village
 Bernex, Vailly
@@ -4627,6 +4672,7 @@ Bettborn Grand Rue
 Betten Dorf
 Bettenhausen, Dorf
 Bettenhausen, Post
+Bettenreute
 Bettens, croisée
 Bettens, village
 Bettingen, Altes Zollhaus
@@ -4727,8 +4773,8 @@ Bex, Résidence
 Bex, Servanne
 Bex, bif. Salaz
 Bex, place de la gare
+Bex, route d'Aigle
 Bex, route des Monts bif.
-Bex, rte d'Aigle
 Bex, rte de Chiètres
 Bex, sous-gare
 Bex, temple
@@ -4949,7 +4995,6 @@ Bienne
 Bienville
 Bierbronnen
 Bieringen(b Horb)
-Bierstation
 Biesendorf, Biesendorfer Str.
 Biesendorf, Bürgerhaus
 Bietingen
@@ -5194,6 +5239,7 @@ Blickensdorf, Dorf
 Blickensdorf, H. Waldmann-Str
 Blignou (Ayent), Corbarare
 Blignou (Ayent), Promanson
+Blitzenreute, Engel
 Blitzenreute, Raiba
 Blitzingen
 Blitzingen, Dorfplatz
@@ -5262,6 +5308,7 @@ Bodnegg, Dorfgemeinschaftshaus
 Bodnegg, Eggenberg
 Bodnegg, Emmelhofen
 Bodnegg, Engel
+Bodnegg, Fahnhalden
 Bodnegg, Gutmannshof
 Bodnegg, Hemmern
 Bodnegg, Hinterhargarten
@@ -5372,6 +5419,7 @@ Bonaduz, Crusch
 Bonaduz, Crusch West
 Bonaduz, Isla
 Bonaduz, Oberdorf
+Bonaduz, Zault/Rheinschlucht
 Bonaduz, alte Post
 Bonatchiesse
 Boncourt
@@ -5392,6 +5440,7 @@ Boniswil (See)
 Boniswil, Alte Schmiede
 Boniswil, Bahnhof
 Boniswil, Eichholz
+Bonn-Beuel
 Bonndorf, Abzw Brunnadern
 Bonndorf, Abzw. Boll
 Bonndorf, Abzw. Schlehenweg
@@ -5416,8 +5465,6 @@ Bonne, PAE de la Menoge
 Bonnefontaine, bif.
 Bonnefontaine, village
 Bonnevaux
-Bonnevaux, Cent Fontaines
-Bonnevaux, La Solitude
 Bonneville
 Bonneville, Zi Les Bordets
 Bons-en-Chablais
@@ -5566,6 +5613,7 @@ Boveresse, Prise-Sèche
 Boveresse, Séchoir
 Boveresse, gare
 Boveresse, piscine
+Boveresse, temple
 Bovernier
 Bowil
 Bowil, Bahnhof
@@ -5685,6 +5733,7 @@ Bremgarten BE, Zentrum
 Bremgarten Isenlauf
 Bremgarten Obertor
 Bremgarten West
+Bremgarten West, Bahnhof
 Brenden, Abzw Buggenried
 Brenden, Innere Höfe
 Brenden, Post
@@ -6294,6 +6343,7 @@ Burtigny, Le Battoir
 Burtigny, Les Oches
 Burtigny, village
 Bus-LEB
+Bus-m1
 Buschwiller, Centre
 Buschwiller, Vosges
 Buseno, Botteghe
@@ -6444,7 +6494,6 @@ Böblingen Süd
 Böblingen Zimmerschlag
 Böckten, Dorf
 Böckten, Rohrmatt
-Böhringen (KN), Bahnhof
 Böhringen (KN), Bodenseestr.
 Böhringen (KN), Erzberger Str.
 Böhringen (KN), Espelweg
@@ -6728,6 +6777,7 @@ CC 83
 CC 87
 CC 88
 CD
+CO
 COUX Centre
 CS
 Cabane-des-Diablerets
@@ -7169,9 +7219,6 @@ Champagne-sur-Seine
 Champagney
 Champagnole
 Champagnole Paul-Émile Victor
-Champanges, Darbon
-Champanges, La Combe
-Champanges, Larringes Stade
 Champex (télésiège)
 Champex, Lac
 Champex, Le Signal
@@ -7368,9 +7415,6 @@ Chevenez, Les Moissons
 Chevenez, Paléo Jura
 Chevenez, St-Maurice
 Chevenez, place la Grangette
-Chevenoz, Arce
-Chevenoz, Feu Courbe
-Chevenoz, chef-lieu
 Chevillon
 Chevilly, Fontaines
 Chevroux
@@ -7608,8 +7652,6 @@ Châteauneuf-Conthey
 Châteauneuf-Conthey, gare
 Châteauneuf-sur-Cher
 Châtel - Nomexy
-Châtel, Linga
-Châtel, église
 Châtel-Censoir
 Châtel-St-Denis
 Châtel-St-Denis, Bellière
@@ -7834,6 +7876,7 @@ Cologny, Chemin du Righi
 Cologny, Clos du Môlan
 Cologny, Falquets
 Cologny, Fraidieu
+Cologny, Frontenex
 Cologny, La Belotte
 Cologny, Le-Fort
 Cologny, Montalègre
@@ -8171,6 +8214,7 @@ Cousset, gare
 Couvet
 Couvet, La Léchère
 Couvet, Le Preyel
+Couvet, Saint-Gervais
 Couvet, Viaduc
 Couvet, bif. de Plancemont
 Couvet, centre commercial
@@ -8451,6 +8495,7 @@ Daillon, la Chapelle
 Daillon, la Vella
 Dallenwil
 Dallenwil (Wirzwelibahn)
+Dallenwil, Bahnhof
 Dalpe, Campiano
 Dalpe, Cornone
 Dalpe, Valle
@@ -8596,6 +8641,7 @@ Degerfelden, Kindergarten
 Degerfelden, Lamm Abzw
 Degerfelden, Lamm B316
 Degerfelden, Nettenbergstrasse
+Degerfelden, Parkplatz/KiGa
 Degerfelden, Sägemühle
 Degerfelden, Wolfsgraben
 Degernau
@@ -8803,6 +8849,7 @@ Dietikon
 Dietikon Schöneggstrasse
 Dietikon Stoffelbach
 Dietikon, Bahnhof
+Dietikon, Bergfrieden Bahnhof
 Dietikon, Birmensdorferstrasse
 Dietikon, Dörfli
 Dietikon, Gyrhalden
@@ -8821,6 +8868,7 @@ Dietikon, Oetwilerstrasse
 Dietikon, Pestalozzi
 Dietikon, Rapidplatz
 Dietikon, Schäflibach
+Dietikon, Schöneggstrasse Bhf
 Dietikon, Schönenwerd
 Dietikon, Silbern
 Dietikon, Sommerau
@@ -8828,6 +8876,7 @@ Dietikon, Stadthalle Ost
 Dietikon, Stadthaus
 Dietikon, Staffelackerstrasse
 Dietikon, Stelzenacker
+Dietikon, Stoffelbach Bahnhof
 Dietikon, Wasserburg
 Dietikon, Weidstrasse
 Dietikon, Weinberg
@@ -8993,7 +9042,11 @@ Donatyre, école
 Donaueschingen
 Donaueschingen Grüningen
 Donaueschingen Mitte/Siedl.
+Donaueschingen, Berufsschulen
 Donaueschingen, Busbahnhof
+Donaueschingen, Gymnasium
+Donaueschingen, Kästner-Schule
+Donaueschingen, Schulstrasse
 Donaueschingen-Aufen
 Donchery
 Dongio, Industrie
@@ -9269,6 +9322,7 @@ E12
 E13
 E15
 E16
+E57
 EC 10
 EC 10006
 EC 10010
@@ -9324,6 +9378,7 @@ EC 150
 EC 151
 EC 155
 EC 156
+EC 157
 EC 16
 EC 17
 EC 173
@@ -9344,7 +9399,6 @@ EC 20
 EC 21
 EC 22
 EC 23
-EC 25
 EC 2558
 EC 2559
 EC 2577
@@ -9354,14 +9408,29 @@ EC 296
 EC 297
 EC 30
 EC 30046
+EC 30060
+EC 30065
 EC 30110
 EC 30155
 EC 30156
+EC 30559
 EC 31
+EC 31107
+EC 31109
+EC 31207
+EC 31307
+EC 31309
+EC 31313
+EC 31315
+EC 31317
+EC 31407
+EC 31459
 EC 32
 EC 33
 EC 34
 EC 35
+EC 35951
+EC 35955
 EC 36
 EC 37
 EC 40
@@ -9392,18 +9461,39 @@ EC 96
 EC 97
 EC 98
 EC 99
+ESC P
+ESC T
 EV
 EV 2020
 EV 253
 EV 2566
-EV 412
+EV 603
+EV 604
+EV 605
+EV 606
+EV 607
+EV 608
+EV 609
+EV 610
+EV 611
+EV 612
+EV 613
+EV 614
+EV 615
+EV 616
+EV 617
+EV 618
+EV 619
+EV 620
 EV 70
 EV 71
 EV 72
 EV 74
 EV1
 EV2
+EV3
 EV33
+EV4
 EV56
 EV57
 EXB 103
@@ -9416,12 +9506,76 @@ EXB 81
 EXB 811
 EXT
 EXT 1
+EXT 11
+EXT 14614
+EXT 14619
+EXT 14620
+EXT 14623
+EXT 14624
+EXT 14627
+EXT 14628
+EXT 14631
+EXT 14632
+EXT 14635
+EXT 14636
+EXT 14639
+EXT 14640
+EXT 14643
+EXT 14644
+EXT 14647
+EXT 14648
+EXT 14651
+EXT 14652
+EXT 14655
+EXT 14656
+EXT 14659
+EXT 14660
+EXT 14663
+EXT 14664
+EXT 14667
+EXT 14668
+EXT 14671
+EXT 14672
+EXT 14675
+EXT 14676
+EXT 14679
+EXT 14680
+EXT 14683
+EXT 14684
+EXT 14687
+EXT 14688
+EXT 14691
+EXT 14692
+EXT 14695
+EXT 14696
+EXT 14716
+EXT 14718
+EXT 14720
+EXT 14722
+EXT 14724
+EXT 14726
+EXT 14728
+EXT 14760
+EXT 14761
+EXT 14762
+EXT 14763
+EXT 14764
+EXT 14765
+EXT 14766
+EXT 14767
+EXT 14768
+EXT 14769
+EXT 14770
+EXT 14771
+EXT 14772
+EXT 14773
+EXT 14774
+EXT 14775
+EXT 14777
 EXT 15
 EXT 2
 EXT 2027
 EXT 2048
-EXT 2104
-EXT 2106
 EXT 2126
 EXT 2128
 EXT 2130
@@ -9434,12 +9588,19 @@ EXT 2143
 EXT 2155
 EXT 2156
 EXT 2302
-EXT 2304
+EXT 23500
+EXT 23509
+EXT 23511
+EXT 23588
+EXT 23592
+EXT 23596
 EXT 2817
 EXT 3
+EXT 30000
 EXT 30001
 EXT 30002
 EXT 30003
+EXT 30004
 EXT 30005
 EXT 30006
 EXT 30007
@@ -9458,6 +9619,7 @@ EXT 30023
 EXT 30025
 EXT 30027
 EXT 30100
+EXT 30168
 EXT 30215
 EXT 30438
 EXT 30504
@@ -9473,6 +9635,8 @@ EXT 31007
 EXT 31008
 EXT 31010
 EXT 31012
+EXT 31013
+EXT 31016
 EXT 31017
 EXT 31019
 EXT 31021
@@ -9484,16 +9648,29 @@ EXT 31050
 EXT 31058
 EXT 31063
 EXT 31065
+EXT 31066
+EXT 31067
+EXT 31068
+EXT 31069
+EXT 31070
+EXT 31071
+EXT 31073
+EXT 31074
 EXT 31076
+EXT 31078
 EXT 31080
+EXT 31082
+EXT 31086
 EXT 31088
 EXT 31089
 EXT 31090
+EXT 31092
 EXT 31095
 EXT 31096
 EXT 31097
 EXT 31098
 EXT 31099
+EXT 31100
 EXT 31101
 EXT 31102
 EXT 31103
@@ -9515,34 +9692,59 @@ EXT 31119
 EXT 31121
 EXT 31123
 EXT 31128
+EXT 31129
 EXT 31131
+EXT 31133
+EXT 31135
+EXT 31137
+EXT 31139
 EXT 31140
 EXT 31142
 EXT 31143
 EXT 31144
 EXT 31146
+EXT 31147
 EXT 31148
+EXT 31149
 EXT 31150
 EXT 31152
 EXT 31153
+EXT 31154
+EXT 31155
 EXT 31156
+EXT 31157
+EXT 31158
 EXT 31159
 EXT 31160
+EXT 31161
+EXT 31162
 EXT 31163
+EXT 31165
 EXT 31166
+EXT 31167
+EXT 31168
 EXT 31169
 EXT 31171
+EXT 31172
 EXT 31173
+EXT 31174
+EXT 31175
+EXT 31176
 EXT 31177
 EXT 31178
 EXT 31180
+EXT 31181
 EXT 31182
 EXT 31183
 EXT 31184
 EXT 31185
 EXT 31190
+EXT 31192
 EXT 31194
 EXT 31195
+EXT 31196
+EXT 31198
+EXT 31199
 EXT 31200
 EXT 31201
 EXT 31202
@@ -9560,6 +9762,7 @@ EXT 31213
 EXT 31214
 EXT 31215
 EXT 31217
+EXT 31219
 EXT 31220
 EXT 31221
 EXT 31222
@@ -9576,17 +9779,29 @@ EXT 31240
 EXT 31242
 EXT 31244
 EXT 31246
+EXT 31247
 EXT 31248
+EXT 31258
 EXT 31259
+EXT 31260
+EXT 31261
 EXT 31262
+EXT 31263
+EXT 31264
 EXT 31265
 EXT 31267
 EXT 31268
+EXT 31272
+EXT 31273
+EXT 31274
+EXT 31275
 EXT 31276
 EXT 31279
 EXT 31280
 EXT 31282
 EXT 31284
+EXT 31288
+EXT 31290
 EXT 31291
 EXT 31295
 EXT 31297
@@ -9604,13 +9819,22 @@ EXT 31310
 EXT 31312
 EXT 31314
 EXT 31316
+EXT 31322
+EXT 31324
+EXT 31325
 EXT 31327
 EXT 31329
+EXT 31342
+EXT 31349
 EXT 31350
 EXT 31361
 EXT 31362
+EXT 31363
+EXT 31364
 EXT 31365
 EXT 31369
+EXT 31378
+EXT 31380
 EXT 31381
 EXT 31385
 EXT 31386
@@ -9620,14 +9844,16 @@ EXT 31389
 EXT 31392
 EXT 31394
 EXT 31396
-EXT 31399
+EXT 31397
 EXT 31400
 EXT 31401
+EXT 31402
 EXT 31403
 EXT 31406
 EXT 31407
 EXT 31408
 EXT 31409
+EXT 31413
 EXT 31416
 EXT 31419
 EXT 31425
@@ -9638,16 +9864,29 @@ EXT 31434
 EXT 31438
 EXT 31442
 EXT 31446
+EXT 31456
 EXT 31458
 EXT 31459
 EXT 31460
 EXT 31462
+EXT 31463
+EXT 31464
+EXT 31465
 EXT 31466
-EXT 31470
+EXT 31469
 EXT 31472
+EXT 31473
+EXT 31474
 EXT 31475
+EXT 31476
+EXT 31478
+EXT 31481
+EXT 31483
 EXT 31485
+EXT 31487
 EXT 31488
+EXT 31489
+EXT 31491
 EXT 31493
 EXT 31494
 EXT 31495
@@ -9661,28 +9900,80 @@ EXT 31505
 EXT 31506
 EXT 31507
 EXT 31508
+EXT 31509
+EXT 3151
 EXT 31510
+EXT 31511
 EXT 31512
+EXT 31513
 EXT 31514
+EXT 31515
 EXT 31516
+EXT 31517
 EXT 31518
+EXT 31519
 EXT 31520
+EXT 31521
+EXT 31522
 EXT 31523
+EXT 31524
+EXT 31525
+EXT 31526
 EXT 31527
+EXT 31528
+EXT 31529
+EXT 31530
+EXT 31531
 EXT 31532
+EXT 31533
+EXT 31534
+EXT 31535
+EXT 31540
+EXT 31545
+EXT 31549
+EXT 31551
+EXT 31552
+EXT 31553
+EXT 31554
+EXT 31555
+EXT 31556
+EXT 31560
+EXT 31562
+EXT 31564
+EXT 31565
+EXT 31566
 EXT 31568
+EXT 31569
+EXT 31570
+EXT 31571
 EXT 31572
+EXT 31574
+EXT 31576
 EXT 31577
+EXT 31578
 EXT 31579
+EXT 31580
 EXT 31581
+EXT 31582
 EXT 31583
+EXT 31584
 EXT 31585
+EXT 31586
 EXT 31587
+EXT 31588
 EXT 31589
+EXT 31590
 EXT 31591
+EXT 31592
+EXT 31593
 EXT 31594
+EXT 31595
 EXT 31596
+EXT 31597
 EXT 31598
+EXT 31599
+EXT 31611
+EXT 32949
 EXT 35900
 EXT 35902
 EXT 35904
@@ -9718,11 +10009,14 @@ EXT 5324
 EXT 5325
 EXT 5326
 EXT 5327
+EXT 6
 EXT 7
 EXT 9
 EXT1
 EXT3
 Ebenalp
+Ebenweiler, Fleischwanger Str.
+Ebenweiler, Kornstrasse
 Ebenweiler, Oberholz K7963
 Ebenweiler, Oberweiler
 Ebenweiler, Rathaus
@@ -10001,8 +10295,8 @@ Egringen, Kanderner Strasse
 Egringen, Rathaus
 Egringen, Schule
 Ehingen (Donau)
-Ehingen (Donau), Kirchstrasse
-Ehingen (Donau),Rathaus/Schule
+Ehingen (KN), Kirchstrasse
+Ehingen (KN), Rathaus/Schule
 Ehrendingen, Breitwies
 Ehrendingen, Höhtal
 Ehrendingen, Niedermatt
@@ -10052,6 +10346,7 @@ Eigenthal, Talboden
 Eigergletscher
 Eiken
 Eiken, Industriezone Rütti
+Eiken, Kirchgasse
 Eiken, Ost
 Eiken, Poststrasse
 Eiken, West
@@ -10097,6 +10392,7 @@ Eintürnen, Weitprechtser Str.
 Einvaux
 Eischoll (Bergstation)
 Eisenbrechtshofen, Nibelhöfe
+Eisenharz, Isnyer Strasse
 Eison, Felliny
 Eison, La Crettaz
 Eison, Proveric
@@ -10761,6 +11057,7 @@ Etziken, Mehrzweckhalle
 Etzwihl
 Etzwil, Mandacherstrasse
 Etzwilen
+Europa-Park Haupteingang
 Eurville Mairie
 Euseigne, Les Grangettes
 Euseigne, Pont de Sauterot
@@ -10780,10 +11077,6 @@ Euthal, Steinbach
 Euthal, Ängi
 Evian-les-Bains
 Evian-les-Bains (F) (lac)
-Evian-les-Bains, Lechere
-Evian-les-Bains, Saint Bruno
-Evian-les-Bains, Supermarché
-Evian-les-Bains, gare SNCF
 Evilard
 Evilard, La Lisière
 Evilard, chapelle
@@ -10891,6 +11184,7 @@ FUN 13
 FUN 130
 FUN 131
 FUN 132
+FUN 133
 FUN 134
 FUN 135
 FUN 136
@@ -11019,9 +11313,9 @@ FUN 33
 FUN 330
 FUN 331
 FUN 332
+FUN 333
 FUN 334
 FUN 336
-FUN 338
 FUN 34
 FUN 35
 FUN 36
@@ -11082,6 +11376,8 @@ FUN 91
 FUN 92
 FUN 95
 FUN 96
+FUN 97
+FUN 98
 FUN 99
 Fafleralp
 Fahl, Lawine
@@ -11290,6 +11586,7 @@ Fessy, Rezier
 Fessy, Sous L'ecole
 Feuerbach (Baden)
 Feuerthalen
+Feuerthalen, Bahnhof
 Feuerthalen, Kirchstrasse
 Feuerthalen, Lindenbuck
 Feuerthalen, Rhymarkt
@@ -11478,6 +11775,7 @@ Flawil, Unterstrasse
 Flawil, Wilerstrasse
 Flawil, Wohn- und Pflegeheim
 Flaxlanden
+Fleischwangen, Bachstrasse
 Fleischwangen, Kirche
 Flendruz
 Flerden, Baria
@@ -11616,6 +11914,7 @@ Folgensbourg, Césarhof
 Folgensbourg, Ferrette
 Folsogno-Dissimo
 Fondo del Bosco
+Fons-St-Mamert
 Font, village
 Font, école
 Fontaine-les-Grès Mairie
@@ -11807,6 +12106,7 @@ Frauenfeld, Rötelimoos
 Frauenfeld, Sandbüel
 Frauenfeld, Schaffhauserplatz
 Frauenfeld, Scheidweg
+Frauenfeld, Schloss Wellenberg
 Frauenfeld, Schlosspark
 Frauenfeld, Schönenhof
 Frauenfeld, Soldatendenkmal
@@ -11938,6 +12238,8 @@ Fribourg, Pont de St-Jean
 Fribourg, Pont-Zaehringen
 Fribourg, Porte-de-Berne
 Fribourg, Poya
+Fribourg, Poya/Guisan
+Fribourg, Richemond/gare
 Fribourg, Route-de-Tavel
 Fribourg, Rte de la Glâne
 Fribourg, Schönberg Dunant
@@ -11976,6 +12278,7 @@ Frick, Unterdorf
 Frickenhausen
 Frickenhausen-Kelterstrasse
 Fridingen (b Tuttlingen)
+Friedenweiler, Kindergarten
 Friedingen (Kr KN), Am Mühlweg
 Friedingen (Kr KN), Rathaus
 Friedingen, Buchbergstrasse
@@ -12006,6 +12309,7 @@ Friedrichshafen-Manzell
 Frienisberg, Dorf
 Frienisberg, Elemoos
 Friesenheim (Baden)
+Friesenhofen, Bhfswirtschaft
 Frieswil, Dorf
 Friltschen, Dorf
 Frinvillier, bif sur Vauffelin
@@ -12022,7 +12326,15 @@ Froideville, village
 Fromy
 Fronalpstock
 Froncles
+Fronhofen, Feldmoos
+Fronhofen, Kirche
+Fronhofen, Rathaus
+Fronhofen, Reute
+Fronreute, Geratsreute
 Fronreute, Mochenwanger Str.
+Fronreute, Obelhofen
+Fronreute, Ruprechtsbruck
+Fronreute, Staig
 Frontenex
 Fronville Mairie
 Frouard
@@ -12184,6 +12496,8 @@ GB 1902
 GB 2
 GB 2001
 GB 2002
+GB 2003
+GB 2004
 GB 201
 GB 202
 GB 2026
@@ -12726,6 +13040,7 @@ Geroldswil, Zentrum
 Gerolfingen
 Gerolfingen, Bahnhof
 Gerra (Gambarogno)
+Gerra (Gambarogno) (lago)
 Gerra (Gambarogno), Bagno
 Gerra (Gambarogno), Cimitero
 Gerra (Gambarogno), Paese
@@ -12824,6 +13139,7 @@ Gimel, Sapin Siméon
 Gimel, bas du village
 Gimel, place de L'Union
 Gimmelwald (Schilthornbahn)
+Gimmelwald, Schilthornbahn
 Ginevra
 Gingins, ouest
 Gingins, poste
@@ -13121,6 +13437,7 @@ Gonzen Palfris, Scheidweg
 Goppenstein
 Goppenstein, Bahnhof
 Goppertsweiler
+Goppisberg, Dorf
 Gordemo
 Gordevio
 Gordola
@@ -13678,6 +13995,7 @@ Grono, Bivio Calanca
 Grono, Clinica San Rocco
 Grono, Nord
 Grono, Paese
+Groppach, L289
 Gros-Réderching
 Gross Guschelmuth
 Gross, Ebenau
@@ -13741,6 +14059,7 @@ Grunholz, Waidweg
 Gruppaldo, Bivio
 Gruppaldo, cappella
 Gruyères
+Gruyères, Bike Revolution
 Gruyères, gare
 Gruyères, ville
 Gryon
@@ -14096,7 +14415,9 @@ Güttingen, Bahnhof
 Güttingen, Schulhaus
 Güttingen, Zentrum
 H
+H1
 H1-2
+H2
 H3
 H4
 H5
@@ -14104,7 +14425,9 @@ HMI1
 HMI2
 Haag (Rheintal), Dorf
 Haag (Rheintal), Haag-Center
+Haag (Rheintal), Industriestr.
 Haag (Rheintal), Rheinstrasse
+Haag (Rheintal), Rütistrasse
 Haag (Rheintal), Thalisstrasse
 Haagen (Baden), Ritterstrasse
 Haagen (Baden), Röttelnweiler
@@ -14181,6 +14504,7 @@ Haltingen, Rennemattenweg
 Haltingen, Weinbergstrasse
 Haltingen, West
 Haltingen, Zentrum
+Hamburg-Altona
 Hammerstein, Abzw. Bahnhof
 Hammetschwand Bergstation
 Hammetschwand Talstation
@@ -14264,6 +14588,8 @@ Hatrize
 Hatrize Centre
 Hattenhausen, Dorf
 Hattenhausen, Golfpanorama
+Haubersbronn (D)
+Haubersbronn-Mitte
 Hauenstein, Löwen
 Hauenstein-Basistunnel
 Hauingen, Ost
@@ -15172,7 +15498,7 @@ Huttwil, Uech
 Huttwil, Weieracker
 Huémoz, Bellevue
 Huémoz, Les Combes
-Huémoz, poste
+Huémoz, village
 Hymont Mairie
 Häfelfingen, Bad Ramsach
 Häfelfingen, Dorf
@@ -15532,7 +15858,12 @@ IC 284
 IC 285
 IC 3
 IC 30106
+IC 30210
+IC 30218
+IC 30270
+IC 30313
 IC 30402
+IC 30413
 IC 30455
 IC 30459
 IC 30470
@@ -15541,6 +15872,7 @@ IC 30492
 IC 30502
 IC 30506
 IC 30545
+IC 30559
 IC 30800
 IC 30802
 IC 30900
@@ -15552,7 +15884,10 @@ IC 30907
 IC 30908
 IC 30909
 IC 31021
+IC 31190
 IC 31202
+IC 31210
+IC 31215
 IC 31260
 IC 31308
 IC 31310
@@ -15562,6 +15897,8 @@ IC 31406
 IC 31429
 IC 31431
 IC 31455
+IC 31459
+IC 31470
 IC 31482
 IC 31490
 IC 31588
@@ -15586,6 +15923,8 @@ IC 488
 IC 489
 IC 5
 IC 51
+IC 5248
+IC 5249
 IC 6
 IC 61
 IC 639
@@ -15654,9 +15993,11 @@ ICE 279
 ICE 2878
 ICE 292
 ICE 3
+ICE 31075
 ICE 31078
 ICE 31271
 ICE 31275
+ICE 31375
 ICE 370
 ICE 371
 ICE 372
@@ -15719,15 +16060,23 @@ IR 27
 IR 30000
 IR 30002
 IR 30004
+IR 30005
 IR 30006
 IR 30008
 IR 30035
 IR 30043
+IR 30056
+IR 30058
+IR 30071
+IR 30073
+IR 30075
+IR 30090
 IR 3013
 IR 30143
 IR 3015
 IR 3016
 IR 3017
+IR 30204
 IR 3022
 IR 3024
 IR 3025
@@ -15736,6 +16085,7 @@ IR 3029
 IR 3030
 IR 3032
 IR 30349
+IR 30382
 IR 30441
 IR 30443
 IR 30743
@@ -15743,8 +16093,10 @@ IR 30840
 IR 30841
 IR 30943
 IR 31113
+IR 31155
 IR 31344
 IR 31349
+IR 31424
 IR 31443
 IR 31502
 IR 31524
@@ -15756,6 +16108,7 @@ IR 36
 IR 37
 IR 38
 IR 46
+IR 5249
 IR 57
 IR 65
 IR 66
@@ -16045,6 +16398,7 @@ Isny, Abzw. Kleinholzleute
 Isny, Achen
 Isny, Achener Weg
 Isny, Argen
+Isny, Beuren Abzw. Seeweg
 Isny, Beuren Ort
 Isny, Buchenstock
 Isny, Burkwang
@@ -16059,6 +16413,7 @@ Isny, Gwatweg
 Isny, Karl-Wilhelm-Heckstrasse
 Isny, Kurhaus/Busbahnhof
 Isny, Neutrauchburger Strasse
+Isny, Oberspiesswengen
 Isny, Rainsporthalle
 Isny, Ratzenhofen
 Isny, Rohrdorf Grundschule
@@ -17150,7 +17505,6 @@ Köniz, Stapfenrain
 Köniz, Weiermatt
 Köniz, Zentrum
 Küblis
-Küblis Ariesch (Abzw)
 Küblis, Abzw. innerer Stutz
 Küblis, Bahnhof
 Küblis, Dalvazza
@@ -17298,10 +17652,6 @@ La Brévine, poste
 La Caffe, bif.
 La Caffe, hameau
 La Chambre
-La Chapelle-d'Abond, Off Touri
-La Chapelle-d'Abondance,Eglise
-La Chapelle-d'Abondance,Panth.
-La Chapelle-d'Abondance,V.Nant
 La Chapelle-sous-Dun
 La Charité-sur-Loire
 La Chaudanne-Les Moulins
@@ -17339,6 +17689,7 @@ La Chaux-de-F, Tricentenaire
 La Chaux-de-F, Villa Turque
 La Chaux-de-F,Prés-de-la-Ronde
 La Chaux-de-F,Stavay-Mollondin
+La Chaux-de-F,gare/Av.L-Robert
 La Chaux-de-Fonds
 La Chaux-de-Fonds Les Forges
 La Chaux-de-Fonds, 1er août
@@ -17470,6 +17821,7 @@ La Côte-aux-Fées, garage
 La Côte-aux-Fées, poste
 La Côte-aux-Fées,Les Bourquins
 La Douay
+La Douay, village
 La Faverge
 La Ferrière
 La Ferrière, bif. Chaux-d'Abel
@@ -17503,6 +17855,7 @@ La Joux FR, village
 La Joy-Clinique
 La Joy-Clinique, gare
 La Large-Journée
+La Levade
 La Luette
 La Lécherette, village
 La Lécherette,cont.de la Borne
@@ -17561,6 +17914,7 @@ La Roche FR, Villaret
 La Roche FR, village
 La Roche FR, école
 La Roche-sur-Foron
+La Rochelle-Ville
 La Rogivue
 La Rougève, village
 La Roulaz
@@ -17867,6 +18221,7 @@ Langensee (Kr LÖ),ehem. Schule
 Langenthal
 Langenthal Gaswerk
 Langenthal Industrie Nord
+Langenthal Industrie Nord Ausw
 Langenthal Süd
 Langenthal Süd, Bahnhof
 Langenthal, Bahnhof
@@ -17981,8 +18336,6 @@ Larescia
 Largentière Les Vergnades
 Laroche-Migennes
 Laroquebrou
-Larringes, Verossier Bas
-Larringes, chef-lieu
 Laschadura
 Latsch
 Lattigen bei Spiez
@@ -18034,6 +18387,7 @@ Laufenburg
 Laufenburg (Baden)
 Laufenburg (Baden) Ost
 Laufenburg (D), Berg
+Laufenburg (D), Einkaufszentr.
 Laufenburg (D), Fa. Starck
 Laufenburg (D), Grunholzer Str
 Laufenburg (D), Hauenstein
@@ -18500,6 +18854,7 @@ Le Locle, gare/centre ville
 Le Locle, rue du Midi
 Le Locle, école des Girardet
 Le Locle-Col-des-Roches
+Le Locle-Col-des-Roches, gare
 Le Mans
 Le Manège
 Le Marais
@@ -18507,7 +18862,6 @@ Le Marchairuz, col
 Le Moléson
 Le Monastier
 Le Mont-sur-L., Budron
-Le Mont-sur-L., Chalet Enfants
 Le Mont-sur-L., Coppoz
 Le Mont-sur-L., Coppoz-Poste
 Le Mont-sur-L., Côtes
@@ -18517,7 +18871,6 @@ Le Mont-sur-L., Grand-Mont
 Le Mont-sur-L., Maillefer
 Le Mont-sur-L., Martines
 Le Mont-sur-L., Petit-Mont
-Le Mont-sur-L., Planches
 Le Mont-sur-L., Rionzi
 Le Mont-sur-L., Rionzi/collège
 Le Mouret, Le Pafuet
@@ -18967,6 +19320,7 @@ Les Marécottes (télécabine)
 Les Marécottes, Le Bossenet
 Les Marécottes, Les Bettex
 Les Marécottes, Les Perrons
+Les Marécottes, Zoo
 Les Marécottes, gare
 Les Marécottes, télécabine
 Les Masses, Chémô
@@ -19129,6 +19483,8 @@ Leukerbad, Obere Maressen
 Leukerbad, Schulen
 Leukerbad, Torrent-Bahnen
 Leustetten a.d. Höhe
+Leutkirch (Allgäu), Quickenhof
+Leutkirch (Allgäu), Schornig.
 Leutkirch, Adalb.-Stifter-Str.
 Leutkirch, Albrecht L308
 Leutkirch, Albrecht-Dürer-Str.
@@ -19176,6 +19532,7 @@ Leutkirch, Steinbeisstrasse
 Leutkirch, Stephanuswerk
 Leutkirch, Sudetenstrasse
 Leutkirch, Säntisstrasse
+Leutkirch, Urlau Süd
 Leutkirch, Waldfriedhof
 Leutkirch, Weiherweg
 Leutkirch, Weissenbauren
@@ -19771,14 +20128,6 @@ Lugnez, Terrain de football
 Lugnez, Union
 Lugnorre, place du Pommeré
 Lugnorre, école
-Lugrin, Ancienne Gare
-Lugrin, Centre Commercial
-Lugrin, Chef Lieu
-Lugrin, Chez Cachat
-Lugrin, Pont Rouge
-Lugrin, Port Martin
-Lugrin, Tourronde
-Lugrin, Vieille Eglise
 Luino
 Luino (I)
 Luino, Centro Sportivo (I)
@@ -20464,6 +20813,8 @@ Mannenbach (See)
 Mannenbach-Salenstein
 Mannenbach-Salenstein, Bahnhof
 Mannens, école
+Mannheim
+Mannheim Hbf
 Manno, Boschetti
 Manno, Centro di Calcolo
 Manno, La Monda
@@ -20530,19 +20881,9 @@ Marigny-Saint-Marcel,Chef-Lieu
 Marigny-St-Marcel, St-M. Haut
 Marigny-St-Marcel,L Grd Norbet
 Marimont-lès-Bénestroff
-Marin, Chapelles
 Marin, Couviers
-Marin, Frezier
-Marin, Hotel F1
 Marin, Indiennes
-Marin, Larry
 Marin, Les Microtechniques
-Marin, Marinel
-Marin, Murats
-Marin, Pouget
-Marin, Rimandon
-Marin, Rouchaux
-Marin, Sussinges
 Marin, Village
 Marin-Epagnier
 Marin-Epagnier, Henripolis
@@ -20638,6 +20979,7 @@ Marogno
 Marolta, Paese
 Marsac (Creuse)
 Marseille
+Marseille-Blancarde
 Marseille-Saint-Charles
 Marsens, village
 Marstetten, Löwen
@@ -20837,12 +21179,6 @@ Mauren FL, Wegacker
 Mauren TG, Dorfstrasse
 Maurs
 Mauvoisin
-Maxilly-sur-Léman, Moury
-Maxilly/Léman, Ecole Maxilly
-Maxilly/Léman, Maxilly Village
-Maxilly/Léman, Miroir
-Maxilly/Léman, Neuvecelle M P
-Maxilly/Léman, Petite Rive
 Mayen-sur-Vionnaz
 Mayens de Bruson
 Mayens-de-Chamoson, Berze
@@ -20992,8 +21328,6 @@ Meilen, Vorderer Pfannenstiel
 Meilen, Weid
 Meilen, Zentrum Feldmeilen
 Meilen, Zur Au
-Meillerie, Chef Lieu
-Meillerie, Locum
 Meinier, Carre-d'Amont
 Meinier, Compois
 Meinier, Corsinge village
@@ -21341,6 +21675,7 @@ Mezzovico, Bivio per Vira
 Mezzovico, Fontana
 Mezzovico, S. Mamete
 Mezzovico, Stazione
+Michelau(Württ)
 Michelbach-le-Bas, Acacias
 Michelbach-le-Bas, Aulnes
 Michelbach-le-Bas, Centre
@@ -21348,6 +21683,7 @@ Michelbach-le-Haut, Centre
 Michelbach-le-Haut, Steinack.
 Michelwinnaden, Ortsmitte
 Middes, bif.
+Miedelsbach-Steinenberg
 Mies
 Mies, gare
 Mies, village
@@ -21362,8 +21698,6 @@ Miglieglia (Funivia)
 Miglieglia, Cassinelle
 Miglieglia, Paese
 Miglieglia, Tortoglio
-Milan (I)
-Milano
 Milano Centrale
 Milano Greco Pirelli
 Milano Lambrate
@@ -21495,10 +21829,13 @@ Mollie-Margot, centre
 Mollis, Baumgartenstrasse
 Mollis, Beglingen
 Mollis, Chapellenstutz
+Mollis, ESAF 2025
 Mollis, Haltli
 Mollis, Kanalstrasse
 Mollis, Kirchplatz
 Mollis, Oberrütelistrasse
+Mollis, P3 Mitte
+Mollis, P3 Süd
 Mollis, Post
 Mollis, Vorderdorf
 Mollis, Winden
@@ -21992,7 +22329,6 @@ Mund, Brunnen
 Mund, Dorf
 Mund, Kummegga
 Mund, untere Wartfluh
-Mundaditsch (Abzw)
 Munderkingen
 Mundolsheim
 Munster
@@ -22191,6 +22527,7 @@ Métabief
 Mézery-près-Donneloye, village
 Mézières FR, Parqueterie
 Mézières FR, village
+Mézières FR, église
 Mézières VD, Praz Joret
 Mézières VD, centre médical
 Mézières VD, collège Raffort
@@ -22480,6 +22817,7 @@ Müntschemier, Dorf
 Mürren (Allmendhubelbahn)
 Mürren (Schilthornbahn)
 Mürren BLM
+Mürren, Schilthornbahn
 Müstair, Clostra Son Jon
 Müstair, Somvih
 Müstair, cunfin
@@ -22582,6 +22920,10 @@ NJ 1465
 NJ 1484
 NJ 1485
 NJ 17766
+NJ 30270
+NJ 30402
+NJ 31402
+NJ 31470
 NJ 402
 NJ 403
 NJ 434
@@ -22596,6 +22938,7 @@ NJ 470
 NJ 471
 NT
 Naas (See)
+Nack Fährensteg
 Nagens Sura
 Najac
 Nancy
@@ -22952,15 +23295,6 @@ Neutrauchburg, Abz. Dengeltsh.
 Neutrauchburg, Haldenhof
 Neutrauchburg, Klinik Alpenbl.
 Neutrauchburg, Sonne
-Neuvecelle, Chez Granjux
-Neuvecelle, Maraiche Carrefour
-Neuvecelle, Milly
-Neuvecelle, Moulin A Poivre
-Neuvecelle, Odalys
-Neuvecelle, Pre De L' Abbaye
-Neuvecelle, Rond Point De Neu.
-Neuvecelle, Verlagny
-Neuvecelle, Église
 Neuves-Maisons
 Neuvy-Sautour  Route Nationale
 Neuwilen, Dorf
@@ -23169,6 +23503,7 @@ Niederösch, Unterdorf
 Nierlet-les-Bois, Prali Simon
 Nierlet-les-Bois, centre
 Niesen Kulm
+Niort
 Niouc, Les Saints Innocents
 Niouc, village
 Niva (Vallemaggia)
@@ -23244,6 +23579,7 @@ Noville, Les Saviez
 Noville, Pré des Fourches
 Novéant-sur-Moselle
 Noyers-Pont-Maugis
+Nozières-Brignon
 Noës, Champsabé
 Noës, Ecole
 Noës, Ecossia
@@ -23335,6 +23671,7 @@ Näfels, Lintharena
 Näfels, Oberdorf
 Näfels, Post
 Näfels, Schönegg
+Näfels, Shuttle-Terminal
 Näfels-Mollis
 Näfels-Mollis, Bahnhof
 Nänikon
@@ -23450,6 +23787,7 @@ Obereggenen, WG
 Oberei bei Wasen i.E.
 Obereisenbach
 Obereisenbach, L326
+Oberelchingen
 Oberembrach, Dorf
 Oberems
 Oberems, Seilbahn
@@ -24314,7 +24652,6 @@ P940
 P941
 P942
 P943
-PARL
 PB 1
 PB 10
 PB 1000
@@ -24462,14 +24799,10 @@ PB 16
 PB 160
 PB 1601
 PB 1602
-PB 161
-PB 162
 PB 17
 PB 170
 PB 1701
 PB 1702
-PB 171
-PB 172
 PB 175
 PB 18
 PB 19
@@ -25410,6 +25743,7 @@ Porto Ceresio (lago)
 Porto Ceresio, Piazza Bossi
 Porto Ceresio, Stazione
 Porto Ceresio,Piazzale Appiani
+Porto Ronco (lago)
 Porto Ronco, Acapulco
 Porto Ronco, Crodolo Verbano
 Porto Ronco, Murisc
@@ -25652,29 +25986,6 @@ Prêles, Louvain
 Prêles, collège
 Prêles, gare
 Prêles, lavage
-Publier, Amphion Stade
-Publier, Avonnex
-Publier, Avulligoz
-Publier, Belvédère
-Publier, Cedres
-Publier, Chataigniers
-Publier, Cite De L'Eau
-Publier, Cora
-Publier, Genevrilles
-Publier, Gros Bissinges
-Publier, Gymnase - CCPEVA
-Publier, Morand
-Publier, Mottay
-Publier, Petit Bissinges
-Publier, Pont De Dranse
-Publier, Senaillet
-Publier, Usine Eaux Evian
-Publier, Vieil Amphion
-Publier, Za Amphion
-Publier, Zac des Vignes Rouges
-Publier, École Simone Veil
-Publier, Église
-Publier. La Rive
 Puidoux
 Puidoux, Cité-de-Sully
 Puidoux, Drugex
@@ -25779,10 +26090,10 @@ R 12
 R 13
 R 15
 R 16
-R 18
 R 19
 R 2
 R 20
+R 201
 R 203
 R 205
 R 206
@@ -25819,7 +26130,6 @@ R 23293
 R 23294
 R 234
 R 236
-R 238
 R 24
 R 25
 R 28
@@ -25900,6 +26210,13 @@ R 9
 R 91
 R1
 R30
+R60
+RB 13404
+RB 13405
+RB 13406
+RB 13407
+RB 13408
+RB 13409
 RB 27
 RB 3
 RB 30
@@ -25912,6 +26229,7 @@ RB 6
 RB 88259
 RB46
 RB47
+RB61
 RB65
 RE 1
 RE 10591
@@ -25920,6 +26238,7 @@ RE 10595
 RE 11
 RE 12
 RE 13
+RE 1660
 RE 18494
 RE 18495
 RE 2
@@ -26085,6 +26404,7 @@ RE 31563
 RE 31568
 RE 31586
 RE 31861
+RE 31992
 RE 33
 RE 35
 RE 3554
@@ -26125,6 +26445,7 @@ RE 4509
 RE 4511
 RE 4532
 RE 4544
+RE 4645
 RE 48
 RE 5
 RE 50
@@ -26291,6 +26612,7 @@ Rafz, Usserdorf
 Ragol
 Raich
 Raich, Oberdorf
+RailCoaster
 Rain, Dorf
 Rain, Rüti
 Rain, Sandblatten
@@ -26363,6 +26685,7 @@ Rapperswil BE, Schönbrunnen
 Rapperswil BE, Ziegelei
 Rapperswil SG
 Rapperswil SG (See)
+Rapperswil SG Hochschule (See)
 Rapperswil SG, Attenhoferstr.
 Rapperswil SG, Bahnhof
 Rapperswil SG, Bahnhof Süd
@@ -26421,6 +26744,7 @@ Ravensburg, Hüttenberg
 Ravensburg, Karlstrasse
 Ravensburg, Klinikum
 Ravensburg, Knollengraben
+Ravensburg, Lumper Höhe
 Ravensburg, Oberhofen
 Ravensburg, Olgastrasse
 Ravensburg, Polizeipräsidium
@@ -26428,6 +26752,7 @@ Ravensburg, Schornreute
 Ravensburg, Schussenstrasse
 Ravensburg, Sickenried
 Ravensburg, Torkenweiler
+Ravensburg, Ulmer Strasse
 Ravensburg, Weinberg
 Ravensburg, Weingartshof
 Ravensburg, Weissenauer Str.
@@ -26572,6 +26897,7 @@ Reims Saint-Symphorien
 Reinach AG
 Reinach AG Mitte
 Reinach AG Nord
+Reinach AG Nord, Bahnhof
 Reinach AG, Alte Strasse
 Reinach AG, Bahnhof
 Reinach AG, Beinwiler Höhe
@@ -26662,6 +26988,7 @@ Rennes
 Reppaz
 Repperweiler
 Reppischhof
+Reppischhof, Bahnhof
 Ressudens
 Resti
 Rethel
@@ -26779,8 +27106,12 @@ Rheinfelden, Weiherfeld
 Rheinhausen, Altes Rathaus
 Rheinhausen, Badenwerk
 Rheinhausen, Bürgerzentrum Süd
+Rheinhausen, Hauptstrasse
+Rheinhausen, Hauptstrasse 7
+Rheinhausen, Herbolzheimerstr.
 Rheinhausen, Rheinmatthalle
 Rheinhausen, Schiff
+Rheinhausen, Schule
 Rheinhausen, Schweizer Hof
 Rheinhausen,Bürgerzentrum Nord
 Rheinheim, Friedhof
@@ -27586,9 +27917,12 @@ Rubigen, Thunstrasse Süd
 Rubigen, Wydenhof
 Ruchenschwand
 Ruderbach
+Rudersberg
 Rudolfingen, Dorf
 Rudolfstetten
 Rudolfstetten Hofacker
+Rudolfstetten, Bahnhof
+Rudolfstetten, Hofacker Bhf
 Rudswil
 Rue, Chez Cottet
 Rue, L'Abergement
@@ -27676,6 +28010,7 @@ Russikon, Tüfi
 Russikon, Wilhof
 Russin
 Russin, La Chaumaz
+Russin, Le Châtelet
 Russin, Les Baillets
 Russin, Noirettes
 Russin, village
@@ -27683,6 +28018,7 @@ Russo
 Russo, Ai Mundaa
 Russy, village
 Rust, Am Mantelacker
+Rust, Europa-Park
 Rust, Europa-Park Hotel Resort
 Rust, Europa-Park Verwaltung
 Rust, Fischerstrasse
@@ -27823,7 +28159,6 @@ Rümmingen, Schallbacher Str.
 Rümmingen, Schule
 Rünenberg, Frohe Aussicht
 Rünenberg, Mitteldorf
-Rünenberg, Post
 Rünenberg, Unterdorf
 Rüschegg Gambach, Bärenwart
 Rüschegg Gambach, Dorf
@@ -27905,6 +28240,55 @@ S 10
 S 11
 S 12
 S 13
+S 13420
+S 13421
+S 13422
+S 13423
+S 13424
+S 13425
+S 13426
+S 13427
+S 13428
+S 13429
+S 13430
+S 13431
+S 13432
+S 13433
+S 13434
+S 13435
+S 13436
+S 13437
+S 13438
+S 13439
+S 13440
+S 13441
+S 13442
+S 13443
+S 13444
+S 13445
+S 13446
+S 13447
+S 13448
+S 13449
+S 13450
+S 13451
+S 13452
+S 13453
+S 13454
+S 13455
+S 13456
+S 13457
+S 13458
+S 13459
+S 13460
+S 13461
+S 13462
+S 13463
+S 13464
+S 13465
+S 13466
+S 13467
+S 13468
 S 14
 S 14580
 S 14594
@@ -28037,6 +28421,16 @@ S 20291
 S 20292
 S 20293
 S 20294
+S 20700
+S 20701
+S 20702
+S 20703
+S 20704
+S 20705
+S 20706
+S 20707
+S 20708
+S 20709
 S 20820
 S 20821
 S 20822
@@ -28321,7 +28715,42 @@ S 30382
 S 30389
 S 30393
 S 30588
-S 30592
+S 30615
+S 30618
+S 30619
+S 30622
+S 30623
+S 30626
+S 30627
+S 30630
+S 30631
+S 30634
+S 30635
+S 30638
+S 30639
+S 30642
+S 30643
+S 30646
+S 30647
+S 30650
+S 30651
+S 30654
+S 30655
+S 30658
+S 30659
+S 30662
+S 30663
+S 30666
+S 30667
+S 30670
+S 30671
+S 30674
+S 30675
+S 30678
+S 30679
+S 30682
+S 30683
+S 30686
 S 30695
 S 30696
 S 30745
@@ -28410,6 +28839,7 @@ S 87791
 S 87792
 S 87793
 S 87794
+S 87873
 S 9
 S 90
 S 99
@@ -28479,6 +28909,7 @@ S. Vittore, Sgravina
 S. Vittore, Zona industriale
 S.Pietro, Bivio per S.Pietro
 S10
+S18
 S2
 S24
 S3
@@ -31545,6 +31976,12 @@ SL 991
 SL 992
 SN 1
 SN 11
+SN 13404
+SN 13405
+SN 13406
+SN 13407
+SN 13408
+SN 13409
 SN 13830
 SN 13831
 SN 13832
@@ -31566,10 +32003,12 @@ SN 13847
 SN 13848
 SN 13849
 SN 14
+SN 17
 SN 21
 SN 22
 SN 3
 SN 30
+SN 30787
 SN 30790
 SN 30791
 SN 30792
@@ -31587,6 +32026,12 @@ SN 30845
 SN 30846
 SN 30847
 SN 30849
+SN 31000
+SN 31002
+SN 31004
+SN 31006
+SN 31008
+SN 31010
 SN 31033
 SN 31035
 SN 31042
@@ -31599,6 +32044,7 @@ SN 31049
 SN 31240
 SN 31403
 SN 31432
+SN 31542
 SN 4
 SN 41
 SN 5
@@ -31608,6 +32054,7 @@ SN 7
 SN 71
 SN 72
 SN 8
+SN 86134
 SN 9
 SO
 ST PRIVAT Le Gabelu
@@ -31656,7 +32103,6 @@ Saas-Almagell, Zermeiggern
 Saas-Balen, Dorf
 Saas-Balen, Edelweiss
 Saas-Balen, zur kl. Kapelle
-Saas-Fee
 Saas-Fee (Alpin Express)
 Saas-Fee (Hannig)
 Saas-Fee Bifig (Felskinn)
@@ -31718,6 +32164,7 @@ Safnern, Moosweg
 Sagliains
 Sagno, Paese
 Sagno, alla Madonnina
+Sagogn, Bargaus
 Sagogn, Carnetg
 Sagogn, Fanaus
 Sagogn, Storta pintga
@@ -31812,8 +32259,6 @@ Saint-Gervais Chateauneuf LPA
 Saint-Gervais-les-Bains
 Saint-Gilles Lycée Haut-Rhin
 Saint-Gingolph
-Saint-Gingolph, Plage
-Saint-Gingolph, Rue Nationale
 Saint-Hilaire-St-Nazaire
 Saint-Hippolyte Parc Walter
 Saint-Imier
@@ -31880,6 +32325,7 @@ Saint-Pierre-de-Chandieu Ronin
 Saint-Pierre-le-Moûtier
 Saint-Pouange Lycée Agricole
 Saint-Priest
+Saint-Péray
 Saint-Quentin-Fallavier
 Saint-Rambert-d'Albon
 Saint-Romain-de-Popey
@@ -32105,6 +32551,7 @@ Sarnen, Kreuzstrasse
 Sarnen, Ried
 Sarnen, Seefeld Park/Spital
 Sarnen, Sonnenberg
+Sarralbe
 Sarralbe Hôtel de Ville
 Sarraltroff Gare
 Sarraltroff Mairie
@@ -32155,6 +32602,7 @@ Satigny, Champvigny
 Satigny, Chemin du Paradis
 Satigny, Choully
 Satigny, Choully Nord
+Satigny, Crédery
 Satigny, La Boverie
 Satigny, Les Maladières
 Satigny, Maison-Rouge
@@ -32173,6 +32621,7 @@ Satigny, gare
 Satigny, mairie
 Satigny, poste
 Satigny, temple
+Satigny, village
 Sattel
 Sattel (Talstat. Hochstuckli)
 Sattel Mostelberg (Bergstat.)
@@ -32582,7 +33031,6 @@ Scheyenholz
 Schienen, Schienerbergstrasse
 Schienen, Schrotzburg Abzw.
 Schiers
-Schiers Schlangenboden (Abzw)
 Schiers, Bahnhof
 Schiers, Bazolis
 Schiers, Büel
@@ -32651,6 +33099,7 @@ Schlatt ZH, Unterschlatt
 Schlatt ZH, Waltenstein
 Schlattingen
 Schlattingen, Hauptstrasse
+Schlechtbach (D)
 Schlechtnau
 Schlegwegbad
 Schleinikon, Dachsleren
@@ -32818,6 +33267,8 @@ Schopfheim, Wehratalsäge
 Schopfheim, Wehrer Strasse
 Schopfheim-Schlattholz
 Schopperten
+Schorndorf
+Schorndorf-Hammerschlag
 Schottikon
 Schreckfeld (Firstbahn)
 Schuders, Abzw. Valmära
@@ -33021,6 +33472,7 @@ Schwörstadt, Oberdorf
 Schwörstadt, Unterdorf
 Schynige Platte
 Schänis
+Schänis SG, Ersatzhst Bahnhof
 Schänis, Mühlegasse
 Schänis, Oberbirg
 Schänis, Rathausplatz
@@ -33824,6 +34276,7 @@ Sissach, Allmend
 Sissach, Bahnhof
 Sissach, Bergweg
 Sissach, Brüel
+Sissach, Bützenen
 Sissach, Grienmatt
 Sissach, Güterstrasse
 Sissach, Hinteregg
@@ -34094,13 +34547,7 @@ Spreitenbach, West
 Spruga
 Spätenhof, Bad Waldsee
 St Georgen(Schwarzw)
-St Gingolph, Bret
 St Leger Vignes
-St Paul En Chablais, Ch.Bochet
-St Paul En Chablais, La Beunaz
-St Paul En Chablais, La Foully
-St Paul En Chablais, Poese
-St Paul En Chablais, Praubert
 St-Aignan-Noyers
 St-Amand-Montrond
 St-Amarin Hôtel Cheval Blanc
@@ -34153,6 +34600,7 @@ St-Eloi
 St-Etienne-Châtcrx. G Routière
 St-Florentin ville
 St-Genis, Malivert
+St-Geniès-de-Malgoirès
 St-George, Côte-Malherbe
 St-George, Maison Neuve
 St-George, village
@@ -34283,9 +34731,6 @@ St-Maurice, Les Perris
 St-Maurice-Beynost D1084 Cte
 St-Oyen
 St-Oyens, église
-St-Paul-en-Chablais, La Beunaz
-St-Paul-en-Chablais, Lyonnet
-St-Paul-en-Chablais, P+R Églis
 St-Pierre-de-Chandieu Charmy
 St-Pierre-de-Chandieu, Cassier
 St-Pierre-de-Chandieu, Dauphin
@@ -34859,6 +35304,7 @@ Ste-Croix, poste
 Ste-Croix, rue des Rasses
 Ste-Croix,centre de soins-hôp.
 Ste-Croix-aux-Mines Stimbach
+Ste-Cécile-d'Andorge
 Ste-Marie-aux-M S. Techniques
 Ste-Marie-aux-Mines Mairie
 Ste-Marie-aux-Mines Musées
@@ -35234,9 +35680,9 @@ Suen, Les Grands Praz
 Suen, Sud
 Suen, centre
 Sufers, Dorf
+Sufers, Festung Crestawald
 Sufers, Lai da Vons
 Sufers, Underem Dorf
-Sufers,Crestaw. Festungsmuseum
 Sugiez
 Sugiez (bateau)
 Sugiez, Nant
@@ -35641,7 +36087,6 @@ TGV 30226
 TGV 30234
 TGV 30313
 TGV 30315
-TGV 30411
 TGV 30510
 TGV 30515
 TGV 30518
@@ -35650,6 +36095,7 @@ TGV 30522
 TGV 30523
 TGV 30526
 TGV 30534
+TGV 31206
 TGV 9203
 TGV 9206
 TGV 9210
@@ -35694,14 +36140,11 @@ TGV Haute-Picardie
 TX 103
 TX 104
 TX 105
-TX 32
-TX 34
 TX 449
 TX 6
 TX 626
 TX 670
 TX 696
-TX 697
 TX 7
 TX 7308
 TX 7314
@@ -35710,7 +36153,6 @@ TX 7320
 TX 7321
 TX 7322
 TX 7323
-TX 7324
 TX 7326
 TX 7327
 TX 7328
@@ -35722,14 +36164,17 @@ TX 7338
 TX 7340
 TX 7341
 TX 7342
+TX 7343
 TX 7344
 TX 7345
+TX 7347
 TX 7348
 TX 8
 Taconnaz
 Tafers, Abzw. Rohr
 Tafers, Am Kreuz
 Tafers, Dorf
+Tafers, Festplatz
 Tafers, Muttacker
 Tafers, Oberdorf
 Tafers, Spital
@@ -36110,12 +36555,6 @@ Thoiry, Place en Poulet
 Thoiry, Pôle Emploi
 Thoiry, gare
 Thoiry, mairie
-Thollon-les-Mémises, Chez Cach
-Thollon-les-Mémises, Chez L Ai
-Thollon-les-Mémises, Lajoux
-Thollon-les-Mémises, Le Nouy
-Thollon-les-Mémises, Station
-Thollon-les-Mémises, Église
 Thonon-l-Bains, Cimetière d.T.
 Thonon-l-Bains, Grangette égl
 Thonon-l-Bains, Grsc Grangette
@@ -36123,11 +36562,9 @@ Thonon-l-Bains,Croisée d'Anthy
 Thonon-les-Bain, J.J. Rousseau
 Thonon-les-Bains
 Thonon-les-Bains (F) (lac)
-Thonon-les-Bains, Amandiers
 Thonon-les-Bains, Ancien Depot
 Thonon-les-Bains, Bachex
 Thonon-les-Bains, Bel Air
-Thonon-les-Bains, Bonne Rencon
 Thonon-les-Bains, Bus Thuyset
 Thonon-les-Bains, C. Champagne
 Thonon-les-Bains, Cais.Epargne
@@ -36141,7 +36578,6 @@ Thonon-les-Bains, Cine Leman
 Thonon-les-Bains, Clos Riant
 Thonon-les-Bains, College Cham
 Thonon-les-Bains, Collonges
-Thonon-les-Bains, Concise
 Thonon-les-Bains, Corniche
 Thonon-les-Bains, Corzent
 Thonon-les-Bains, Crete
@@ -36161,12 +36597,9 @@ Thonon-les-Bains, Funicul. H.
 Thonon-les-Bains, Gander Trava
 Thonon-les-Bains, Genevray
 Thonon-les-Bains, Genevriers
-Thonon-les-Bains, Guillettes
 Thonon-les-Bains, Hopital
 Thonon-les-Bains, Hotel De Vil
 Thonon-les-Bains, Jean Moulin
-Thonon-les-Bains, Jeanne D'Arc
-Thonon-les-Bains, Jules Ferry
 Thonon-les-Bains, La Citadelle
 Thonon-les-Bains, La Doie
 Thonon-les-Bains, Les Harpes
@@ -36197,7 +36630,6 @@ Thonon-les-Bains, Shop. Leman
 Thonon-les-Bains, St Disdille
 Thonon-les-Bains, St Joseph
 Thonon-les-Bains, Thales
-Thonon-les-Bains, Thonon Bo Re
 Thonon-les-Bains, Thuyset
 Thonon-les-Bains, Tolettes
 Thonon-les-Bains, Tully
@@ -36213,7 +36645,6 @@ Thonon-les-Bains,Champ Bochard
 Thonon-les-Bains,Corzent Plage
 Thonon-les-Bains,Eglise Valles
 Thonon-les-Bains,Med. Chablais
-Thonon-les-Bains,Pl. du Marché
 Thonon-les-Bains,Vieux Campeur
 Thoracker, Schürmatt
 Thoune
@@ -36421,6 +36852,7 @@ Todtmoos, Hintertodtmoos
 Todtmoos, Hubersäge
 Todtmoos, Höfle
 Todtmoos, Im Bühl
+Todtmoos, Klinik Wehrawald
 Todtmoos, Lehen
 Todtmoos, Mattenhof
 Todtmoos, Mooslift
@@ -37024,6 +37456,7 @@ Uitikon, Wängi
 Ulisbach, Hegis
 Ulisbach, Traube
 Ulm Hbf
+Ulm Ost
 Ulm-Söflingen
 Ulmiz FR, Ausserdorf
 Ulmiz FR, Dorf
@@ -37084,6 +37517,7 @@ Untereggen, Mittlerhof
 Untereggen, Vogelherd
 Untereggen, Vorderhof
 Untereisenbach, Abzw. Enzisw.
+Unterelchingen
 Unterems
 Unterendingen, Dorf
 Unterengstringen, Aegelsee
@@ -37246,6 +37680,7 @@ Urdorf, Spitzacker
 Urdorf, Uitikonerstrasse
 Urdorf, Urdorf-Nord
 Urigen
+Urlau, Hochlandhof
 Urmatt
 Urmein, Baltermeins
 Urmein, Cazeschg
@@ -37407,9 +37842,6 @@ Vacallo, Scuole
 Vacallo, Sovernigo
 Vacallo, Via Spinee
 Vacallo, Vignola
-Vacheresse, Chef Lieu
-Vacheresse, Les Combes
-Vacheresse, Taverole
 Vadura, Abzw. Bläs
 Vadura, Dorf
 Vaduz, Alte Rheinbrücke
@@ -37487,10 +37919,13 @@ Valence Gare Routière
 Valence TGV Rhône-Alpes Sud
 Valenciennes
 Valendas, Abzw. Brün
+Valendas, Brün Dorf
 Valendas, Carrera
 Valendas, Carstulien
 Valendas, Dorf
+Valendas, Imschlacht
 Valendas-Sagogn
+Valendas-Sagogn, Bahnhof
 Valens, Duonig
 Valens, Klinik
 Valens, Post
@@ -37516,6 +37951,7 @@ Vallon, Musée romain
 Vallon, village
 Vallon-Pnt-d'Arc Gare Routière
 Vallon-en-Sully
+Vallon-en-Sully, Marché couv
 Vallorbe
 Vallorbe, Eterpaz
 Vallorbe, La Promenade
@@ -37862,11 +38298,11 @@ Vernier, gare/Renfile
 Vernier, marché
 Vernier, village
 Vernier, école
+Vernier-Meyrin Cargo
 Vernéaz, croisée
 Verrey
 Vers-Chez-Grosjean
 Vers-Cort
-Vers-Morey
 Vers-chez-Perrin, Etrabloz
 Vers-chez-Perrin, bif.
 Vers-l'Eglise
@@ -38333,7 +38769,6 @@ Vinelz, Dorf
 Vinelz, Flachsern
 Vinelz, Strand
 Vinzel, village
-Vinzier, La Cambuse
 Vionnaz
 Vionnaz, Crébellay
 Vionnaz, Les Nayaz
@@ -38342,6 +38777,7 @@ Vionnaz, Village
 Vionnaz, croisée d'Illarsaz
 Vionnaz, gare
 Vions-Chanaz
+Vira (Gambarogno) (lago)
 Vira (Gambarogno), Bellavista
 Vira (Gambarogno), Edifors
 Vira (Gambarogno), La Riva
@@ -39167,9 +39603,13 @@ Wauwil, Zentrum
 Wavre, Les Motteresses
 Wavre, collège
 Weberei Matzingen
+Weesen
 Weesen (See)
 Weesen, Autis
+Weesen, Bahnhof
 Weesen, Biäsche
+Weesen, P4 Nord
+Weesen, P4 Süd
 Weesen, Post
 Weesen, Restaurant Bahnhof
 Weesen, See
@@ -39328,9 +39768,12 @@ Weinfelden, vorderes Bachtobel
 Weingarten b. Märwil, Dorf
 Weingarten, Brunnenwies
 Weingarten, Brücke
+Weingarten, Burachstrasse
 Weingarten, Charlottenplatz
+Weingarten, Ettishofer Strasse
 Weingarten, Gewerbegebiet
 Weingarten, Krankenhaus 14
+Weingarten, Schulzentrum
 Weingarten,Welte Nord/Bechters
 Weingarten-Kalthäusern,Dorfstr
 Weiningen TG, Dorfplatz
@@ -39379,6 +39822,8 @@ Weisstannen, Schulhaus
 Weisstannen, Vorsiez
 Weisweil (Brsg), Kirche
 Weisweil (Brsg), Mühlenstrasse
+Weisweil (Brsg), Oberhau. Str.
+Weisweil (Brsg), Rathaus
 Weisweil (Brsg), Steinstrasse
 Weisweil, Dorf
 Weisweil, Nägelehof
@@ -39538,6 +39983,7 @@ Wichtrach, Thalgutstrasse
 Widen Heinrüti
 Widen, Burkertsmatt
 Widen, Dorf
+Widen, Heinrüti Bahnhof
 Widen, Imbismatt
 Widnau, Auenstrasse
 Widnau, Bünteli
@@ -40116,6 +40562,7 @@ Wohlen AG, Wehrlistrasse
 Wohlen AG, Zürcherhof
 Wohlen AG, obere Haldenstrasse
 Wohlen AG, untere Farnbühlstr.
+Wohlen Fulenbach
 Wohlen Oberdorf
 Wohlen b. Bern, Gemeindehaus
 Wohlen b. Bern, Illiswil
@@ -40370,6 +40817,7 @@ Wölflinswil, Mühlmatt
 Wölflinswil, Unterdorf
 Wöschnau
 Wünnewil
+Wünnewil, Bahnhof
 Wünnewil, Dorf
 Wünnewil, Felsenegg
 Wünnewil, Hagnet
@@ -40738,8 +41186,11 @@ Zufikon Belvédère
 Zufikon Hammergut
 Zufikon, Algier
 Zufikon, Bachhalde
+Zufikon, Bahnhof
+Zufikon, Belvédère Bahnhof
 Zufikon, Emaus
 Zufikon, Haldenstrasse
+Zufikon, Hammergut Bahnhof
 Zufikon, Schulanlage
 Zufikon, Volg
 Zug
@@ -41395,39 +41846,6 @@ m2
 Étrembières, Pont d'Etrembière
 Étrembières, Téléphé du Salève
 Étrembières, Veyrier Douane
-Évian-les-Bains, Anna Noailles
-Évian-les-Bains, Aunieres
-Évian-les-Bains, Bennevy
-Évian-les-Bains, Bocquies
-Évian-les-Bains, Chez Bavoux
-Évian-les-Bains, Chez Bruchon
-Évian-les-Bains, Cim. D'Evian
-Évian-les-Bains, College Rives
-Évian-les-Bains, Detanche
-Évian-les-Bains, Embarcadere
-Évian-les-Bains, Evian Eglise
-Évian-les-Bains, Ferroliannes
-Évian-les-Bains, Grande Rive
-Évian-les-Bains, Hotel De Vil.
-Évian-les-Bains, Jard.Japonais
-Évian-les-Bains, La Perle Du L
-Évian-les-Bains, Le Maure
-Évian-les-Bains, Les Chavannes
-Évian-les-Bains, Les Grottes
-Évian-les-Bains, Memises
-Évian-les-Bains, Mgen
-Évian-les-Bains, Mouettes
-Évian-les-Bains, P+R Stade
-Évian-les-Bains, Route DuStade
-Évian-les-Bains, Rte Du Golf
-Évian-les-Bains, Thermes
-Évian-les-Bains, Thony
-Évian-les-Bains, Vieux Moulin
-Évian-les-Bains, Vil. Vacances
-Évian-les-Bains, Village
-Évian-les-Bains, Vvf
-Évian-les-Bains, Évian Hôpital
-Évian-les-Bains,GareRout.Ville
 Öflingen, Brühlstrasse
 Öflingen, Fa. Henkel
 Öflingen, Goethe-/Schillerstr.
@@ -41483,12 +41901,10 @@ m2
 Überlingen, Haus Rengold
 Überlingen, Helios Spital/ P&R
 Überlingen, Hildegardring
-Überlingen, Hotel Alpenblick
 Überlingen, Hotel Ochsen
 Überlingen, Hägerstrasse
 Überlingen, Im Allikron
 Überlingen, Im Guggenbühl
-Überlingen, Jugendherberge
 Überlingen, Kiblersteige
 Überlingen, La Piazza
 Überlingen, Landungsplatz
@@ -41498,7 +41914,6 @@ m2
 Überlingen, Museum
 Überlingen, Naturata
 Überlingen, Nellenbachstrasse
-Überlingen, Nussdorfer Strasse
 Überlingen, O. St.-Leonh.-Str.
 Überlingen, Pflummernplatz
 Überlingen, Rauensteinstrasse

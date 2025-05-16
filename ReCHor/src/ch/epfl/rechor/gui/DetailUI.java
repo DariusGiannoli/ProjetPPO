@@ -7,6 +7,7 @@ import ch.epfl.rechor.journey.Journey.Leg.Transport;
 import ch.epfl.rechor.FormatterFr;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static java.awt.Desktop.getDesktop;
 
@@ -51,6 +53,12 @@ public record DetailUI(Node rootNode) {
         return b;
     }
 
+    // 1) Helper générique, static et private
+    private static <T extends Node> T with(T node, Consumer<T> cfg) {
+        cfg.accept(node);
+        return node;
+    }
+
     /**
      * Creates the scene graph and returns a DetailUI instance with a reference to its root.
      *
@@ -58,58 +66,51 @@ public record DetailUI(Node rootNode) {
      * @return A DetailUI instance.
      */
     public static DetailUI create(ObservableValue<Journey> journeyO) {
-        // Scrollable root
-        ScrollPane scroll = new ScrollPane();
-        scroll.setId("detail");
-        scroll.getStylesheets().add("detail.css");
-        scroll.setFitToWidth(true);
+        // 1) ScrollPane
+        var scroll = with(new ScrollPane(), s -> {
+            s.setId("detail");
+            s.getStylesheets().add("detail.css");
+            s.setFitToWidth(true);
+        });
 
-        // No journey selected view
-        VBox noJourney = new VBox(new Text("Aucun voyage"));
-        noJourney.setId("no-journey");
-        noJourney.setFillWidth(true);
-        noJourney.setAlignment(javafx.geometry.Pos.CENTER);
+        // 2) “Aucun voyage”
+        var noJourney = with(new VBox(new Text("Aucun voyage")), v -> {
+            v.setId("no-journey");
+            v.setFillWidth(true);
+            v.setAlignment(Pos.CENTER);
+        });
 
-        // Annotations pane for circles and lines
-        Pane annotations = new Pane();
-        annotations.setId("annotations");
+        // 3) Annotations + grille
+        var annotations = with(new Pane(),   p -> p.setId("annotations"));
+        var legsGrid    = with(new DetailGridPane(annotations), dg -> dg.setId("legs"));
+        var stepsPane   = new StackPane(annotations, legsGrid);
 
-        // Grid for journey legs
-        DetailGridPane legsGrid = new DetailGridPane(annotations);
-        legsGrid.setId("legs");
+        // 4) Boutons
+        var btnMap      = makeButton("Carte",      "Carte");
+        var btnCalendar = makeButton("Calendrier", "Calendrier");
+        var buttons = with(new HBox(10, btnMap, btnCalendar), hb -> {
+            hb.setId("buttons");
+            hb.setAlignment(Pos.CENTER);
+        });
 
-        // Stack annotations and legs grid
-        StackPane stepsPane = new StackPane(annotations, legsGrid);
-
-        // Map and Calendar buttons
-        Button btnMap      = makeButton("Carte",      "Carte");
-        Button btnCalendar = makeButton("Calendrier", "Calendrier");
-
-        HBox buttons = new HBox(10, btnMap, btnCalendar);
-        buttons.setId("buttons");
-        buttons.setAlignment(javafx.geometry.Pos.CENTER);
-
-        // Detail view (grid + buttons)
-        VBox detailBox = new VBox(5, stepsPane, buttons);
-        //detailBox.setVisible(false);
-
-        // Root stack pane
-        StackPane rootStack = new StackPane(noJourney, detailBox);
+        // 5) Assemblage
+        var detailBox = new VBox(5, stepsPane, buttons);
+        var rootStack = new StackPane(noJourney, detailBox);
         scroll.setContent(rootStack);
 
-        DetailUI ui = new DetailUI(scroll);
+        var ui = new DetailUI(scroll);
 
-        // Update UI when journey changes
+        // 6) Binding sur le voyage
         Runnable update = () -> {
-            Journey journey = journeyO.getValue();
-            noJourney.setVisible(journey == null);
-            detailBox.setVisible(journey != null);
-            legsGrid.updateLegs(journey);
+            Journey j = journeyO.getValue();
+            noJourney.setVisible(j == null);
+            detailBox.setVisible(j != null);
+            legsGrid.updateLegs(j);
         };
         journeyO.addListener((obs, o, n) -> update.run());
         update.run();
 
-        // Button actions
+        // 7) Actions
         btnMap.setOnAction(e -> openMap(journeyO.getValue()));
         btnCalendar.setOnAction(e -> exportCalendar(journeyO.getValue()));
 
