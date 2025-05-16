@@ -1,9 +1,7 @@
-// File: ch/epfl/rechor/gui/StopField.java
 package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.StopIndex;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
@@ -15,75 +13,37 @@ import javafx.stage.Popup;
 
 /**
  * Combinaison d'un TextField et d'une Popup pour sélectionner un arrêt.
- * La valeur observable stopO change également lorsque l'utilisateur appuie sur Entrée
+ * La valeur observable stopO change lorsque l'utilisateur appuie sur Entrée
  * ou clique sur un élément de la liste.
  */
 public record StopField(TextField textField, ObservableValue<String> stopO) {
+    private static final int MAX_SUGGESTIONS = 30;
+    private static final double LIST_MAX_HEIGHT = 240.0;
+
     /**
      * Crée un StopField associé à l'index donné.
      */
     public static StopField create(StopIndex index) {
-        TextField tf = new TextField();
-        // (le promptText sera fixé par QueryUI)
-        SimpleStringProperty selected = new ReadOnlyStringWrapper("");
-        Popup popup = new Popup();
-        popup.setHideOnEscape(false);
+        TextField textField = new TextField();
+        ReadOnlyStringWrapper selected = new ReadOnlyStringWrapper("");
+
+        // Configuration de la popup et de la liste d'arrêts
         ListView<String> list = new ListView<>();
         list.setFocusTraversable(false);
-        list.setMaxHeight(240);
+        list.setMaxHeight(LIST_MAX_HEIGHT);
+
+        Popup popup = new Popup();
+        popup.setHideOnEscape(false);
         popup.getContent().add(list);
 
-        // Méthode utilitaire pour valider la sélection
-        Runnable commitSelection = () -> {
-            String sel = list.getSelectionModel().getSelectedItem();
-            if (sel != null) {
-                tf.setText(sel);
-                selected.set(sel);
-            }
-            popup.hide();
-        };
+        // Définition de la logique de validation
+        StopSelectionHandler handler = new StopSelectionHandler(textField, list, popup, selected);
 
+        handler.configureKeyNavigation();
+        handler.configureFocusHandling(index);
+        handler.configureSelectionHandling();
 
-        // 3) Navigation clavier ↑/↓ et commit sur Entrée
-        tf.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == KeyCode.UP) {
-                if (list.getSelectionModel().getSelectedIndex() > 0){
-                    list.getSelectionModel().selectPrevious();
-                    list.scrollTo(list.getSelectionModel().getSelectedIndex());
-                }
-                e.consume();
-            } else if (e.getCode() == KeyCode.DOWN) {
-                if (list.getSelectionModel().getSelectedIndex() < list.getItems().size() - 1) {
-                    list.getSelectionModel().selectNext();
-                    list.scrollTo(list.getSelectionModel().getSelectedIndex());
-                }
-                e.consume();
-            }
-        });
-
-        // 4) Afficher/cacher la popup à l'entrée/sortie du focus
-        tf.focusedProperty().addListener((obs, was, isNow) -> {
-            if (isNow) {
-                // montrer et remplir la liste
-                list.getItems().setAll(index.stopsMatching(tf.getText(), 30));
-                list.getSelectionModel().selectFirst();
-                Bounds b = tf.localToScreen(tf.getBoundsInLocal());
-                popup.setX(b.getMinX());
-                popup.setY(b.getMaxY());
-                popup.show(tf.getScene().getWindow());
-                // mise à jour dynamique au fil de la saisie
-                tf.textProperty().addListener((o, old, nw) -> {
-                    list.getItems().setAll(index.stopsMatching(tf.getText(), 30));
-                    list.getSelectionModel().selectFirst();
-                    list.scrollTo(list.getSelectionModel().getSelectedIndex());
-                });
-            } else {
-                // cacher et copier la sélection
-                commitSelection.run();
-            }
-        });
-
-        return new StopField(tf, selected);
+        return new StopField(textField, selected);
     }
 
     /**
@@ -91,8 +51,115 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
      */
     public void setTo(String stop) {
         textField.setText(stop);
-        if(stopO instanceof SimpleStringProperty stop0) {
-            stop0.set(stop);
-        }
+        // Nous savons que stopO est un ReadOnlyStringWrapper grâce à la factory method
+        ((ReadOnlyStringWrapper) stopO).setValue(stop);
     }
+
+    /**
+         * Classe interne pour gérer les interactions avec le champ de sélection d'arrêt.
+         */
+        private record StopSelectionHandler(TextField textField, ListView<String> list, Popup popup,
+                                            ReadOnlyStringWrapper selected) {
+
+        /**
+             * Configure la navigation clavier ↑/↓ dans la liste.
+             */
+            void configureKeyNavigation() {
+                textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+                    var selModel = list.getSelectionModel();
+                    if (selModel.isEmpty()) return;
+
+                    if (e.getCode() == KeyCode.UP) {
+                        selModel.selectPrevious();
+                        list.scrollTo(selModel.getSelectedIndex());
+                        e.consume();
+                    } else if (e.getCode() == KeyCode.DOWN) {
+                        selModel.selectNext();
+                        list.scrollTo(selModel.getSelectedIndex());
+                        e.consume();
+                    }
+                });
+            }
+
+            /**
+             * Configure le comportement lors des changements de focus et de saisie.
+             */
+            void configureFocusHandling(StopIndex index) {
+                textField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+                    if (isFocused) {
+                        updateListItems(index);
+                        positionAndShowPopup();
+                    }
+                });
+
+                textField.textProperty().addListener((obs, oldText, newText) ->
+                        updateListItems(index));
+            }
+
+            /**
+             * Configure les événements de validation (clic, Entrée, perte de focus).
+             */
+            void configureSelectionHandling() {
+                list.setOnMouseClicked(e -> {
+                    if (e.getClickCount() == 1) {
+                        commitSelection();
+                    }
+                });
+
+                textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+                    if (e.getCode() == KeyCode.ENTER) {
+                        commitSelection();
+                        e.consume();
+                    }
+                });
+
+                textField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+                    if (!isFocused) {
+                        commitSelection();
+                    }
+                });
+            }
+
+            /**
+             * Valide la sélection actuelle, met à jour le TextField et cache la popup.
+             */
+            private void commitSelection() {
+                String selectedItem = list.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    textField.setText(selectedItem);
+                    selected.set(selectedItem);
+                }
+                popup.hide();
+            }
+
+            /**
+             * Met à jour le contenu de la liste selon le texte saisi.
+             */
+            private void updateListItems(StopIndex index) {
+                list.getItems().setAll(index.stopsMatching(textField.getText(), MAX_SUGGESTIONS));
+                if (!list.getItems().isEmpty()) {
+                    selectAndScrollToFirst();
+                }
+            }
+
+            /**
+             * Sélectionne le premier élément et fait défiler la liste.
+             */
+            private void selectAndScrollToFirst() {
+                list.getSelectionModel().selectFirst();
+                list.scrollTo(0);
+            }
+
+            /**
+             * Positionne et affiche la popup sous le champ de texte.
+             */
+            private void positionAndShowPopup() {
+                Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
+                popup.setX(bounds.getMinX());
+                popup.setY(bounds.getMaxY());
+                if (!popup.isShowing()) {
+                    popup.show(textField.getScene().getWindow());
+                }
+            }
+        }
 }
