@@ -116,19 +116,6 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
              * Configure les événements de validation de séléction d'un arrêt (perte de focus).
              */
             void configureSelectionHandling() {
-                list.setOnMouseClicked(e -> {
-                    if (e.getClickCount() == 1) {
-                        commitSelection();
-                    }
-                });
-
-                textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-                    if (e.getCode() == KeyCode.ENTER) {
-                        commitSelection();
-                        e.consume();
-                    }
-                });
-
                 textField.focusedProperty().subscribe((isFocused) -> {
                     if (!isFocused) {
                         commitSelection();
