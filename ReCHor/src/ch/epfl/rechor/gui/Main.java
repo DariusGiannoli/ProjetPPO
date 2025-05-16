@@ -3,6 +3,7 @@ package ch.epfl.rechor.gui;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.SplitPane;            // SplitPane est dans javafx.scene.control
@@ -57,6 +58,9 @@ public class Main extends Application {
 
         // 5) Créer l’UI de requête
         QueryUI queryUI = QueryUI.create(index);
+        SimpleObjectProperty<Profile> cacheProfile = new SimpleObjectProperty<>();
+        SimpleObjectProperty<String> cacheStop = new SimpleObjectProperty<>();
+        SimpleObjectProperty<LocalDate> cacheDate = new SimpleObjectProperty<>();
 
         // 6) Préparer le routeur
         Router router = new Router(tt);
@@ -76,11 +80,20 @@ public class Main extends Application {
                     if (depId < 0 || arrId < 0)
                         return List.of();
 
-                    // 7a) Calculer le profil pour la date et la station d’arrivée
-                    Profile profile = router.profile(date, arrId);
+                    if(cacheDate.getValue() != null && cacheStop.getValue() != null &&
+                            cacheDate.getValue().equals(date) &&
+                            cacheStop.getValue().equals(arrName)) {
+                        return JourneyExtractor.journeys(cacheProfile.get(), depId);
+                    } else {
+                        // 7a) Calculer le profil pour la date et la station d’arrivée
+                        Profile profile = router.profile(date, arrId);
+                        cacheDate.set(date);
+                        cacheStop.set(arrName);
+                        cacheProfile.set(profile);
 
-                    // 7b) Extraire les objets Journey depuis ce profil et la station de départ
-                    return JourneyExtractor.journeys(profile, depId);
+                        // 7b) Extraire les objets Journey depuis ce profil et la station de départ
+                        return JourneyExtractor.journeys(profile, depId);
+                    }
                 },
                 queryUI.depStopO(),
                 queryUI.arrStopO(),
