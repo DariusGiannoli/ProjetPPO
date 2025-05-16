@@ -310,6 +310,7 @@ public record DetailUI(Node rootNode) {
             }).toList();
 
             annotations.getChildren().setAll(lines);
+            annotations.getParent().requestLayout();
         }
     }
 }
