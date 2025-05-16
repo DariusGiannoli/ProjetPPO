@@ -143,7 +143,8 @@ public record DetailUI(Node rootNode) {
         if (journey == null) return;
         try {
             String geo = JourneyGeoJsonConverter.toGeoJson(journey);
-            URI uri = new URI("https", "umap.osm.ch", "/fr/map", "data=" + geo, null);
+            URI uri = new URI("https", "umap.osm.ch", "/fr/map",
+                    "data=" + geo, null);
             getDesktop().browse(uri);
         } catch (Exception ignored) {
             // Ignore exceptions as per original behavior
@@ -304,7 +305,8 @@ public record DetailUI(Node rootNode) {
             // icon + destination
             ImageView icon = createVehicleIcon(tx.vehicle());
             add(icon, 0, row, 1, tx.intermediateStops().isEmpty() ? 1 : 2);
-            add(new Text(FormatterFr.formatRouteDestination(tx)), 2, row, 2, 1);
+            add(new Text(FormatterFr.formatRouteDestination(tx)),
+                    2, row, 2, 1);
             row++;
 
             // intermediates
@@ -401,8 +403,10 @@ public record DetailUI(Node rootNode) {
                 var arrBounds = arr.getBoundsInParent();
 
                 Line line = new Line(
-                        depBounds.getCenterX(), depBounds.getMinY() + depBounds.getHeight() / 2,
-                        arrBounds.getCenterX(), arrBounds.getMinY() + arrBounds.getHeight() / 2
+                        depBounds.getCenterX(), depBounds.getMinY()
+                        + depBounds.getHeight() / 2,
+                        arrBounds.getCenterX(), arrBounds.getMinY()
+                        + arrBounds.getHeight() / 2
                 );
                 line.setStrokeWidth(LINE_WIDTH);
                 line.setStroke(Color.RED);

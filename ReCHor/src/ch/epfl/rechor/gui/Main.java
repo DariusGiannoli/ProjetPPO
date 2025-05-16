@@ -58,6 +58,8 @@ public class Main extends Application {
 
         // 5) Créer l’UI de requête
         QueryUI queryUI = QueryUI.create(index);
+
+        // Créer le cache pour le profile
         SimpleObjectProperty<Profile> cacheProfile = new SimpleObjectProperty<>();
         SimpleObjectProperty<String> cacheStop = new SimpleObjectProperty<>();
         SimpleObjectProperty<LocalDate> cacheDate = new SimpleObjectProperty<>();
