@@ -5,7 +5,11 @@ import java.util.*;
 import java.util.regex.*;
 
 /**
- * Index de noms d’arrêts avec recherche par requête.
+ * StopIndex représente un index de nom d'arrêts dans lequel il est possible d'effectuer
+ * des recherches.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
  */
 public final class StopIndex {
 
@@ -31,7 +35,7 @@ public final class StopIndex {
      * Construit un index à partir des noms principaux et de leurs alternatives.
      *
      * @param mainNames liste des noms « officiels »
-     * @param altToMain table de correspondance alternatif → principal
+     * @param altToMain table de correspondance entre nom alternatif → nom principal
      */
     public StopIndex(List<String> mainNames, Map<String, String> altToMain) {
         var tempMap = new HashMap<String, String>();

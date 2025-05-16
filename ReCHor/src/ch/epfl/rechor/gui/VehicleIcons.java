@@ -10,7 +10,10 @@ import java.util.Map;
  * Fournit l'accès aux icônes JavaFX des véhicules et assure leur chargement
  * et mise en cache uniques afin d'éviter tout gaspillage de mémoire.
  *
- * Utilise EnumMap<Vehicle,Image> et computeIfAbsent .
+ * Utilise EnumMap<Vehicle,Image> et computeIfAbsent.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
  */
 public final class VehicleIcons {
     private static final String ICON_EXTENSION = ".png";
