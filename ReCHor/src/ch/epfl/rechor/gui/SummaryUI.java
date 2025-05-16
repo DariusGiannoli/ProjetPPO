@@ -7,6 +7,7 @@ import ch.epfl.rechor.journey.Journey.Leg.Foot;
 import ch.epfl.rechor.journey.Journey.Leg.Transport;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -22,12 +23,31 @@ import java.time.Duration;
 
 import java.time.LocalTime;
 import java.util.List;
-
+import java.util.function.Consumer;
 
 /**
  * SummaryUI – affiche la vue d'ensemble de tous les voyages.
  */
 public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO) {
+
+    private static final int RADIUS = 3;
+
+    //Helper method
+    private static <T> void onChange(
+            ObservableValue<T> obs,
+            Consumer<T> consumer
+    ) {
+        obs.addListener((o, oldVal, newVal) -> {
+            if (newVal != null) {
+                consumer.accept(newVal);
+            }
+        });
+        T current = obs.getValue();
+        if (current != null) {
+            consumer.accept(current);
+        }
+    }
+
 
     /**
      * Crée la vue d'ensemble : une ListView de Journey, style summary.css,
@@ -39,25 +59,20 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
      */
     public static SummaryUI create(ObservableValue<List<Journey>> journeysO,
                                    ObservableValue<LocalTime> depTimeO) {
-        var listView = new ListView<Journey>();
+        ListView<Journey> listView = new ListView<>();
         listView.setId("summary");
         listView.getStylesheets().add("summary.css");
         listView.setCellFactory(lv -> new JourneyCell());
 
-        // Met à jour les items quand la liste change
-        journeysO.addListener((obs, oldList, newList) -> {
-            listView.setItems(FXCollections.observableArrayList(newList));
+        ObservableList<Journey> backingItems = FXCollections.observableArrayList();
+        listView.setItems(backingItems);
+
+        onChange(journeysO, newList -> {
+            backingItems.setAll(newList);
             selectJourney(listView, depTimeO.getValue());
         });
-        // initialisation
-        if (journeysO.getValue() != null) {
-            listView.setItems(FXCollections.observableArrayList(journeysO.getValue()));
-        }
-        // Met à jour la sélection quand l'heure change
-        depTimeO.addListener((obs, oldTime, newTime) -> selectJourney(listView, newTime));
-        if (depTimeO.getValue() != null) {
-            selectJourney(listView, depTimeO.getValue());
-        }
+
+        onChange(depTimeO, newTime -> selectJourney(listView, newTime));
 
         ObservableValue<Journey> selected = listView.getSelectionModel().selectedItemProperty();
         return new SummaryUI(listView, selected);
@@ -82,20 +97,25 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         view.scrollTo(idx);
     }
 
+    //crée des cercles
+    private static Circle makeCircle(String styleClass, double userData) {
+        var c = new Circle(RADIUS);
+        c.getStyleClass().add(styleClass);
+        c.setUserData(userData);
+        return c;
+    }
+
     /**
      * Cellule personnalisée affichant un résumé de Voyage
      */
     private static class JourneyCell extends ListCell<Journey> {
-        private final BorderPane root = new BorderPane();
-        private final Text departureText = new Text();
-        private final Text arrivalText   = new Text();
-        private final HBox routeBox      = new HBox(4);
-        private final Pane changePane    = createChangePane();
-        private final HBox durationBox   = new HBox();
+        private final BorderPane root         = new BorderPane();
+        private final Text departureText      = new Text();
+        private final Text arrivalText        = new Text();
+        private final HBox routeBox           = new HBox(4);
+        private final Pane changePane         = createChangePane();
+        private final HBox durationBox        = new HBox();
 
-        /**
-         * Constructeur de JourneyCell, qui crée le graphe de scène correspondant à la cellule.
-         */
         JourneyCell() {
             root.getStyleClass().add("journey");
             departureText.getStyleClass().add("departure");
@@ -109,89 +129,94 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             root.setBottom(durationBox);
         }
 
-        /**
-         * Cette methode a pour but de remplir les différents éléments du graphe
-         * de scène construit par le constructeur avec les données du voyage à afficher.
-         * @param journey Le voyage dont on doit afficher le résumé dans la cellule.
-         * @param empty   si la valeur est faux, alors le text et l'affichage seront null.
-         */
         @Override
         protected void updateItem(Journey journey, boolean empty) {
             super.updateItem(journey, empty);
+
             if (empty || journey == null) {
                 setGraphic(null);
-            } else {
-                // Nettoyage
-                routeBox.getChildren().clear();
-                durationBox.getChildren().clear();
-                // Retire tous les cercles (mais pas la ligne)
-                changePane.getChildren().removeIf(n -> n instanceof Circle);
-
-                // Récupère premier et dernier transport
-                var transports = journey.legs().stream()
-                        .filter(l -> l instanceof Transport)
-                        .map(l -> (Transport) l)
-                        .toList();
-                if (transports.isEmpty()) {
-                    setGraphic(root);
-                    return;
-                }
-                Transport first = transports.getFirst();
-                Transport last  = transports.getLast();
-
-                // Texte heures
-                departureText.setText(FormatterFr.formatTime(first.depTime()));
-                arrivalText.setText(FormatterFr.formatTime(last.arrTime()));
-
-                // Icône + ligne/direction
-                var icon = new ImageView(VehicleIcons.iconFor(first.vehicle()));
-                icon.setFitWidth(20);
-                icon.setFitHeight(20);
-                icon.setPreserveRatio(true);
-                var routeDest = new Text(FormatterFr.formatRouteDestination(first));
-                routeBox.getChildren().addAll(icon, routeDest);
-
-                // Cercles sur la ligne
-                Duration total = Duration.between(first.depTime(),
-                        last.arrTime());
-                double totalSec = total.toSeconds();
-                // départ
-                var depCircle = new Circle(3);
-                depCircle.getStyleClass().add("dep-arr");
-                depCircle.setUserData(0.0);
-                changePane.getChildren().add(depCircle);
-                // changements (foot legs)
-                for (Leg leg : journey.legs()) {
-                    if (leg instanceof Foot foot && !leg.depStop().equals(journey.depStop()) && !leg.arrStop().equals(journey.arrStop())) {
-                        double rel = Duration.between(first.depTime().toLocalTime(),
-                                foot.depTime()).toSeconds() / totalSec;
-                        var tCircle = new Circle(3);
-                        tCircle.getStyleClass().add("transfer");
-                        tCircle.setUserData(rel);
-                        changePane.getChildren().add(tCircle);
-                    }
-                }
-                // arrivée
-                var arrCircle = new Circle(3);
-                arrCircle.getStyleClass().add("dep-arr");
-                arrCircle.setUserData(1.0);
-                changePane.getChildren().add(arrCircle);
-
-                // Durée
-                var durText = new Text(FormatterFr.formatDuration(
-                        Duration.between(first.depTime(),
-                                last.arrTime())));
-                durationBox.getChildren().add(durText);
-
-                setGraphic(root);
+                return;
             }
+
+            clearOldContent();
+
+            List<Transport> transports = extractTransports(journey);
+            if (transports.isEmpty()) {
+                setGraphic(root);
+                return;
+            }
+
+            Transport first = transports.getFirst();
+            Transport last  = transports.getLast();
+            Duration total  = Duration.between(first.depTime(), last.arrTime());
+            double totalSec = total.toSeconds();
+
+            updateTimes(first, last);
+            updateRoute(first);
+            updateChangeCircles(first, journey.legs(),journey, totalSec);
+            updateDuration(total);
+
+            setGraphic(root);
         }
 
-        /**
-         * Crée le panneau qui dessine la ligne représentant le voyage et
-         * positionne les cercles qui représentent les changements sur cette dernière.
-         * @return le panneau contenant la ligne en les cercles au format voulu.
-         */
+        // —————— méthodes extraites ——————
+
+        private void clearOldContent() {
+            routeBox.getChildren().clear();
+            durationBox.getChildren().clear();
+            changePane.getChildren().removeIf(n -> n instanceof Circle);
+        }
+
+        private List<Transport> extractTransports(Journey journey) {
+            return journey.legs().stream()
+                    .filter(l -> l instanceof Transport)
+                    .map(l -> (Transport) l)
+                    .toList();
+        }
+
+        private void updateTimes(Transport first, Transport last) {
+            departureText.setText(FormatterFr.formatTime(first.depTime()));
+            arrivalText  .setText(FormatterFr.formatTime(last.arrTime()));
+        }
+
+        private void updateRoute(Transport first) {
+            var icon     = new ImageView(VehicleIcons.iconFor(first.vehicle()));
+            icon.setFitWidth(20);
+            icon.setFitHeight(20);
+            icon.setPreserveRatio(true);
+
+            var routeDest = new Text(FormatterFr.formatRouteDestination(first));
+            routeBox.getChildren().setAll(icon, routeDest);
+        }
+
+        private void updateChangeCircles(
+                Transport first, List<Leg> legs, Journey journey, double totalSec) {
+            // cercle départ
+            changePane.getChildren().add(makeCircle("dep-arr", 0.0));
+
+            // cercles de changement
+            for (Leg leg : legs) {
+                if (leg instanceof Foot foot
+                        && !foot.depStop().equals(journey.depStop())
+                        && !foot.arrStop().equals(journey.arrStop())) {
+
+                    double rel = Duration
+                            .between(first.depTime().toLocalTime(), foot.depTime())
+                            .toSeconds() / totalSec;
+                    changePane.getChildren().add(makeCircle("change", rel));
+                }
+            }
+
+            // cercle arrivée
+            changePane.getChildren().add(makeCircle("dep-arr", 1.0));
+        }
+
+        private void updateDuration(Duration total) {
+            var durText = new Text(FormatterFr.formatDuration(total));
+            durationBox.getChildren().setAll(durText);
+        }
+
+
         private static Pane createChangePane() {
             Pane pane = new Pane() {
                 private final Line line = new Line();
