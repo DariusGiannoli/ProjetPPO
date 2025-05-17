@@ -169,16 +169,15 @@ public record Router(TimeTable timetable) {
         int arrivingAt = transfers.arrivingAt(departureStation);
         for(int j = PackedRange.startInclusive(arrivingAt);
             j < PackedRange.endExclusive(arrivingAt); j++) {
+            int depStationId = transfers.depStationId(j);
             int depMinusTransfer = depTime - transfers.minutes(j);
-            ParetoFront.Builder secondStationBuilder =
-                    profileBuilder.forStation(transfers.depStationId(j));
+            ParetoFront.Builder secondStationBuilder = profileBuilder.forStation(depStationId);
 
             if(secondStationBuilder == null) {
-                profileBuilder.setForStation(transfers.depStationId(j), new ParetoFront.Builder());
+                profileBuilder.setForStation(depStationId, new ParetoFront.Builder());
             }
 
-            ParetoFront.Builder finalStationBuilder = profileBuilder.
-                    forStation(transfers.depStationId(j));
+            ParetoFront.Builder finalStationBuilder = profileBuilder.forStation(depStationId);
             if(finalStationBuilder.fullyDominates(builder, depTime)) {
                 continue;
             }
@@ -186,9 +185,9 @@ public record Router(TimeTable timetable) {
             builder.forEach((tuple) -> {
                 int connectionId = Bits32_24_8.unpack24(PackedCriteria.payload(tuple));
                 int TripPosition = connections.tripPos(connectionId);
+                int currentTripPos = connections.tripPos(currentConnectionId);
 
-                int newPayload = Bits32_24_8.pack(currentConnectionId,
-                        TripPosition - connections.tripPos(currentConnectionId));
+                int newPayload = Bits32_24_8.pack(currentConnectionId,TripPosition - currentTripPos);
 
                 long newCriteria = PackedCriteria.withDepMins(
                         PackedCriteria.pack(PackedCriteria.arrMins(tuple),
