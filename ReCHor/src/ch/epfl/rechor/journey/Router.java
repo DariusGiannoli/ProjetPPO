@@ -59,42 +59,29 @@ public record Router(TimeTable timetable) {
             final int arrMinsOfConn = connections.arrMins(cId);
             final int tripId = connections.tripId(cId);
 
-
-            // Création d'un Builder pour accumuler
-            // la frontière temporaire de la connexion courante.
+            // Builder pour accumuler la frontière temporaire de la connexion courante.
             ParetoFront.Builder builder = new ParetoFront.Builder();
-
-            // Option 1 : Descendre à l'arrivée de la liaison et marcher jusqu'à la destination,
-            // si le temps de marche depuis la gare d'arrivée est faisable.
+            // Option 1
             firstOption(walkTimes[arrivalStation], arrMinsOfConn, cId, builder);
-
-            // Option 2 : Continuer dans le même véhicule (la course).
+            // Option 2
             ParetoFront.Builder builderForTrip = profileBuilder.forTrip(tripId);
-
             secondOption(builderForTrip, builder);
-
-            // Option 3 : Changer de véhicule à l'arrivée de la liaison.
+            // Option 3
             ParetoFront.Builder builderForStation = profileBuilder.forStation
                     (timetable.stationId(connections.arrStopId(cId)));
-
             thirdOption(builderForStation, cId, arrMinsOfConn, builder);
 
-            // Optimisation 1 : Si la frontière calculée pour la connexion est vide,
-            // on passe à la suivante.
-            if (builder.isEmpty()) {
-                continue;
-            }
+            // Optimisation 1: Si frontière calculée est vide. passer à la suivante
+            if (builder.isEmpty()) {continue;}
 
             if (builderForTrip == null) {
                 profileBuilder.setForTrip(tripId, new ParetoFront.Builder(builder));
             } else {
                 builderForTrip.addAll(builder);
             }
-
+            //Optimisation 2
             secondOptimisation(transfers, connections, builder, profileBuilder, cId);
-
         }
-
         return profileBuilder.build();
     }
 
