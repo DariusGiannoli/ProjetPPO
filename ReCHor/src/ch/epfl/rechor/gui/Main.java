@@ -1,5 +1,6 @@
 package ch.epfl.rechor.gui;
 
+import ch.epfl.rechor.timetable.CachedTimeTable;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -43,7 +44,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         //Chargement de la timetable
-        TimeTable timeTable = FileTimeTable.in(Path.of(TIMETABLE_PATH));
+        CachedTimeTable timeTable = new CachedTimeTable(FileTimeTable.in(Path.of(TIMETABLE_PATH)));
 
         // Extraction des données des stations
         StopIndex stopIndex = createStopIndex(timeTable);
