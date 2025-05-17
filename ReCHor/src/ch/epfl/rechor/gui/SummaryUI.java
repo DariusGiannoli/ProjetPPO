@@ -216,7 +216,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         }
 
         private Pane createChangePane() {
-            Pane pane = new Pane() {
+            return new Pane() {
                 private final Line line = new Line();
                 {
                     getChildren().addAll(line, circlesGroup); // Add line and circlesGroup
@@ -244,7 +244,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     }
                 }
             };
-            return pane;
         }
     }
 }
