@@ -177,7 +177,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
         private void updateTimes(Transport first, Transport last) {
             departureText.setText(FormatterFr.formatTime(first.depTime()));
-            arrivalText  .setText(FormatterFr.formatTime(last.arrTime()));
+            arrivalText.setText(FormatterFr.formatTime(last.arrTime()));
         }
 
         private void updateRoute(Transport first) {

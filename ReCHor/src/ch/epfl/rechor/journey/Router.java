@@ -91,7 +91,7 @@ public record Router(TimeTable timetable) {
                 builderForTrip.addAll(builder);
             }
 
-           secondOptimisation(transfers, connections, builder, profileBuilder, cId);
+            secondOptimisation(transfers, connections, builder, profileBuilder, cId);
 
         }
 
@@ -107,7 +107,7 @@ public record Router(TimeTable timetable) {
      * @param builder le bâtisseur de frontière de Pareto auquel on ajoute le tuple.
      */
     private void firstOption(int walkTime, int arrMinsOfConn,
-                            int currentConnectionId, ParetoFront.Builder builder) {
+                             int currentConnectionId, ParetoFront.Builder builder) {
         if (walkTime >= 0) {
             int arrivalTimeWithWalk = arrMinsOfConn + walkTime;
             int newPayload = Bits32_24_8.pack(currentConnectionId, 0);
@@ -137,7 +137,7 @@ public record Router(TimeTable timetable) {
      * @param builder le bâtisseur de frontière de Pareto auquel on ajoute builderStation.
      */
     private void thirdOption(ParetoFront.Builder builderStation, int connectionId,
-                            int arrMinsOfConn, ParetoFront.Builder builder) {
+                             int arrMinsOfConn, ParetoFront.Builder builder) {
         int payload = Bits32_24_8.pack(connectionId, 0);
 
         if (builderStation != null) {
@@ -199,5 +199,4 @@ public record Router(TimeTable timetable) {
         }
     }
 }
-
 
