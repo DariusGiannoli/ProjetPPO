@@ -1,4 +1,3 @@
-// File: ch/epfl/rechor/gui/QueryUI.java
 package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.StopIndex;
@@ -13,15 +12,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.LocalTimeStringConverter;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-
-
 /**
- * Interface de requête : arrêts, date et heure.
+ * A faire
  */
 public record QueryUI(
         Node rootNode,
@@ -30,52 +26,39 @@ public record QueryUI(
         ObservableValue<LocalDate> dateO,
         ObservableValue<LocalTime> timeO
 ) {
+    private static final String CSS_PATH = "query.css";
+    private static final int SPACING = 5;
+
     /**
      * Construit le graphe de scène pour la recherche de voyages.
      */
     public static QueryUI create(StopIndex index) {
-        VBox root = new VBox(5);
-        root.getStylesheets().add("query.css");
+        VBox root = new VBox(SPACING);
+        root.getStylesheets().add(CSS_PATH);
 
-        // StopFields départ / arrivée
-        StopField depField = StopField.create(index);
-        StopField arrField = StopField.create(index);
-        depField.textField().setId("depStop");
-        arrField.textField().setId("arrStop");
-        depField.textField().setPromptText("Nom de l'arrêt de départ");
-        arrField.textField().setPromptText("Nom de l'arrêt d'arrivée");
+        // Champs d'arrêts (départ/arrivée)
+        StopField depField = setupStopField(index, "depStop", "Nom de l'arrêt de départ");
+        StopField arrField = setupStopField(index, "arrStop", "Nom de l'arrêt d'arrivée");
 
         // Bouton d'échange
-        Button swap = new Button("⟷");
-        swap.setOnAction(e -> {
-            String d = depField.textField().getText();
-            String a = arrField.textField().getText();
-            arrField.setTo(d);
-            depField.setTo(a);
-        });
+        Button swapButton = createSwapButton(depField, arrField);
 
-        HBox topo = new HBox(5,
+        HBox topo = new HBox(SPACING,
                 new Label("Départ\u202f:"), depField.textField(),
-                swap,
+                swapButton,
                 new Label("Arrivée\u202f:"), arrField.textField()
         );
 
-        // DatePicker
-
+        // Sélecteurs de date et heure
         DatePicker datePicker = new DatePicker(LocalDate.now());
         datePicker.setId("date");
 
-
-        // TimeFormatter pour LocalTime
-        DateTimeFormatter fmtDisplay = DateTimeFormatter.ofPattern("HH:mm");
-        TextFormatter<LocalTime> tfmt = new TextFormatter<>(
-                new LocalTimeStringConverter(fmtDisplay, null), LocalTime.now()
-        );
+        TextFormatter<LocalTime> timeFormatter = createTimeFormatter();
         TextField timeField = new TextField();
         timeField.setId("time");
-        timeField.setTextFormatter(tfmt);
+        timeField.setTextFormatter(timeFormatter);
 
-        HBox bottom = new HBox(5,
+        HBox bottom = new HBox(SPACING,
                 new Label("Date\u202f:"), datePicker,
                 new Label("Heure\u202f:"), timeField
         );
@@ -87,7 +70,49 @@ public record QueryUI(
                 depField.stopO(),
                 arrField.stopO(),
                 datePicker.valueProperty(),
-                tfmt.valueProperty()
+                timeFormatter.valueProperty());
+    }
+
+    /**
+     *
+     * @param index
+     * @param id
+     * @param prompt
+     * @return
+     */
+    private static StopField setupStopField(StopIndex index, String id, String prompt) {
+        StopField field = StopField.create(index);
+        field.textField().setId(id);
+        field.textField().setPromptText(prompt);
+        return field;
+    }
+
+    /**
+     *
+     * @param dep
+     * @param arr
+     * @return
+     */
+    private static Button createSwapButton(StopField dep, StopField arr) {
+        Button swap = new Button("⟷");
+        swap.setOnAction(e -> {
+            String depText = dep.textField().getText();
+            String arrText = arr.textField().getText();
+            arr.setTo(depText);
+            dep.setTo(arrText);
+        });
+        return swap;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private static TextFormatter<LocalTime> createTimeFormatter() {
+        DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("HH:mm");
+        return new TextFormatter<>(
+                new LocalTimeStringConverter(displayFormat, null),
+                LocalTime.now()
         );
     }
 }

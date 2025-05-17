@@ -128,7 +128,6 @@ public final class StopIndex {
         boolean hasUpper = sub.chars().anyMatch(Character::isUpperCase);
         int flags = Pattern.UNICODE_CASE | (hasUpper ? 0 : Pattern.CASE_INSENSITIVE);
 
-
         var sb = new StringBuilder();
         for (char c : sub.toCharArray()) {
             char low = Character.toLowerCase(c);
@@ -144,5 +143,4 @@ public final class StopIndex {
         }
         return Pattern.compile(sb.toString(), flags);
     }
-
 }
