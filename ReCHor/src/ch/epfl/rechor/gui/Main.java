@@ -3,130 +3,202 @@ package ch.epfl.rechor.gui;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
-import javafx.scene.control.SplitPane;            // SplitPane est dans javafx.scene.control
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import ch.epfl.rechor.StopIndex;
 import ch.epfl.rechor.timetable.TimeTable;
 import ch.epfl.rechor.timetable.mapped.FileTimeTable;
-import ch.epfl.rechor.journey.Router;
-import ch.epfl.rechor.journey.Profile;
-import ch.epfl.rechor.journey.JourneyExtractor;
-import ch.epfl.rechor.journey.Journey;
+import ch.epfl.rechor.journey.*;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Collectors;
 
 public class Main extends Application {
 
-    /**
-     * On conserve le binding dans un attribut pour qu’il ne soit pas
-     * ramassé par le GC (JavaFX utilise des références faibles).
-     */
+    // Constantes de l'interface
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 600;
+    private static final String APP_TITLE = "ReCHor";
+    private static final String DEP_STOP_ID = "#depStop";
+    private static final String TIMETABLE_PATH = "timetable";
+
+    // Attributs nécessaires pour le binding des données
     private ObservableValue<List<Journey>> journeysO;
+    private List<String> mainNames;
+
+    // Cache de profils pour optimiser les recherches répétées
+    private ObjectProperty<Profile> cacheProfile;
+    private ObjectProperty<String> cacheStop;
+    private ObjectProperty<LocalDate> cacheDate;
 
     @Override
     public void start(Stage stage) throws Exception {
-        // 1) Charger les données horaires depuis ./timetable
-        TimeTable tt = FileTimeTable.in(Path.of("timetable"));
+        //Chargement de la timetable
+        TimeTable timeTable = FileTimeTable.in(Path.of(TIMETABLE_PATH));
 
-        // 2) Construire la liste des noms principaux depuis tt.stations()
-        final List<String> mainNames = IntStream.range(0, tt.stations().size())
-                .mapToObj(tt.stations()::name)
+        // Extraction des données des stations
+        StopIndex stopIndex = createStopIndex(timeTable);
+
+        // Création de l'UI et du routeur
+        QueryUI queryUI = QueryUI.create(stopIndex);
+        Router router = new Router(timeTable);
+
+        // Initialisation du cache
+        initializeCache();
+
+        // Création du binding pour les trajets
+        createJourneysBinding(queryUI, router);
+
+        // Construction et affichage de l'interface
+        Scene scene = buildUserInterface(queryUI, stage);
+
+        // Focus initial
+        Platform.runLater(() -> scene.lookup(DEP_STOP_ID).requestFocus());
+    }
+
+    /**
+     * Crée l'index des arrêts à partir de la table horaire.
+     *
+     * @param timeTable La table horaire contenant les informations sur les stations
+     * @return L'index des arrêts configuré
+     */
+    private StopIndex createStopIndex(TimeTable timeTable) {
+        // Extraction des noms principaux des stations
+        mainNames = IntStream.range(0, timeTable.stations().size())
+                .mapToObj(timeTable.stations()::name)
                 .collect(Collectors.toList());
 
-        // 3) Construire la map alias → nomPrincipal depuis tt.stationAliases()
-        final Map<String,String> altToMain = new HashMap<>();
-        for (int i = 0; i < tt.stationAliases().size(); i++) {
+        // Construction de la map des alias vers les noms principaux
+        Map<String, String> altToMain = new HashMap<>();
+        for (int i = 0; i < timeTable.stationAliases().size(); i++) {
             altToMain.put(
-                    tt.stationAliases().alias(i),
-                    tt.stationAliases().stationName(i)
+                    timeTable.stationAliases().alias(i),
+                    timeTable.stationAliases().stationName(i)
             );
         }
+        return new StopIndex(mainNames, altToMain);
+    }
 
-        // 4) Créer l'index pour l’autocomplétion
-        StopIndex index = new StopIndex(mainNames, altToMain);
+    /**
+     * Initilaise le cache
+     */
+    private void initializeCache() {
+        cacheProfile = new SimpleObjectProperty<>();
+        cacheStop = new SimpleObjectProperty<>();
+        cacheDate = new SimpleObjectProperty<>();
+    }
 
-        // 5) Créer l’UI de requête
-        QueryUI queryUI = QueryUI.create(index);
-
-        // Créer le cache pour le profile
-        SimpleObjectProperty<Profile> cacheProfile = new SimpleObjectProperty<>();
-        SimpleObjectProperty<String> cacheStop = new SimpleObjectProperty<>();
-        SimpleObjectProperty<LocalDate> cacheDate = new SimpleObjectProperty<>();
-
-        // 6) Préparer le routeur
-        Router router = new Router(tt);
-
-        // 7) Créer le binding qui génère la liste de Journey à chaque changement
+    /**
+     * Crée le binding pour la liste des trajets.
+     * Le binding recalcule les trajets lorsque les paramètres de recherche changent.
+     *
+     * @param queryUI L'interface de requête contenant les paramètres
+     * @param router Le routeur pour calculer les trajets
+     */
+    private void createJourneysBinding(QueryUI queryUI, Router router) {
         journeysO = Bindings.createObjectBinding(
-                () -> {
-                    String depName = queryUI.depStopO().getValue();
-                    String arrName = queryUI.arrStopO().getValue();
-                    LocalDate date = queryUI.dateO().getValue();
-
-                    if (depName.isEmpty() || arrName.isEmpty())
-                        return List.of();
-
-                    int depId = mainNames.indexOf(depName);
-                    int arrId = mainNames.indexOf(arrName);
-                    if (depId < 0 || arrId < 0)
-                        return List.of();
-
-                    if(cacheDate.getValue() != null && cacheStop.getValue() != null &&
-                            cacheDate.getValue().equals(date) &&
-                            cacheStop.getValue().equals(arrName)) {
-                        return JourneyExtractor.journeys(cacheProfile.get(), depId);
-                    } else {
-                        // 7a) Calculer le profil pour la date et la station d’arrivée
-                        Profile profile = router.profile(date, arrId);
-                        cacheDate.set(date);
-                        cacheStop.set(arrName);
-                        cacheProfile.set(profile);
-
-                        // 7b) Extraire les objets Journey depuis ce profil et la station de départ
-                        return JourneyExtractor.journeys(profile, depId);
-                    }
-                },
+                () -> calculateJourneys(queryUI, router),
                 queryUI.depStopO(),
                 queryUI.arrStopO(),
                 queryUI.dateO()
         );
-
-        // 8) Construire le résumé et le détail
-        SummaryUI summaryUI = SummaryUI.create(journeysO, queryUI.timeO());
-        DetailUI  detailUI  = DetailUI.create(summaryUI.selectedJourneyO());
-
-        // 9) Mettre résumé et détail dans un SplitPane
-        SplitPane split = new SplitPane(summaryUI.rootNode(),
-                detailUI .rootNode());
-
-        // 10) Assembler le tout dans un BorderPane
-        BorderPane root = new BorderPane();
-        root.setTop(   queryUI.rootNode());
-        root.setCenter(split);
-
-        // 11) Configurer et afficher la scène
-        Scene scene = new Scene(root, 800, 600);
-        stage.setScene(scene);
-        stage.setMinWidth(800);
-        stage.setMinHeight(600);
-        stage.setTitle("ReCHor");
-        stage.show();
-
-        // 12) Focus initial sur le champ de départ
-        Platform.runLater(() -> scene.lookup("#depStop").requestFocus());
     }
 
+    /**
+     * Calcule les trajets en fonction des paramètres de recherche.
+     *
+     * @param queryUI L'interface de requête contenant les paramètres
+     * @param router Le routeur pour calculer les trajets
+     * @return La liste des trajets calculés
+     */
+    private List<Journey> calculateJourneys(QueryUI queryUI, Router router) {
+        String depName = queryUI.depStopO().getValue();
+        String arrName = queryUI.arrStopO().getValue();
+        LocalDate date = queryUI.dateO().getValue();
+
+        if (depName.isEmpty() || arrName.isEmpty())
+            return List.of();
+
+        int depId = mainNames.indexOf(depName);
+        int arrId = mainNames.indexOf(arrName);
+        if (depId < 0 || arrId < 0)
+            return List.of();
+
+        updateCacheIfNeeded(date, arrName, arrId, router);
+        return JourneyExtractor.journeys(cacheProfile.get(), depId);
+    }
+
+    /**
+     * Met à jour le cache de profil si nécessaire.
+     *
+     * @param date Date de recherche
+     * @param arrName Nom de la station d'arrivée
+     * @param arrId ID de la station d'arrivée
+     * @param router Routeur pour calculer les profils
+     */
+    private void updateCacheIfNeeded(LocalDate date, String arrName, int arrId, Router router) {
+        boolean cacheValid = cacheDate.getValue() != null
+                && cacheStop.getValue() != null
+                && date.equals(cacheDate.getValue())
+                && arrName.equals(cacheStop.getValue());
+
+        if (!cacheValid) {
+            cacheProfile.set(router.profile(date, arrId));
+            cacheDate.set(date);
+            cacheStop.set(arrName);
+        }
+    }
+    /**
+     * Construit l'interface utilisateur complète.
+     *
+     * @param queryUI L'interface de requête
+     * @param stage La scène principale
+     * @return La scène configurée
+     */
+    private Scene buildUserInterface(QueryUI queryUI, Stage stage) {
+        // Construction des composants d'UI
+        SummaryUI summaryUI = SummaryUI.create(journeysO, queryUI.timeO());
+        DetailUI detailUI = DetailUI.create(summaryUI.selectedJourneyO());
+
+        // Assemblage de l'interface
+        SplitPane split = new SplitPane(summaryUI.rootNode(), detailUI.rootNode());
+        BorderPane root = new BorderPane(split, queryUI.rootNode(), null, null, null);
+
+        // Configuration de la scène
+        Scene scene = new Scene(root, WIDTH, HEIGHT);
+        configureStage(stage, scene);
+
+        return scene;
+    }
+
+    /**
+     * Configure la fenêtre principale.
+     *
+     * @param stage La fenêtre à configurer
+     * @param scene La scène à afficher
+     */
+    private void configureStage(Stage stage, Scene scene) {
+        stage.setScene(scene);
+        stage.setMinWidth(WIDTH);
+        stage.setMinHeight(HEIGHT);
+        stage.setTitle(APP_TITLE);
+        stage.show();
+    }
+
+    /**
+     * Point d'entrée de l'application.
+     *
+     * @param args Arguments de la ligne de commande
+     */
     public static void main(String[] args) {
         launch(args);
     }

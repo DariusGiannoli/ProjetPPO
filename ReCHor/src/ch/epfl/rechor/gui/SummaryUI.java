@@ -113,7 +113,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private final Text departureText      = new Text();
         private final Text arrivalText        = new Text();
         private final HBox routeBox           = new HBox(4);
-//        private final Group circlesGroup = new Group();
+//      private final Group circlesGroup = new Group();
         private final Pane changePane = createChangePane();
         private final HBox durationBox        = new HBox();
 
@@ -160,7 +160,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             setGraphic(root);
         }
 
-        // —————— méthodes extraites ——————
+        // —————— méthodes extraites pour update ——————
 
         private void clearOldContent() {
             routeBox.getChildren().clear();
@@ -208,7 +208,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 }
             }
 
-            // cercle arrivée
+            // cercle d'arrivée
             changePane.getChildren().add(makeCircle("dep-arr", 1.0));
 
         }
