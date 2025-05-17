@@ -23,6 +23,12 @@ import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Collectors;
 
+/**
+ * Classe principale, qui permet de lancer le programme.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
 public class Main extends Application {
 
     // Constantes de l'interface
@@ -41,6 +47,14 @@ public class Main extends Application {
     private ObjectProperty<String> cacheStop;
     private ObjectProperty<LocalDate> cacheDate;
 
+    /**
+     * Charge les données horaires présentes dans la TimeTable, et construire l'interface graphique
+     * principale en combinant les parties créées par les classes DetailUI, SummaryUI et QueryUI.
+     *
+     * @param stage la fenêtre principale pour l'application, sur laquelle la scene est mise.
+     * @throws Exception lance une exception s'il y a un problème de lecture des fichiers de la
+     * TimeTable dans la methode in.
+     */
     @Override
     public void start(Stage stage) throws Exception {
         //Chargement de la timetable
@@ -90,7 +104,7 @@ public class Main extends Application {
     }
 
     /**
-     * Initilaise le cache
+     * Initialise le cache de profile.
      */
     private void initializeCache() {
         cacheProfile = new SimpleObjectProperty<>();

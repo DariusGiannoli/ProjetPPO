@@ -16,8 +16,20 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
+
 /**
- * A faire
+ * Représente l'interface de requête, c'est à dire la partie de l'interface graphique
+ * qui permet à l'utilisateur de choisir les arrêts de départ et d'arrivée,
+ * et la date/heure de voyage désiré.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ *
+ * @param rootNode le nœud JavaFX à la racine de son graphe de scène.
+ * @param depStopO une valeur observable contenant le nom de l'arrêt de départ.
+ * @param arrStopO une valeur observable contenant le nom de l'arrêt d'arrivée.
+ * @param dateO une valeur observable contenant la date de voyage.
+ * @param timeO une valeur observable contenant l'heure de voyage.
  */
 public record QueryUI(
         Node rootNode,
@@ -29,8 +41,13 @@ public record QueryUI(
     private static final String CSS_PATH = "query.css";
     private static final int SPACING = 5;
 
+
     /**
-     * Construit le graphe de scène pour la recherche de voyages.
+     * Construit le graphe de scène pour la recherche de voyages, avec les champs pour choisir
+     * les arrêts de départ et d'arrivée ainsi que la date et l'heure souhaitée pour le trajet.
+     *
+     * @param index un StopIndex, à donner aux StopField pour proposer les arrêts.
+     * @return retourne une instance de QueryUI contenant le nœud JavaFX qui se trouve à sa racine.
      */
     public static QueryUI create(StopIndex index) {
         VBox root = new VBox(SPACING);
@@ -74,11 +91,13 @@ public record QueryUI(
     }
 
     /**
+     * Permet de créer un StopField présent dans l'interface de requète pour entrer
+     * l'arrêt de départ ou d'arrivée du voyage.
      *
-     * @param index
-     * @param id
-     * @param prompt
-     * @return
+     * @param index un StopIndex, à donner aux StopField pour proposer les arrêts.
+     * @param id l'id du StopField.
+     * @param prompt le texte à afficher par défaut dans le champ lorsqu'il est vide.
+     * @return retourne un StopField avec les caractéristiques passées en argument.
      */
     private static StopField setupStopField(StopIndex index, String id, String prompt) {
         StopField field = StopField.create(index);
@@ -88,10 +107,11 @@ public record QueryUI(
     }
 
     /**
+     * Permet de créer le bouton pour échanger l'arrêt de départ et d'arrivée dans les StopField.
      *
-     * @param dep
-     * @param arr
-     * @return
+     * @param dep le StopField pour l'arrêt de départ.
+     * @param arr le StopField pour l'arrêt d'arrivée.
+     * @return retourne le bouton pour échanger l'arrêt de départ et d'arrivée dans les StopField.
      */
     private static Button createSwapButton(StopField dep, StopField arr) {
         Button swap = new Button("⟷");
@@ -105,8 +125,10 @@ public record QueryUI(
     }
 
     /**
+     * Crée un TextFormatter pour le format de l'heure de départ voulue, entrée dans le champ.
      *
-     * @return
+     * @return retourne une TexteFormatter pour une LocalDate qui est l'heure de départ présente
+     * dans le champ prévu pour.
      */
     private static TextFormatter<LocalTime> createTimeFormatter() {
         DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("HH:mm");

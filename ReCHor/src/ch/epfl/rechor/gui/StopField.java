@@ -26,7 +26,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
     /**
      * Crée un StopField donc le champ textuel et la fenêtre associés à l'index donné.
      *
-     * @param index un StopIndex, à utiliser pour rechercher les arrêts à proposer.
+     * @param index un StopIndex, à utiliser pour connaitre les arrêts à proposer.
      * @return retourne un StopField associé au StopIndex passé en argument.
      */
     public static StopField create(StopIndex index) {
