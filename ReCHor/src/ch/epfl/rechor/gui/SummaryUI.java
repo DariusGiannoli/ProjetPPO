@@ -8,6 +8,7 @@ import ch.epfl.rechor.journey.Journey.Leg.Transport;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -20,7 +21,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 import java.time.Duration;
-
 import java.time.LocalTime;
 import java.util.List;
 import java.util.function.Consumer;
@@ -32,7 +32,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
     private static final int RADIUS = 3;
 
-    //Helper method
+    // Helper method
     private static <T> void onChange(
             ObservableValue<T> obs,
             Consumer<T> consumer
@@ -48,13 +48,12 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         }
     }
 
-
     /**
      * Crée la vue d'ensemble : une ListView de Journey, style summary.css,
      * sélectionne automatiquement le premier voyage à l'heure désirée.
      *
      * @param journeysO liste observable de voyages
-     * @param depTimeO heure de départ désirée
+     * @param depTimeO heure de départ intéressée
      * @return SummaryUI (rootNode + selectedJourneyO)
      */
     public static SummaryUI create(ObservableValue<List<Journey>> journeysO,
@@ -97,7 +96,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         view.scrollTo(idx);
     }
 
-    //crée des cercles
+    // Crée des cercles
     private static Circle makeCircle(String styleClass, double userData) {
         var c = new Circle(RADIUS);
         c.getStyleClass().add(styleClass);
@@ -109,13 +108,13 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
      * Cellule personnalisée affichant un résumé de Voyage
      */
     private static class JourneyCell extends ListCell<Journey> {
-        private final BorderPane root         = new BorderPane();
-        private final Text departureText      = new Text();
-        private final Text arrivalText        = new Text();
-        private final HBox routeBox           = new HBox(4);
-//      private final Group circlesGroup = new Group();
+        private final BorderPane root = new BorderPane();
+        private final Text departureText = new Text();
+        private final Text arrivalText = new Text();
+        private final HBox routeBox = new HBox(4);
+        private final Group circlesGroup = new Group(); // Now a field
         private final Pane changePane = createChangePane();
-        private final HBox durationBox        = new HBox();
+        private final HBox durationBox = new HBox();
 
         JourneyCell() {
             root.getStyleClass().add("journey");
@@ -148,13 +147,13 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             }
 
             Transport first = transports.getFirst();
-            Transport last  = transports.getLast();
-            Duration total  = Duration.between(first.depTime(), last.arrTime());
+            Transport last = transports.getLast();
+            Duration total = Duration.between(first.depTime(), last.arrTime());
             double totalSec = total.toSeconds();
 
             updateTimes(first, last);
             updateRoute(first);
-            updateChangeCircles(first, journey.legs(),journey, totalSec);
+            updateChangeCircles(first, journey.legs(), journey, totalSec);
             updateDuration(total);
 
             setGraphic(root);
@@ -165,7 +164,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private void clearOldContent() {
             routeBox.getChildren().clear();
             durationBox.getChildren().clear();
-            changePane.getChildren().removeIf(n -> n instanceof Circle);
+            circlesGroup.getChildren().clear(); // Clear circlesGroup instead of changePane
         }
 
         private List<Transport> extractTransports(Journey journey) {
@@ -181,7 +180,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         }
 
         private void updateRoute(Transport first) {
-            var icon     = new ImageView(VehicleIcons.iconFor(first.vehicle()));
+            var icon = new ImageView(VehicleIcons.iconFor(first.vehicle()));
             icon.setFitWidth(20);
             icon.setFitHeight(20);
             icon.setPreserveRatio(true);
@@ -193,24 +192,22 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private void updateChangeCircles(
                 Transport first, List<Leg> legs, Journey journey, double totalSec) {
             // cercle départ
-            changePane.getChildren().add(makeCircle("dep-arr", 0.0));
+            circlesGroup.getChildren().add(makeCircle("dep-arr", 0.0));
 
             // cercles de changement
             for (Leg leg : legs) {
                 if (leg instanceof Foot foot
                         && !foot.depStop().equals(journey.depStop())
                         && !foot.arrStop().equals(journey.arrStop())) {
-
                     double rel = Duration
                             .between(first.depTime().toLocalTime(), foot.depTime())
                             .toSeconds() / totalSec;
-                    changePane.getChildren().add(makeCircle("transfer", rel));
+                    circlesGroup.getChildren().add(makeCircle("transfer", rel));
                 }
             }
 
             // cercle d'arrivée
-            changePane.getChildren().add(makeCircle("dep-arr", 1.0));
-
+            circlesGroup.getChildren().add(makeCircle("dep-arr", 1.0));
         }
 
         private void updateDuration(Duration total) {
@@ -218,19 +215,14 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             durationBox.getChildren().setAll(durText);
         }
 
-
-        private static Pane createChangePane() {
+        private Pane createChangePane() {
             Pane pane = new Pane() {
                 private final Line line = new Line();
                 {
-                    getChildren().add(line);
+                    getChildren().addAll(line, circlesGroup); // Add line and circlesGroup
                     setPrefSize(0, 0);
                 }
 
-                /**
-                 * Cette methode est redéfinie afin de dimensionner et positionner correctement
-                 * la ligne et les disques dans le panneau.
-                 */
                 @Override
                 protected void layoutChildren() {
                     double w = getWidth();
@@ -241,8 +233,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     line.setStartY(y);
                     line.setEndX(w - m);
                     line.setEndY(y);
-                    // positionne les cercles réstants
-                    for (var n : getChildren()) {
+                    // Position the circles from circlesGroup
+                    for (var n : circlesGroup.getChildren()) {
                         if (n instanceof Circle c) {
                             double rel = (double) c.getUserData();
                             double x = m + rel * (w - 2 * m);
@@ -255,5 +247,4 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             return pane;
         }
     }
-
 }
