@@ -190,25 +190,34 @@ public record DetailUI(Node rootNode) {
             return new Circle(CIRCLE_RADIUS, Color.BLACK);
         }
 
-        private int addStopRow(Transport tx, boolean isDeparture, Circle circle, int row) {
-            LocalDateTime time = isDeparture ? tx.depTime() : tx.arrTime();
-            Stop stop = isDeparture ? tx.depStop() : tx.arrStop();
+        // 1) Méthode utilitaire pour créer un Text avec style départ si besoin
+        private Text makeText(String content, boolean isDeparture) {
+            Text t = new Text(content);
+            if (isDeparture) {
+                t.getStyleClass().add("departure");
+            }
+            return t;
+        }
 
-            Text timeText = with(new Text(FormatterFr.formatTime(time)),
-                    t -> {
-                        if (isDeparture) t.getStyleClass().add("departure");
-                    });
-            add(timeText, COL_TIME, row);
-            add(circle, COL_CIRCLE, row);
-            add(new Text(stop.name()), COL_STATION, row);
+        // 2) Méthode utilitaire pour créer et ajouter en une seule ligne
+        private void addTextCell(String content, boolean isDeparture, int col, int row) {
+            add(makeText(content, isDeparture), col, row);
+        }
+
+        // Réécriture de addStopRow
+        private int addStopRow(Transport tx, boolean isDeparture, Circle circle, int row) {
+            // on récupère une seule fois time et stop
+            LocalDateTime time = isDeparture ? tx.depTime() : tx.arrTime();
+            Stop stop           = isDeparture ? tx.depStop()  : tx.arrStop();
+
+            // on utilise les utilitaires
+            addTextCell(FormatterFr.formatTime(time), isDeparture, COL_TIME,     row);
+            add(circle,                     COL_CIRCLE,    row);
+            add(new Text(stop.name()),      COL_STATION,   row);
 
             String platform = FormatterFr.formatPlatformName(stop);
             if (!platform.isEmpty()) {
-                Text p = with(new Text(platform),
-                        t -> {
-                            if (isDeparture) t.getStyleClass().add("departure");
-                        });
-                add(p, COL_PLATFORM, row);
+                addTextCell(platform, isDeparture, COL_PLATFORM, row);
             }
 
             return row + 1;
