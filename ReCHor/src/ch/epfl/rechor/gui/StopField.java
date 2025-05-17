@@ -2,6 +2,7 @@ package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.StopIndex;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.control.ListView;
@@ -47,6 +48,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         handler.configureKeyNavigation();
         handler.configureFocusHandling(index);
         handler.configureSelectionHandling();
+
 
         return new StopField(textField, selected);
     }
@@ -101,6 +103,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
          * @param index un StopIndex, utilisé pour proposer les arrêts.
          */
             void configureFocusHandling(StopIndex index) {
+
                 textField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
                     if (isFocused) {
                         updateListItems(index);
@@ -108,8 +111,13 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
                     }
                 });
 
-                textField.textProperty().addListener((obs, oldText, newText) ->
-                        updateListItems(index));
+                textField.textProperty().addListener((obs, oldText, newText) -> {
+                    if(popup.isShowing()) {
+                        updateListItems(index);
+                        positionAndShowPopup();
+                    }
+                        });
+
             }
 
             /**
