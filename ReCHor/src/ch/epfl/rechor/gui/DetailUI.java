@@ -50,6 +50,10 @@ public record DetailUI(Node rootNode) {
     private static final int COL_PLATFORM = 3;
 
     private static final String FORMAT_STOP_INTERMEDIATE = "%d arrêts, %d min";
+    private static final String MAP = "Carte";
+    private static final String CALENDAR = "Calendrier";
+
+    private static final String INTERMEDIATE_STOPS = "intermediate-stops";
 
     /**
      * Crée le graphe de scène et retourne une instance de DetailUI
@@ -371,8 +375,8 @@ public record DetailUI(Node rootNode) {
          */
         private GridPane buildIntermediateGrid(List<Leg.IntermediateStop> stops) {
             return with(new GridPane(), grid -> {
-                grid.setId("intermediate-stops");
-                grid.getStyleClass().add("intermediate-stops");
+                grid.setId(INTERMEDIATE_STOPS);
+                grid.getStyleClass().add(INTERMEDIATE_STOPS);
                 grid.setHgap(GAP);
 
                 IntStream.range(0, stops.size()).forEach(row -> {
