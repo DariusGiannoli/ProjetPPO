@@ -50,8 +50,6 @@ public record DetailUI(Node rootNode) {
     private static final int COL_PLATFORM = 3;
 
     private static final String FORMAT_STOP_INTERMEDIATE = "%d arrêts, %d min";
-    private static final String MAP = "Carte";
-    private static final String CALENDAR = "Calendrier";
 
     private static final String INTERMEDIATE_STOPS = "intermediate-stops";
 
