@@ -2,7 +2,6 @@ package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.StopIndex;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.control.ListView;
