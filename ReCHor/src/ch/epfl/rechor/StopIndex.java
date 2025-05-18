@@ -43,7 +43,7 @@ public final class StopIndex {
      * @param altToMain table de correspondance entre nom alternatif → nom principal
      */
     public StopIndex(List<String> mainNames, Map<String, String> altToMain) {
-        var tempMap = new HashMap<String, String>();
+        HashMap<String, String> tempMap = new HashMap<>();
         mainNames.forEach(n -> tempMap.put(n, n));
         altToMain.forEach((alt, main) -> {
             if (tempMap.containsKey(main)) {
@@ -149,7 +149,7 @@ public final class StopIndex {
         boolean hasUpper = sub.chars().anyMatch(Character::isUpperCase);
         int flags = Pattern.UNICODE_CASE | (hasUpper ? 0 : Pattern.CASE_INSENSITIVE);
 
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
         for (char c : sub.toCharArray()) {
             char low = Character.toLowerCase(c);
             if (ACCENT_EQUIVALENCES.containsKey(low)) {
