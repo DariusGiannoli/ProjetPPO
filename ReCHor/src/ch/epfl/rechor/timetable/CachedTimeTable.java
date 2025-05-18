@@ -2,6 +2,13 @@ package ch.epfl.rechor.timetable;
 
 import java.time.LocalDate;
 
+/**
+ * Représente un horaire dont les données qui dépendent de la date (les courses et les liaisons)
+ * sont stockées dans un cache, pour un accès ultérieur plus rapide.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
 public final class CachedTimeTable implements TimeTable {
 
     // L'horaire sous-jacent dont les données seront mises en cache
