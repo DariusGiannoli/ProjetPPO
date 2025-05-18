@@ -141,6 +141,10 @@ public record Router(TimeTable timetable) {
     }
 
     /**
+     * Deuxième optimisation, la mise à jour des frontières des gares n'a pas besoin d'être faite
+     * si tous les tuples de la frontière builder, augmentés de l'heure de départ de la liaison,
+     * sont dominés par au moins un tuple de la frontière de la gare de départ de la liaison.
+     *
      * @param transfers les transfers indéxés.
      * @param connections les liaisons indéxées.
      * @param builder le bâtisseur de frontière de Pareto temporaire de la connexion courante.
