@@ -140,6 +140,7 @@ public class Main extends Application {
         String arrName = queryUI.arrStopO().getValue();
         LocalDate date = queryUI.dateO().getValue();
 
+        // Retour anticipé pour les entrées vides
         if (depName.isEmpty() || arrName.isEmpty())
             return List.of();
 

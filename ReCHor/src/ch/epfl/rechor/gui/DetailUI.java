@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 import static java.awt.Desktop.getDesktop;
 
@@ -41,38 +42,15 @@ public record DetailUI(Node rootNode) {
     private static final double CIRCLE_RADIUS = 3.0;
     private static final double LINE_WIDTH = 2.0;
     private static final int ICON_SIZE = 31;
+    private static final int BUTTONS_SPACING = 10;
+    private static final int GAP = 5;
 
-    private static final int COL_TIME     = 0;
-    private static final int COL_CIRCLE   = 1;
-    private static final int COL_STATION  = 2;
+    private static final int COL_TIME = 0;
+    private static final int COL_CIRCLE = 1;
+    private static final int COL_STATION = 2;
     private static final int COL_PLATFORM = 3;
 
-    /**
-     * Méthode qui crée un bouton avec un id, contenant un texte.
-     *
-     * @param text texte représenté sur le bouton.
-     * @param id id du bouton.
-     * @return retourne un bouton avec le texte et l'id donné en argument.
-     */
-    private static Button makeButton(String text, String id) {
-        Button b = new Button(text);
-        b.setId(id);
-        return b;
-    }
-
-    /**
-     *
-     *
-     * @param node
-     * @param cfg
-     * @param <T>
-     * @return
-     */
-    // 1) Helper générique, static et private
-    private static <T extends Node> T with(T node, Consumer<T> cfg) {
-        cfg.accept(node);
-        return node;
-    }
+    private static final String FORMAT_STOP_INTERMEDIATE = "%d arrêts, %d min";
 
     /**
      * Crée le graphe de scène et retourne une instance de DetailUI
@@ -98,40 +76,64 @@ public record DetailUI(Node rootNode) {
         });
 
         // 3) Annotations + grille
-        var annotations = with(new Pane(),   p -> p.setId("annotations"));
-        var legsGrid    = with(new DetailGridPane(annotations), dg -> dg.setId("legs"));
-        var stepsPane   = new StackPane(annotations, legsGrid);
+        var annotations = with(new Pane(), p -> p.setId("annotations"));
+        var legsGrid = with(new DetailGridPane(annotations), dg -> dg.setId("legs"));
+        var stepsPane = new StackPane(annotations, legsGrid);
 
         // 4) Boutons
-        var btnMap      = makeButton("Carte",      "Carte");
+        var btnMap = makeButton("Carte", "Carte");
         var btnCalendar = makeButton("Calendrier", "Calendrier");
-        var buttons = with(new HBox(10, btnMap, btnCalendar), hb -> {
+        var buttons = with(new HBox(BUTTONS_SPACING, btnMap, btnCalendar), hb -> {
             hb.setId("buttons");
             hb.setAlignment(Pos.CENTER);
         });
 
         // 5) Assemblage
-        var detailBox = new VBox(5, stepsPane, buttons);
-        var rootStack = new StackPane(noJourney, detailBox);
-        scroll.setContent(rootStack);
+        var detailBox = new VBox(GAP, stepsPane, buttons);
+        scroll.setContent(new StackPane(noJourney, detailBox));
 
-        var ui = new DetailUI(scroll);
-
-        // 6) Binding sur le voyage
-        Runnable update = () -> {
-            Journey j = journeyO.getValue();
-            noJourney.setVisible(j == null);
-            detailBox.setVisible(j != null);
-            legsGrid.updateLegs(j);
+        // 6) Binding + actions: mis à jour ensemble
+        Consumer<Journey> updateUI = j -> {
+            boolean hasJourney = j != null;
+            noJourney.setVisible(!hasJourney);
+            detailBox.setVisible(hasJourney);
+            if (hasJourney) legsGrid.updateLegs(j);
         };
-        journeyO.subscribe((n) -> update.run());
-        update.run();
 
-        // 7) Actions
+        journeyO.subscribe(ignored -> updateUI.accept(journeyO.getValue()));
+        updateUI.accept(journeyO.getValue());
+
         btnMap.setOnAction(e -> openMap(journeyO.getValue()));
         btnCalendar.setOnAction(e -> exportCalendar(journeyO.getValue()));
 
-        return ui;
+        return new DetailUI(scroll);
+    }
+
+    /**
+     * Helper générique permettant de configurer un nœud et de le retourner en une seule expression.
+     * Cela permet de créer et configurer un nœud JavaFX de manière concise et lisible.
+     *
+     * @param node le nœud à configurer
+     * @param cfg  fonction de configuration à appliquer au nœud
+     * @param <T>  type du neoud
+     * @return le nœud configuré
+     */
+    private static <T extends Node> T with(T node, Consumer<T> cfg) {
+        cfg.accept(node);
+        return node;
+    }
+
+    /**
+     * Méthode qui crée un bouton avec un id, contenant un texte.
+     *
+     * @param text texte représenté sur le bouton.
+     * @param id   id du bouton.
+     * @return retourne un bouton avec le texte et l'id donné en argument.
+     */
+    private static Button makeButton(String text, String id) {
+        Button b = new Button(text);
+        b.setId(id);
+        return b;
     }
 
     /**
@@ -147,7 +149,6 @@ public record DetailUI(Node rootNode) {
                     "data=" + geo, null);
             getDesktop().browse(uri);
         } catch (Exception ignored) {
-            // Ignore exceptions as per original behavior
         }
     }
 
@@ -168,7 +169,6 @@ public record DetailUI(Node rootNode) {
                 Files.writeString(file.toPath(), ical);
             }
         } catch (Exception ignored) {
-            // Ignore exceptions as per original behavior
         }
     }
 
@@ -188,8 +188,8 @@ public record DetailUI(Node rootNode) {
         DetailGridPane(Pane annotations) {
             this.annotations = annotations;
             configureColumns();
-            setVgap(5);
-            setHgap(5);
+            setVgap(GAP);
+            setHgap(GAP);
         }
 
         /**
@@ -227,8 +227,8 @@ public record DetailUI(Node rootNode) {
          * Ajoute un trajet à pied au DetailGridPane, à la ligne souhaitée.
          *
          * @param foot le trajet à pied que l'on veut ajouter à la DetailGridPane.
-         * @param row numéro de la ligne de la DetailGridPane sur laquelle va être ajouté
-         *            le trajet à pied.
+         * @param row  numéro de la ligne de la DetailGridPane sur laquelle va être ajouté
+         *             le trajet à pied.
          * @return retourne le numéro de la prochaine ligne du DetailGridPane.
          */
         private int addFootLeg(Foot foot, int row) {
@@ -238,94 +238,83 @@ public record DetailUI(Node rootNode) {
         }
 
         /**
-         * Crée un cercle de rayon CIRCLE_RADIUS et de couleur noire.
-         *
-         * @return un cercle de rayon CIRCLE_RADIUS et de couleur noire.
-         */
-        private Circle createCircle() {
-            return new Circle(CIRCLE_RADIUS, Color.BLACK);
-        }
-
-
-        /**
          * Ajoute un arrêt de départ ou d'arrivé d'un trajet en transport au DetailGridPane, avec
          * l'heure de départ, le cercle, le nom de la station et de la plateforme s'il y en a une.
          *
-         * @param tx L'étape en transport à laquelle correspond l'arrêt que l'on veut ajouter.
+         * @param tx          L'étape en transport à laquelle correspond l'arrêt que l'on veut ajouter.
          * @param isDeparture valeur booléenne pour savoir s'il s'agit de l'arrêt de départ
          *                    ou d'arrivé de l'étape en transport que l'on veut ajouter.
-         * @param circle le cercle que l'on veut ajouter dans le DetailGridPane.
-         * @param row la ligne à laquelle on ajoute cet arrêt.
+         * @param circle      le cercle que l'on veut ajouter dans le DetailGridPane.
+         * @param row         la ligne à laquelle on ajoute cet arrêt.
          * @return retourne le numéro de la prochaine ligne.
          */
-        private int addStopRow(Transport tx,
-                               boolean isDeparture,
-                               Circle circle,
-                               int row)
-        {
+        private int addStopRow(Transport tx, boolean isDeparture, Circle circle, int row) {
             // prend le bon arrêt et la bonne date
             LocalDateTime time = isDeparture ? tx.depTime() : tx.arrTime();
-            Stop         stop = isDeparture ? tx.depStop() : tx.arrStop();
+            Stop stop = isDeparture ? tx.depStop() : tx.arrStop();
 
-            // time cell
-            Text timeText = new Text(FormatterFr.formatTime(time));
-            if (isDeparture) timeText.getStyleClass().add("departure");
-            add(timeText, COL_TIME, row);
-
-            // circle cell
+            add(createStopText(FormatterFr.formatTime(time), isDeparture), COL_TIME, row);
             add(circle, COL_CIRCLE, row);
-
-            // station name
             add(new Text(stop.name()), COL_STATION, row);
 
-            // optional platform
             String platform = FormatterFr.formatPlatformName(stop);
             if (!platform.isEmpty()) {
-                Text p = new Text(platform);
-                if (isDeparture) p.getStyleClass().add("departure");
-                add(p, COL_PLATFORM, row);
+                add(createStopText(platform, isDeparture), COL_PLATFORM, row);
             }
-
             return row + 1;
+        }
+
+        /**
+         * @param content
+         * @param isDeparture
+         * @return
+         */
+        private Text createStopText(String content, boolean isDeparture) {
+            return with(new Text(content), t -> {
+                if (isDeparture) t.getStyleClass().add("departure");
+            });
         }
 
         /**
          * Ajoute une étape en transport au DetailGridPane, à la ligne souhaitée.
          *
-         * @param tx l'étape en transport que l'on veut ajouter.
+         * @param tx  l'étape en transport que l'on veut ajouter.
          * @param row la ligne du DetailGridPane à laquelle on veut ajouter cette étape.
          * @return retourne le numéro de la prochaine ligne,
          * après la dernière ligne utilisée pour ce voyage.
          */
         private int addTransportLeg(Transport tx, int row) {
-            // departure
+            // Créer les cercles ensemble
             Circle depCircle = createCircle();
-            row = addStopRow(tx, true,  depCircle, row);
-
-            // icon + destination
-            ImageView icon = createVehicleIcon(tx.vehicle());
-            add(icon, 0, row, 1, tx.intermediateStops().isEmpty() ? 1 : 2);
-            add(new Text(FormatterFr.formatRouteDestination(tx)),
-                    2, row, 2, 1);
-            row++;
-
-            // intermediates
-            row = addIntermediateStops(tx, row);
-
-            // arrival
             Circle arrCircle = createCircle();
+            circlePairs.add(new Pair<>(depCircle, arrCircle));
+
+            // Ajouter départ, icône, arrêts intermédiaires et arrivée
+            row = addStopRow(tx, true, depCircle, row);
+            row = addIconAndDestination(tx, row);
+            row = addIntermediateStops(tx, row);
             row = addStopRow(tx, false, arrCircle, row);
 
-            circlePairs.add(new Pair<>(depCircle, arrCircle));
             return row;
         }
 
+        /**
+         * @param tx
+         * @param row
+         * @return
+         */
+        private int addIconAndDestination(Transport tx, int row) {
+            ImageView icon = createVehicleIcon(tx.vehicle());
+            add(icon, 0, row, 1, tx.intermediateStops().isEmpty() ? 1 : 2);
+            add(new Text(FormatterFr.formatRouteDestination(tx)), 2, row, 2, 1);
+            return row + 1;
+        }
 
         /**
          * Crée l'élément dépliant contenant les arrêts intermédiaires de l'étape en transport
          * donnée en argument à la ligne souhaitée.
          *
-         * @param tx l'étape en transport dont on veut les arrêts intermédiaires.
+         * @param tx  l'étape en transport dont on veut les arrêts intermédiaires.
          * @param row la ligne à laquelle on veut ajouter le menu déroulant.
          * @return retourne le numéro de la ligne suivant celle utilisée pour cet élément dépliant.
          */
@@ -334,14 +323,17 @@ public record DetailUI(Node rootNode) {
 
             int stopCount = tx.intermediateStops().size();
             long duration = tx.duration().toMinutes();
-            Accordion accordion = new Accordion();
-            accordion.setId("intermediate");
-            TitledPane pane = new TitledPane(
-                    stopCount + " arrêts, " + duration + " min",
+
+            TitledPane content = new TitledPane(
+                    String.format(FORMAT_STOP_INTERMEDIATE, stopCount, duration),
                     buildIntermediateGrid(tx.intermediateStops())
             );
-            accordion.getPanes().add(pane);
-            add(accordion, 2, row, 2, 1);
+
+            add(with(new Accordion(), a -> {
+                a.setId("intermediate");
+                a.getPanes().add(content);
+            }), 2, row, 2, 1);
+
             return row + 1;
         }
 
@@ -352,16 +344,21 @@ public record DetailUI(Node rootNode) {
          * @return retourne une ImageView de l'icon du véhicule passé en argument.
          */
         private ImageView createVehicleIcon(Vehicle v) {
-            // 1) délégation du load à VehicleIcons
-            Image image = VehicleIcons.iconFor(v);
+            return with(new ImageView(VehicleIcons.iconFor(v)), iv -> {
+                iv.setFitWidth(ICON_SIZE);
+                iv.setFitHeight(ICON_SIZE);
+                iv.setPreserveRatio(true);
+                iv.setSmooth(true);
+            });
+        }
 
-            // 2) création + sizing en un point unique
-            ImageView iv = new ImageView(image);
-            iv.setFitWidth(ICON_SIZE);
-            iv.setFitHeight(ICON_SIZE);
-            iv.setPreserveRatio(true);
-            iv.setSmooth(true);
-            return iv;
+        /**
+         * Crée un cercle de rayon CIRCLE_RADIUS et de couleur noire.
+         *
+         * @return un cercle de rayon CIRCLE_RADIUS et de couleur noire.
+         */
+        private Circle createCircle() {
+            return with(new Circle(CIRCLE_RADIUS), c -> c.setFill(Color.BLACK));
         }
 
         /**
@@ -374,19 +371,18 @@ public record DetailUI(Node rootNode) {
          * des arrêts intermédiaires.
          */
         private GridPane buildIntermediateGrid(List<Leg.IntermediateStop> stops) {
-            GridPane grid = new GridPane();
-            grid.setId("intermediate-stops");
-            grid.getStyleClass().add("intermediate-stops");
-            grid.setHgap(5);
+            return with(new GridPane(), grid -> {
+                grid.setId("intermediate-stops");
+                grid.getStyleClass().add("intermediate-stops");
+                grid.setHgap(GAP);
 
-            int row = 0;
-            for (var stop : stops) {
-                grid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, row);
-                grid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, row);
-                grid.add(new Text(stop.stop().name()), 2, row);
-                row++;
-            }
-            return grid;
+                IntStream.range(0, stops.size()).forEach(row -> {
+                    var stop = stops.get(row);
+                    grid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, row);
+                    grid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, row);
+                    grid.add(new Text(stop.stop().name()), 2, row);
+                });
+            });
         }
 
         /**
@@ -396,25 +392,34 @@ public record DetailUI(Node rootNode) {
         @Override
         protected void layoutChildren() {
             super.layoutChildren();
-            List<Line> lines = circlePairs.stream().map(p -> {
-                Circle dep = p.getKey();
-                Circle arr = p.getValue();
-                var depBounds = dep.getBoundsInParent();
-                var arrBounds = arr.getBoundsInParent();
-
-                Line line = new Line(
-                        depBounds.getCenterX(), depBounds.getMinY()
-                        + depBounds.getHeight() / 2,
-                        arrBounds.getCenterX(), arrBounds.getMinY()
-                        + arrBounds.getHeight() / 2
-                );
-                line.setStrokeWidth(LINE_WIDTH);
-                line.setStroke(Color.RED);
-                return line;
-            }).toList();
-
+            List<Line> lines = createConnectionLines();
             annotations.getChildren().setAll(lines);
             annotations.getParent().requestLayout();
+        }
+
+        /**
+         * Crée les lignes rouges reliant les paires de cercles de départ et d'arrivée.
+         * Ces lignes représentent les trajets en transport entre deux arrêts.
+         *
+         * @return liste des lignes à afficher dans le panneau d'annotations
+         */
+        private List<Line> createConnectionLines() {
+            return circlePairs.stream()
+                    .map(p -> {
+                        Circle dep = p.getKey();
+                        Circle arr = p.getValue();
+                        var depBounds = dep.getBoundsInParent();
+                        var arrBounds = arr.getBoundsInParent();
+
+                        return with(new Line(
+                                depBounds.getCenterX(), depBounds.getMinY() + depBounds.getHeight() / 2,
+                                arrBounds.getCenterX(), arrBounds.getMinY() + arrBounds.getHeight() / 2
+                        ), line -> {
+                            line.setStrokeWidth(LINE_WIDTH);
+                            line.setStroke(Color.RED);
+                        });
+                    })
+                    .toList();
         }
     }
 }
