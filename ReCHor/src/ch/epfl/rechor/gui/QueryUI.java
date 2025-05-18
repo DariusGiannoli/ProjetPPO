@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
-
 /**
  * Représente l'interface de requête, c'est à dire la partie de l'interface graphique
  * qui permet à l'utilisateur de choisir les arrêts de départ et d'arrivée,
@@ -31,15 +30,12 @@ import java.time.format.DateTimeFormatter;
  * @param dateO une valeur observable contenant la date de voyage.
  * @param timeO une valeur observable contenant l'heure de voyage.
  */
-public record QueryUI(
-        Node rootNode,
-        ObservableValue<String> depStopO,
-        ObservableValue<String> arrStopO,
-        ObservableValue<LocalDate> dateO,
-        ObservableValue<LocalTime> timeO
-) {
-    private static final String CSS_PATH = "query.css";
+public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
+        ObservableValue<String> arrStopO, ObservableValue<LocalDate> dateO,
+        ObservableValue<LocalTime> timeO) {
+
     private static final int SPACING = 5;
+    private static final String THIN_SPACE_COLON = "\u202f:";
 
 
     /**
@@ -50,23 +46,13 @@ public record QueryUI(
      * @return retourne une instance de QueryUI contenant le nœud JavaFX qui se trouve à sa racine.
      */
     public static QueryUI create(StopIndex index) {
-        VBox root = new VBox(SPACING);
-        root.getStylesheets().add(CSS_PATH);
-
-        // Champs d'arrêts (départ/arrivée)
-        StopField depField = setupStopField(index, "depStop", "Nom de l'arrêt de départ");
-        StopField arrField = setupStopField(index, "arrStop", "Nom de l'arrêt d'arrivée");
+        // Création des champs d'arrêts
+        StopField depField = createStopField(index, "depStop", "Nom de l'arrêt de départ");
+        StopField arrField = createStopField(index, "arrStop", "Nom de l'arrêt d'arrivée");
 
         // Bouton d'échange
         Button swapButton = createSwapButton(depField, arrField);
 
-        HBox topo = new HBox(SPACING,
-                new Label("Départ\u202f:"), depField.textField(),
-                swapButton,
-                new Label("Arrivée\u202f:"), arrField.textField()
-        );
-
-        // Sélecteurs de date et heure
         DatePicker datePicker = new DatePicker(LocalDate.now());
         datePicker.setId("date");
 
@@ -75,12 +61,18 @@ public record QueryUI(
         timeField.setId("time");
         timeField.setTextFormatter(timeFormatter);
 
-        HBox bottom = new HBox(SPACING,
-                new Label("Date\u202f:"), datePicker,
-                new Label("Heure\u202f:"), timeField
-        );
+        // Construction des panneaux
+        HBox topBox = new HBox(SPACING,
+                new Label("Départ" + THIN_SPACE_COLON), depField.textField(),
+                swapButton,
+                new Label("Arrivée" + THIN_SPACE_COLON), arrField.textField());
+        HBox bottomBox = new HBox(SPACING,
+                new Label("Date" + THIN_SPACE_COLON), datePicker,
+                new Label("Heure" + THIN_SPACE_COLON), timeField);
 
-        root.getChildren().addAll(topo, bottom);
+        // Assemblage final
+        VBox root = new VBox(SPACING, topBox, bottomBox);
+        root.getStylesheets().add("query.css");
 
         return new QueryUI(
                 root,
@@ -94,12 +86,12 @@ public record QueryUI(
      * Permet de créer un StopField présent dans l'interface de requète pour entrer
      * l'arrêt de départ ou d'arrivée du voyage.
      *
-     * @param index un StopIndex, à donner aux StopField pour proposer les arrêts.
-     * @param id l'id du StopField.
+     * @param index  un StopIndex, à donner aux StopField pour proposer les arrêts.
+     * @param id     l'id du StopField.
      * @param prompt le texte à afficher par défaut dans le champ lorsqu'il est vide.
      * @return retourne un StopField avec les caractéristiques passées en argument.
      */
-    private static StopField setupStopField(StopIndex index, String id, String prompt) {
+    private static StopField createStopField(StopIndex index, String id, String prompt) {
         StopField field = StopField.create(index);
         field.textField().setId(id);
         field.textField().setPromptText(prompt);
@@ -125,15 +117,17 @@ public record QueryUI(
     }
 
     /**
-     * Crée un TextFormatter pour le format de l'heure de départ voulue, entrée dans le champ.
+     * Crée un TextFormatter pour le format de l'heure avec affichage standardisé
+     * et analyse flexible des entrées utilisateur.
      *
-     * @return retourne une TexteFormatter pour une LocalDate qui est l'heure de départ présente
-     * dans le champ prévu pour.
+     * @return formateur configuré avec l'heure actuelle comme valeur par défaut
      */
     private static TextFormatter<LocalTime> createTimeFormatter() {
         DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter parseFormat = DateTimeFormatter.ofPattern("H:mm");
+
         return new TextFormatter<>(
-                new LocalTimeStringConverter(displayFormat, null),
+                new LocalTimeStringConverter(displayFormat, parseFormat),
                 LocalTime.now()
         );
     }
