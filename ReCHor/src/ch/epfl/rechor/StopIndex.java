@@ -117,6 +117,7 @@ public final class StopIndex {
      */
     private int scoreIfMatchesAll(String name, int[] subLengths, List<Pattern> patterns) {
         int total = 0;
+        int nlen = name.length();
         for (int i = 0; i < patterns.size(); i++) {
             Pattern p = patterns.get(i);
             Matcher m = p.matcher(name);
@@ -125,7 +126,9 @@ public final class StopIndex {
             }
             int start = m.start();
             int end   = m.end();
-            int base  = subLengths[i] * SCORE_MULTIPLIER / name.length();
+            int length = subLengths[i];
+
+            int base  = length * SCORE_MULTIPLIER / nlen;
 
             if (start == 0 || !Character.isLetter(name.charAt(start - 1))) {
                 base *= START_WORD_BONUS;
