@@ -80,6 +80,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
                 // Affiche la popup quand on gagne le focus
                 updateSuggestions(list, index.stopsMatching(textField.getText(), MAX_SUGGESTIONS));
                 showPopup(textField, popup);
+
             } else {
                 // Valide la sélection quand on perd le focus
                 String selectedItem = list.getSelectionModel().getSelectedItem();
@@ -100,6 +101,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         textField.textProperty().addListener((obs, oldText, newText) -> {
             if (popup.isShowing()) {
                 updateSuggestions(list, index.stopsMatching(newText, MAX_SUGGESTIONS));
+                showPopup(textField, popup);
             }
         });
     }
