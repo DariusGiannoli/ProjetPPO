@@ -39,11 +39,13 @@ import static java.awt.Desktop.getDesktop;
  * @author Darius Giannoli (380759)
  */
 public record DetailUI(Node rootNode) {
+
     private static final double CIRCLE_RADIUS = 3.0;
     private static final double LINE_WIDTH = 2.0;
     private static final int ICON_SIZE = 31;
     private static final int BUTTONS_SPACING = 10;
     private static final int GAP = 5;
+    private static final double COLUMN_WIDTH_CIRCLE = 10.0;
 
     private static final int COL_TIME = 0;
     private static final int COL_CIRCLE = 1;
@@ -51,8 +53,7 @@ public record DetailUI(Node rootNode) {
     private static final int COL_PLATFORM = 3;
 
     private static final String FORMAT_STOP_INTERMEDIATE = "%d arrêts, %d min";
-
-    private static final String INTERMEDIATE_STOPS = "intermediate-stops";
+    private static final String CALENDAR_FILENAME_FORMAT = "voyage_%s.ics";
 
     /**
      * Crée le graphe de scène et retourne une instance de DetailUI
@@ -64,49 +65,25 @@ public record DetailUI(Node rootNode) {
      */
     public static DetailUI create(ObservableValue<Journey> journeyO) {
         // 1) ScrollPane
-        ScrollPane scroll = with(new ScrollPane(), s -> {
-            s.setId("detail");
-            s.getStylesheets().add("detail.css");
-            s.setFitToWidth(true);
-        });
+        ScrollPane scroll = createScrollPane();
 
         // 2) “Aucun voyage”
-        VBox noJourney = with(new VBox(new Text("Aucun voyage")), v -> {
-            v.setId("no-journey");
-            v.setFillWidth(true);
-            v.setAlignment(Pos.CENTER);
-        });
+        VBox noJourney = createNoJourneyMessage();
 
         // 3) Annotations + grille
-        Pane annotations = with(new Pane(), p -> p.setId("annotations"));
-        DetailGridPane legsGrid = with(new DetailGridPane(annotations), dg -> dg.setId("legs"));
+        Pane annotations = createAnnotationsPane();
+        DetailGridPane legsGrid = createLegsGrid(annotations);
         StackPane stepsPane = new StackPane(annotations, legsGrid);
 
         // 4) Boutons
-        Button btnMap = makeButton("Carte", "Carte");
-        Button btnCalendar = makeButton("Calendrier", "Calendrier");
-        HBox buttons = with(new HBox(BUTTONS_SPACING, btnMap, btnCalendar), hb -> {
-            hb.setId("buttons");
-            hb.setAlignment(Pos.CENTER);
-        });
+        HBox buttons = createButtons(journeyO);
 
         // 5) Assemblage
         VBox detailBox = new VBox(GAP, stepsPane, buttons);
         scroll.setContent(new StackPane(noJourney, detailBox));
 
-        // 6) Binding + actions: mis à jour ensemble
-        Consumer<Journey> updateUI = j -> {
-            boolean hasJourney = j != null;
-            noJourney.setVisible(!hasJourney);
-            detailBox.setVisible(hasJourney);
-            if (hasJourney) legsGrid.updateLegs(j);
-        };
-
-        journeyO.subscribe(ignored -> updateUI.accept(journeyO.getValue()));
-        updateUI.accept(journeyO.getValue());
-
-        btnMap.setOnAction(e -> openMap(journeyO.getValue()));
-        btnCalendar.setOnAction(e -> exportCalendar(journeyO.getValue()));
+        // 6) Binding + actions
+        setupBindingsAndActions(journeyO, noJourney, detailBox, legsGrid);
 
         return new DetailUI(scroll);
     }
@@ -123,6 +100,91 @@ public record DetailUI(Node rootNode) {
     private static <T extends Node> T with(T node, Consumer<T> cfg) {
         cfg.accept(node);
         return node;
+    }
+
+    /**
+     * Crée le ScrollPane principal.
+     *
+     * @return le ScrollPane configuré
+     */
+    private static ScrollPane createScrollPane() {
+        return with(new ScrollPane(), s -> {
+            s.setId("detail");
+            s.getStylesheets().add("detail.css");
+            s.setFitToWidth(true);
+        });
+    }
+
+    /**
+     * Crée le message affiché quand aucun voyage n'est sélectionné.
+     *
+     * @return le VBox contenant le message
+     */
+    private static VBox createNoJourneyMessage() {
+        return with(new VBox(new Text("Aucun voyage")), v -> {
+            v.setId("no-journey");
+            v.setFillWidth(true);
+            v.setAlignment(Pos.CENTER);
+        });
+    }
+
+    /**
+     * Crée le panneau des annotations (lignes rouges).
+     *
+     * @return le Pane configuré
+     */
+    private static Pane createAnnotationsPane() {
+        return with(new Pane(), p -> p.setId("annotations"));
+    }
+
+    /**
+     * Crée la grille qui affiche les détails du voyage.
+     *
+     * @param annotations le panneau qui contiendra les lignes entre les étapes
+     * @return la DetailGridPane configurée
+     */
+    private static DetailGridPane createLegsGrid(Pane annotations) {
+        return with(new DetailGridPane(annotations), dg -> dg.setId("legs"));
+    }
+
+    /**
+     * Crée les boutons pour la carte et le calendrier.
+     *
+     * @param journeyO observable contenant le voyage actuel
+     * @return le HBox contenant les boutons
+     */
+    private static HBox createButtons(ObservableValue<Journey> journeyO) {
+        Button btnMap = makeButton("Carte", "Carte");
+        Button btnCalendar = makeButton("Calendrier", "Calendrier");
+
+        btnMap.setOnAction(e -> openMap(journeyO.getValue()));
+        btnCalendar.setOnAction(e -> exportCalendar(journeyO.getValue()));
+
+        return with(new HBox(BUTTONS_SPACING, btnMap, btnCalendar), hb -> {
+            hb.setId("buttons");
+            hb.setAlignment(Pos.CENTER);
+        });
+    }
+
+    /**
+     * Configure les bindings et actions pour mettre à jour l'interface quand le voyage change.
+     *
+     * @param journeyO observable contenant le voyage actuel
+     * @param noJourney panneau affiché quand aucun voyage n'est sélectionné
+     * @param detailBox panneau contenant les détails du voyage
+     * @param legsGrid grille affichant les étapes du voyage
+     */
+    private static void setupBindingsAndActions(ObservableValue<Journey> journeyO, VBox noJourney,
+                                                VBox detailBox, DetailGridPane legsGrid) {
+        Consumer<Journey> updateUI = j -> {
+            boolean hasJourney = j != null;
+            noJourney.setVisible(!hasJourney);
+            detailBox.setVisible(hasJourney);
+            if (hasJourney) legsGrid.updateLegs(j);
+        };
+
+        journeyO.subscribe(j -> updateUI.accept(j));
+        updateUI.accept(journeyO.getValue());
     }
 
     /**
@@ -164,14 +226,13 @@ public record DetailUI(Node rootNode) {
         try {
             FileChooser fc = new FileChooser();
             LocalDate date = journey.depTime().toLocalDate();
-            fc.setInitialFileName("voyage_" + date + ".ics");
+            fc.setInitialFileName(String.format(CALENDAR_FILENAME_FORMAT, date));
             File file = fc.showSaveDialog(null);
             if (file != null) {
                 String ical = JourneyIcalConverter.toIcalendar(journey);
                 Files.writeString(file.toPath(), ical);
             }
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) {}
     }
 
     /**
@@ -200,10 +261,13 @@ public record DetailUI(Node rootNode) {
         private void configureColumns() {
             ColumnConstraints col0 = new ColumnConstraints();
             col0.setHalignment(HPos.RIGHT);
-            ColumnConstraints col1 = new ColumnConstraints(10);
+
+            ColumnConstraints col1 = new ColumnConstraints(COLUMN_WIDTH_CIRCLE);
             col1.setHalignment(HPos.CENTER);
+
             ColumnConstraints col23 = new ColumnConstraints();
             col23.setHgrow(Priority.ALWAYS);
+
             getColumnConstraints().addAll(col0, col1, col23, col23);
         }
 
@@ -275,9 +339,9 @@ public record DetailUI(Node rootNode) {
          * @return retourne le texte représentant l'arrêt.
          */
         private Text createStopText(String content, boolean isDeparture) {
-            return with(new Text(content), t -> {
-                if (isDeparture) t.getStyleClass().add("departure");
-            });
+            Text t = new Text(content);
+            if (isDeparture) t.getStyleClass().add("departure");
+            return t;
         }
 
         /**
@@ -290,17 +354,34 @@ public record DetailUI(Node rootNode) {
          */
         private int addTransportLeg(Transport tx, int row) {
             // Créer les cercles ensemble
-            Circle depCircle = createCircle();
-            Circle arrCircle = createCircle();
-            circlePairs.add(new Pair<>(depCircle, arrCircle));
+            Pair<Circle, Circle> circles = createCirclePair();
+            circlePairs.add(circles);
 
             // Ajouter départ, icône, arrêts intermédiaires et arrivée
-            row = addStopRow(tx, true, depCircle, row);
-            row = addIconAndDestination(tx, row);
-            row = addIntermediateStops(tx, row);
-            row = addStopRow(tx, false, arrCircle, row);
+            row = addStopRow(tx, true, circles.getKey(), row);
+            row = addTransportInfo(tx, row);
+            return addStopRow(tx, false, circles.getValue(), row);
+        }
 
-            return row;
+        /**
+         * Crée une paire de cercles pour le départ et l'arrivée.
+         *
+         * @return une paire contenant le cercle de départ et d'arrivée
+         */
+        private Pair<Circle, Circle> createCirclePair() {
+            return new Pair<>(createCircle(), createCircle());
+        }
+
+        /**
+         * Ajoute les informations de transport (icône, destination, arrêts intermédiaires).
+         *
+         * @param tx l'étape de transport
+         * @param row la ligne de départ
+         * @return la prochaine ligne disponible
+         */
+        private int addTransportInfo(Transport tx, int row) {
+            row = addIconAndDestination(tx, row);
+            return addIntermediateStops(tx, row);
         }
 
         /**
@@ -314,7 +395,8 @@ public record DetailUI(Node rootNode) {
         private int addIconAndDestination(Transport tx, int row) {
             ImageView icon = createVehicleIcon(tx.vehicle());
             add(icon, 0, row, 1, tx.intermediateStops().isEmpty() ? 1 : 2);
-            add(new Text(FormatterFr.formatRouteDestination(tx)), 2, row, 2, 1);
+            add(new Text(FormatterFr.formatRouteDestination(tx)),
+                    2, row, 2, 1);
             return row + 1;
         }
 
@@ -379,18 +461,19 @@ public record DetailUI(Node rootNode) {
          * des arrêts intermédiaires.
          */
         private GridPane buildIntermediateGrid(List<Leg.IntermediateStop> stops) {
-            return with(new GridPane(), grid -> {
-                grid.setId(INTERMEDIATE_STOPS);
-                grid.getStyleClass().add(INTERMEDIATE_STOPS);
-                grid.setHgap(GAP);
+            GridPane grid = new GridPane();
+            grid.setId("intermediate-stops");
+            grid.getStyleClass().add("intermediate-stops");
+            grid.setHgap(GAP);
 
-                IntStream.range(0, stops.size()).forEach(row -> {
-                    Leg.IntermediateStop stop = stops.get(row);
-                    grid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, row);
-                    grid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, row);
-                    grid.add(new Text(stop.stop().name()), 2, row);
-                });
+            IntStream.range(0, stops.size()).forEach(row -> {
+                Leg.IntermediateStop stop = stops.get(row);
+                grid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, row);
+                grid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, row);
+                grid.add(new Text(stop.stop().name()), 2, row);
             });
+
+            return grid;
         }
 
         /**
@@ -413,21 +496,31 @@ public record DetailUI(Node rootNode) {
          */
         private List<Line> createConnectionLines() {
             return circlePairs.stream()
-                    .map(p -> {
-                        Circle dep = p.getKey();
-                        Circle arr = p.getValue();
-                        Bounds depBounds = dep.getBoundsInParent();
-                        Bounds arrBounds = arr.getBoundsInParent();
-
-                        return with(new Line(
-                                depBounds.getCenterX(), depBounds.getMinY() + depBounds.getHeight() / 2,
-                                arrBounds.getCenterX(), arrBounds.getMinY() + arrBounds.getHeight() / 2
-                        ), line -> {
-                            line.setStrokeWidth(LINE_WIDTH);
-                            line.setStroke(Color.RED);
-                        });
-                    })
+                    .map(this::createConnectionLine)
                     .toList();
+        }
+
+        /**
+         * Crée une ligne de connexion entre deux cercles.
+         *
+         * @param circlePair la paire de cercles à connecter
+         * @return la ligne créée
+         */
+        private Line createConnectionLine(Pair<Circle, Circle> circlePair) {
+            Circle dep = circlePair.getKey();
+            Circle arr = circlePair.getValue();
+            Bounds depBounds = dep.getBoundsInParent();
+            Bounds arrBounds = arr.getBoundsInParent();
+
+            Line line = new Line(
+                    depBounds.getCenterX(), depBounds.getMinY() + depBounds.getHeight() / 2,
+                    arrBounds.getCenterX(), arrBounds.getMinY() + arrBounds.getHeight() / 2
+            );
+
+            line.setStrokeWidth(LINE_WIDTH);
+            line.setStroke(Color.RED);
+
+            return line;
         }
     }
 }
