@@ -53,6 +53,7 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         // Bouton d'échange
         Button swapButton = createSwapButton(depField, arrField);
 
+        // Sélecteurs de date et heure
         DatePicker datePicker = new DatePicker(LocalDate.now());
         datePicker.setId("date");
 
