@@ -67,6 +67,7 @@ public final class StopIndex {
      */
     public List<String> stopsMatching(String query, int maxResults) {
         String[] subs = query.trim().split("\\s+");
+
         // Cas où la requête est vide ou ne contient que des espaces
         if (subs.length == 0 || subs[0].isEmpty()) {
             return nameToMain.values().stream()
