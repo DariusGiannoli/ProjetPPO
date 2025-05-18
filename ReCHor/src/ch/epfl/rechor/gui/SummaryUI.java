@@ -156,6 +156,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
          * Constructeur initialisant la structure de base de la cellule.
          */
         JourneyCell() {
+            changePane = createChangePane();
+
             root.getStyleClass().add("journey");
             departureText.getStyleClass().add("departure");
             routeBox.getStyleClass().add("route");
@@ -163,10 +165,11 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
             root.setLeft(departureText);
             root.setTop(routeBox);
-            changePane = createChangePane();
             root.setCenter(changePane);
             root.setRight(arrivalText);
             root.setBottom(durationBox);
+
+
         }
 
         /**
