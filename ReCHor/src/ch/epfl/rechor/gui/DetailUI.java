@@ -117,7 +117,7 @@ public record DetailUI(Node rootNode) {
      *
      * @param node le nœud à configurer
      * @param cfg  fonction de configuration à appliquer au nœud
-     * @param <T>  type du neoud
+     * @param <T>  type du nœud
      * @return le nœud configuré
      */
     private static <T extends Node> T with(T node, Consumer<T> cfg) {
@@ -267,9 +267,12 @@ public record DetailUI(Node rootNode) {
         }
 
         /**
-         * @param content
-         * @param isDeparture
-         * @return
+         * Crée le texte pour les arrêts de départ et d'arrivée des étapes en transport.
+         *
+         * @param content le contenu du Texte que la methode doit créer.
+         * @param isDeparture valeur booléenne pour savoir s'il s'agit de l'arrêt de départ,
+         *                    pour donner au texte le style voulu.
+         * @return retourne le texte représentant l'arrêt.
          */
         private Text createStopText(String content, boolean isDeparture) {
             return with(new Text(content), t -> {
@@ -301,9 +304,12 @@ public record DetailUI(Node rootNode) {
         }
 
         /**
-         * @param tx
-         * @param row
-         * @return
+         * Ajoute l'icon du transport utilisé pour cette étape ainsi que la direction
+         * de la course empruntée.
+         *
+         * @param tx l'étape en transport.
+         * @param row la ligne à laquelle on veut ajouter les éléments.
+         * @return retourne le numéro de la ligne suivant celle utilisée.
          */
         private int addIconAndDestination(Transport tx, int row) {
             ImageView icon = createVehicleIcon(tx.vehicle());
