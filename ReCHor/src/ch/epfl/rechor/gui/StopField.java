@@ -3,7 +3,9 @@ package ch.epfl.rechor.gui;
 import ch.epfl.rechor.StopIndex;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -54,7 +56,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
      */
     private static void configureKeyNavigation(TextField textField, ListView<String> list) {
         textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            var selModel = list.getSelectionModel();
+            MultipleSelectionModel<String> selModel = list.getSelectionModel();
             if (selModel.isEmpty()) return;
 
             if (e.getCode() == KeyCode.UP) {
@@ -121,7 +123,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
      * Affiche la popup sous le champ de texte.
      */
     private static void showPopup(TextField textField, Popup popup) {
-        var bounds = textField.localToScreen(textField.getBoundsInLocal());
+        Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
         popup.setX(bounds.getMinX());
         popup.setY(bounds.getMaxY());
         if (!popup.isShowing()) {

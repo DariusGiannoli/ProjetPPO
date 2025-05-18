@@ -108,7 +108,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
      * @param time l'heure de départ désirée.
      */
     private static void selectJourney(ListView<Journey> view, LocalTime time) {
-        var items = view.getItems();
+        ObservableList<Journey> items = view.getItems();
         if (items == null || items.isEmpty() || time == null) return;
 
         int idx = 0;
@@ -129,7 +129,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
      * @return le cercle configuré
      */
     private static Circle makeCircle(String styleClass, double userData) {
-        var c = new Circle(RADIUS);
+        Circle c = new Circle(RADIUS);
         c.getStyleClass().add(styleClass);
         c.setUserData(userData);
         return c;
@@ -336,7 +336,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     line.setEndY(y);
 
                     // Positionner les cercles
-                    for (var n : circlesGroup.getChildren()) {
+                    for (Node n : circlesGroup.getChildren()) {
                         if (n instanceof Circle c) {
                             double rel = (double) c.getUserData();
                             double x = m + rel * (w - 2 * m);

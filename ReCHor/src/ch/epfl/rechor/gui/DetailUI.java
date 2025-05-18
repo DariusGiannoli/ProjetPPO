@@ -6,6 +6,7 @@ import ch.epfl.rechor.journey.Journey.Leg.Foot;
 import ch.epfl.rechor.journey.Journey.Leg.Transport;
 import ch.epfl.rechor.FormatterFr;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -63,34 +64,34 @@ public record DetailUI(Node rootNode) {
      */
     public static DetailUI create(ObservableValue<Journey> journeyO) {
         // 1) ScrollPane
-        var scroll = with(new ScrollPane(), s -> {
+        ScrollPane scroll = with(new ScrollPane(), s -> {
             s.setId("detail");
             s.getStylesheets().add("detail.css");
             s.setFitToWidth(true);
         });
 
         // 2) “Aucun voyage”
-        var noJourney = with(new VBox(new Text("Aucun voyage")), v -> {
+        VBox noJourney = with(new VBox(new Text("Aucun voyage")), v -> {
             v.setId("no-journey");
             v.setFillWidth(true);
             v.setAlignment(Pos.CENTER);
         });
 
         // 3) Annotations + grille
-        var annotations = with(new Pane(), p -> p.setId("annotations"));
-        var legsGrid = with(new DetailGridPane(annotations), dg -> dg.setId("legs"));
-        var stepsPane = new StackPane(annotations, legsGrid);
+        Pane annotations = with(new Pane(), p -> p.setId("annotations"));
+        DetailGridPane legsGrid = with(new DetailGridPane(annotations), dg -> dg.setId("legs"));
+        StackPane stepsPane = new StackPane(annotations, legsGrid);
 
         // 4) Boutons
-        var btnMap = makeButton("Carte", "Carte");
-        var btnCalendar = makeButton("Calendrier", "Calendrier");
-        var buttons = with(new HBox(BUTTONS_SPACING, btnMap, btnCalendar), hb -> {
+        Button btnMap = makeButton("Carte", "Carte");
+        Button btnCalendar = makeButton("Calendrier", "Calendrier");
+        HBox buttons = with(new HBox(BUTTONS_SPACING, btnMap, btnCalendar), hb -> {
             hb.setId("buttons");
             hb.setAlignment(Pos.CENTER);
         });
 
         // 5) Assemblage
-        var detailBox = new VBox(GAP, stepsPane, buttons);
+        VBox detailBox = new VBox(GAP, stepsPane, buttons);
         scroll.setContent(new StackPane(noJourney, detailBox));
 
         // 6) Binding + actions: mis à jour ensemble
@@ -378,7 +379,7 @@ public record DetailUI(Node rootNode) {
                 grid.setHgap(GAP);
 
                 IntStream.range(0, stops.size()).forEach(row -> {
-                    var stop = stops.get(row);
+                    Leg.IntermediateStop stop = stops.get(row);
                     grid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, row);
                     grid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, row);
                     grid.add(new Text(stop.stop().name()), 2, row);
@@ -409,8 +410,8 @@ public record DetailUI(Node rootNode) {
                     .map(p -> {
                         Circle dep = p.getKey();
                         Circle arr = p.getValue();
-                        var depBounds = dep.getBoundsInParent();
-                        var arrBounds = arr.getBoundsInParent();
+                        Bounds depBounds = dep.getBoundsInParent();
+                        Bounds arrBounds = arr.getBoundsInParent();
 
                         return with(new Line(
                                 depBounds.getCenterX(), depBounds.getMinY() + depBounds.getHeight() / 2,
