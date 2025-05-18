@@ -16,6 +16,11 @@ public final class StopIndex {
     private static final char LBRACKET  = '[';
     private static final char RBRACKET  = ']';
 
+    //Match score
+    private static final int SCORE_MULTIPLIER = 100;
+    private static final int START_WORD_BONUS = 4;
+    private static final int END_WORD_BONUS = 2;
+
     /** Table des équivalences accentuées (minuscule → variantes). */
     private static final Map<Character, String> ACCENT_EQUIVALENCES = Map.of(
             'c', "cç",
@@ -47,8 +52,8 @@ public final class StopIndex {
         });
         nameToMain = Map.copyOf(tempMap);
         allNames   = List.copyOf(nameToMain.keySet());
-
     }
+
     /**
      * Recherche jusqu’à {@code maxResults} noms principaux d’arrêts
      * dont chacun contient toutes les sous-chaînes de la requête {@code query}.
@@ -61,18 +66,32 @@ public final class StopIndex {
      * @throws IllegalArgumentException si maxResults est négatif
      */
     public List<String> stopsMatching(String query, int maxResults) {
-
         String[] subs = query.trim().split("\\s+");
+        // Cas où la requête est vide ou ne contient que des espaces
+        if (subs.length == 0 || subs[0].isEmpty()) {
+            return nameToMain.values().stream()
+                    .distinct()
+                    .sorted(String.CASE_INSENSITIVE_ORDER)
+                    .limit(maxResults)
+                    .toList();
+        }
+
+        // Précalcul des longueurs des sous-requêtes
+        int[] subLengths = new int[subs.length];
+        for (int i = 0; i < subs.length; i++) {
+            subLengths[i] = subs[i].length();
+        }
+
         List<Pattern> patterns = Arrays.stream(subs)
                 .map(this::regexFor)
                 .toList();
 
         Map<String, Integer> bestScore = new HashMap<>();
         for (String name : allNames) {
-            if (patterns.stream().anyMatch(p -> !p.matcher(name).find())) {
+            int total = scoreIfMatchesAll(name, subLengths, patterns);
+            if (total == 0) {
                 continue;
             }
-            int total = scoreIfMatchesAll(name, subs, patterns);
 
             String main = nameToMain.get(name);
             bestScore.merge(main, total, Math::max);
@@ -91,13 +110,13 @@ public final class StopIndex {
      * ou retourne 0 si une sous-requête ne matche pas.
      *
      * @param name     nom complet testé
-     * @param subs     tableau des sous-chaînes de la requête
+     * @param subLengths     tableau des sous-chaînes de la requête
      * @param patterns patterns compilés correspondant aux sous-chaînes
      * @return score total (≥ 0)
      */
-    private int scoreIfMatchesAll(String name, String[] subs, List<Pattern> patterns) {
+    private int scoreIfMatchesAll(String name, int[] subLengths, List<Pattern> patterns) {
         int total = 0;
-        for (int i = 0; i < subs.length; i++) {
+        for (int i = 0; i < patterns.size(); i++) {
             Pattern p = patterns.get(i);
             Matcher m = p.matcher(name);
             if (!m.find()) {
@@ -105,12 +124,13 @@ public final class StopIndex {
             }
             int start = m.start();
             int end   = m.end();
-            int base  = subs[i].length() * 100 / name.length();
+            int base  = subLengths[i] * SCORE_MULTIPLIER / name.length();
+
             if (start == 0 || !Character.isLetter(name.charAt(start - 1))) {
-                base *= 4;
+                base *= START_WORD_BONUS;
             }
             if (end == name.length() || !Character.isLetter(name.charAt(end))) {
-                base *= 2;
+                base *= END_WORD_BONUS;
             }
             total += base;
         }
