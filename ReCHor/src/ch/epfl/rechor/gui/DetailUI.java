@@ -265,10 +265,10 @@ public record DetailUI(Node rootNode) {
             ColumnConstraints col1 = new ColumnConstraints(COLUMN_WIDTH_CIRCLE);
             col1.setHalignment(HPos.CENTER);
 
-            ColumnConstraints col23 = new ColumnConstraints();
-            col23.setHgrow(Priority.ALWAYS);
+            ColumnConstraints col2 = new ColumnConstraints();
+            col2.setHgrow(Priority.ALWAYS);
 
-            getColumnConstraints().addAll(col0, col1, col23, col23);
+            getColumnConstraints().addAll(col0, col1, col2, col2);
         }
 
         /**
@@ -422,7 +422,7 @@ public record DetailUI(Node rootNode) {
             add(with(new Accordion(), a -> {
                 a.setId("intermediate");
                 a.getPanes().add(content);
-            }), 2, row, 2, 1);
+            }), 2, row, 1, 1);
 
             return row + 1;
         }
