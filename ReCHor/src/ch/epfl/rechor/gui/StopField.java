@@ -44,17 +44,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         popup.getContent().add(list);
 
         // Configuration des interactions
-        configureKeyNavigation(textField, list);
-        configureFocusHandling(textField, list, popup, selected, index);
-        configureTextInput(textField, list, popup, index);
-
-        return new StopField(textField, selected);
-    }
-
-    /**
-     * Configure la navigation clavier avec les flèches dans la liste des arrêts proposés.
-     */
-    private static void configureKeyNavigation(TextField textField, ListView<String> list) {
+        //Configure la navigation clavier avec les flèches dans la liste des arrêts proposés.
         textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
             MultipleSelectionModel<String> selModel = list.getSelectionModel();
             if (selModel.isEmpty()) return;
@@ -69,14 +59,8 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
                 e.consume();
             }
         });
-    }
 
-    /**
-     * Configure le comportement lors des changements de focus.
-     */
-    private static void configureFocusHandling(TextField textField, ListView<String> list,
-                                               Popup popup, ReadOnlyStringWrapper selected,
-                                               StopIndex index) {
+        //Configure le comportement lors des changements de focus.
         textField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
             if (isFocused) {
                 // Affiche la popup quand on gagne le focus
@@ -93,23 +77,23 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
                 popup.hide();
             }
         });
-    }
 
-    /**
-     * Configure la mise à jour de la liste lors de la saisie de texte.
-     */
-    private static void configureTextInput(TextField textField, ListView<String> list,
-                                           Popup popup, StopIndex index) {
+        //Configure la mise à jour de la liste lors de la saisie de texte.
         textField.textProperty().addListener((obs, oldText, newText) -> {
             if (popup.isShowing()) {
                 updateSuggestions(list, index.stopsMatching(newText, MAX_SUGGESTIONS));
                 showPopup(textField, popup);
             }
         });
+
+        return new StopField(textField, selected);
     }
 
     /**
      * Met à jour les suggestions dans la liste et sélectionne le premier élément.
+     *
+     * @param list la liste que l'on affiche avec les arrêts proposés.
+     * @param suggestions la liste des arrêts proposés à mettre dans list.
      */
     private static void updateSuggestions(ListView<String> list, List<String> suggestions) {
         list.getItems().setAll(suggestions);
@@ -121,6 +105,9 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
 
     /**
      * Affiche la popup sous le champ de texte.
+     *
+     * @param textField le champ de texte dans lequel il y a la requète d'arrêt.
+     * @param popup la fenêtre qui affiche les propositions d'arrêts.
      */
     private static void showPopup(TextField textField, Popup popup) {
         Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
