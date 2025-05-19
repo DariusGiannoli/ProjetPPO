@@ -51,8 +51,14 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         StopField arrField = createStopField(index, "arrStop", "Nom de l'arrêt d'arrivée");
 
         // Bouton d'échange
-        Button swapButton = createSwapButton(depField, arrField);
-
+        //créer le bouton pour échanger l'arrêt de départ et d'arrivée dans les StopField
+        Button swapButton = new Button("⟷");
+        swapButton.setOnAction(e -> {
+            String depText = depField.textField().getText();
+            String arrText = arrField.textField().getText();
+            arrField.setTo(depText);
+            depField.setTo(arrText);
+        });
         // Sélecteurs de date et heure
         DatePicker datePicker = new DatePicker(LocalDate.now());
         datePicker.setId("date");
@@ -97,24 +103,6 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         field.textField().setId(id);
         field.textField().setPromptText(prompt);
         return field;
-    }
-
-    /**
-     * Permet de créer le bouton pour échanger l'arrêt de départ et d'arrivée dans les StopField.
-     *
-     * @param dep le StopField pour l'arrêt de départ.
-     * @param arr le StopField pour l'arrêt d'arrivée.
-     * @return retourne le bouton pour échanger l'arrêt de départ et d'arrivée dans les StopField.
-     */
-    private static Button createSwapButton(StopField dep, StopField arr) {
-        Button swap = new Button("⟷");
-        swap.setOnAction(e -> {
-            String depText = dep.textField().getText();
-            String arrText = arr.textField().getText();
-            arr.setTo(depText);
-            dep.setTo(arrText);
-        });
-        return swap;
     }
 
     /**
