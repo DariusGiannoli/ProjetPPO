@@ -25,12 +25,26 @@ import java.util.List;
 import java.util.stream.IntStream;
 import static java.awt.Desktop.getDesktop;
 
+/**
+ * DetailUI représente la partie de l'interface graphique qui montre les détails d'un voyage.
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
+ */
 public record DetailUI(Node rootNode) {
     private static final double CIRCLE_RADIUS = 3.0;
     private static final double LINE_WIDTH = 2.0;
     private static final int ICON_SIZE = 31;
     private static final int GAP = 5;
 
+    /**
+     * Crée le graphe de scène et retourne une instance de DetailUI
+     * contenant une référence à sa racine.
+     *
+     * @param journeyO valeur observable contenant le voyage dont les détails doivent être affichés
+     *                 dans l'interface graphique.
+     * @return retourne une instance de DetailUI contenant une référence à sa racine.
+     */
     public static DetailUI create(ObservableValue<Journey> journeyO) {
         // ScrollPane
         ScrollPane scroll = new ScrollPane();
@@ -97,10 +111,19 @@ public record DetailUI(Node rootNode) {
         return new DetailUI(scroll);
     }
 
+    /**
+     * GridPane pour dessiner les points et les lignes rouges entre le départ et l'arrivée de chaque
+     * étape en transport.
+     */
     private static class DetailGridPane extends GridPane {
         private final List<Pair<Circle, Circle>> circlePairs = new ArrayList<>();
         private final Pane annotations;
 
+        /**
+         * Constructeur de DetailGridPane, qui configure les colonnes de ce GridPane.
+         *
+         * @param annotations le Pane qui doit contenir les lignes rouges qui relient les cercles.
+         */
         DetailGridPane(Pane annotations) {
             this.annotations = annotations;
             setVgap(GAP);
@@ -122,6 +145,11 @@ public record DetailUI(Node rootNode) {
             getColumnConstraints().addAll(col0, col1, col2, col3);
         }
 
+        /**
+         * Actualise les étapes présentes dans le GridPane selon le voyage donné en argument.
+         *
+         * @param journey voyage qui soit être affiché dans le DetailGridPane.
+         */
         void updateLegs(Journey journey) {
             getChildren().clear();
             circlePairs.clear();
@@ -214,6 +242,10 @@ public record DetailUI(Node rootNode) {
             }
         }
 
+        /**
+         * Redéfinition de layoutChildren, qui utiliser la position des cercles pour déterminer
+         * celle des lignes rouges, et créer des lignes reliant les centres des cercles.
+         */
         @Override
         protected void layoutChildren() {
             super.layoutChildren();
