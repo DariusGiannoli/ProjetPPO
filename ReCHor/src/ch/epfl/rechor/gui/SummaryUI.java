@@ -111,9 +111,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         // Composants d'UI
         private final BorderPane root;
         private final Text departureText, arrivalText, routeDestText, durationText;
-        private final HBox routeBox, durationBox;
         private final Group circlesGroup;
-        private final Pane changePane;
         private final ImageView icon;
         private final Line timelineLine;
 
@@ -127,11 +125,13 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             arrivalText = new Text();
             routeDestText = new Text();
             durationText = new Text();
-            routeBox = new HBox(ROUTE_BOX_SPACING);
-            durationBox = new HBox();
             circlesGroup = new Group();
             icon = new ImageView();
             timelineLine = new Line();
+
+            // Variables locales pour les conteneurs
+            HBox routeBox = new HBox(ROUTE_BOX_SPACING);
+            HBox durationBox = new HBox();
 
             // Configuration des styles
             root.getStyleClass().add("journey");
@@ -149,7 +149,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             durationBox.getChildren().add(durationText);
 
             // Création du panneau de ligne temporelle
-            changePane = new Pane() {
+            Pane changePane = new Pane() {
                 {
                     getChildren().addAll(timelineLine, circlesGroup);
                     setPrefSize(0, 0);
