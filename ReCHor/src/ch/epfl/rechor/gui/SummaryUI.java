@@ -103,7 +103,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private final Line timelineLine;
 
         JourneyCell() {
-            // Initialiser tous les objets dans le constructeur
+            // Initialisation des objets UI
             root = new BorderPane();
             departureText = new Text();
             arrivalText = new Text();
@@ -211,11 +211,11 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
             // Ajout des cercles avec une seule instance par cercle
             addCircle("dep-arr", 0.0);
-            // Passage des données pré-calculées pour éviter les recalculs
+            // Passage des données pré-calculées
             addTransferCircles(journey, firstDepTime, totalSec);
             addCircle("dep-arr", 1.0);
 
-            // Affectation du graphique une seule fois à la fin
+            // Affectation du graphique
             setGraphic(root);
         }
 

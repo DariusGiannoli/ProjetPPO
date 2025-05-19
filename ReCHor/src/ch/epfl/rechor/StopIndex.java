@@ -68,53 +68,48 @@ public final class StopIndex {
      * @throws IllegalArgumentException si maxResults est négatif
      */
     public List<String> stopsMatching(String query, int maxResults) {
-        // Définition de l'enregistrement représentant la paire (score, nom d'arrêt)
+        // record local pour représenter (nom d’arrêt principal, score)
         record StopMatch(String stopName, int score) {}
 
+        // découper la requête en sous-chaînes
         String[] subs = query.trim().split("\\s+");
-
-        // Cas où la requête est vide
-        if (subs.length == 0 || subs[0].isEmpty()) {
-            return nameToMain.values().stream()
-                    .distinct()
-                    .sorted(String.CASE_INSENSITIVE_ORDER)
-                    .limit(maxResults)
-                    .toList();
+        if (subs.length == 0 || (subs.length == 1 && subs[0].isEmpty())) {
+            return Collections.emptyList();
         }
 
-        // Précalcul des longueurs
-        int[] subLengths = new int[subs.length];
-        for (int i = 0; i < subs.length; i++) {
-            subLengths[i] = subs[i].length();
-        }
+        // longueurs pour le calcul de score
+        int[] subLengths = Arrays.stream(subs)
+                .mapToInt(String::length)
+                .toArray();
 
+        // patterns par sous‐chaîne
         List<Pattern> patterns = Arrays.stream(subs)
                 .map(this::regexFor)
                 .toList();
 
-        // Utiliser des flots pour créer et manipuler les paires (score, nom d'arrêt)
         return allNames.stream()
-                // Évaluer chaque nom et créer un StopMatch
                 .flatMap(name -> {
                     int score = scoreIfMatchesAll(name, subLengths, patterns);
                     if (score > 0) {
                         String mainName = nameToMain.get(name);
                         return Stream.of(new StopMatch(mainName, score));
+                    } else {
+                        return Stream.empty();
                     }
-                    return Stream.empty();
                 })
-                // Garder le score le plus élevé pour chaque nom principal
+                // fusionner les scores par nom principal en gardant le max
                 .collect(Collectors.toMap(
                         StopMatch::stopName,
                         StopMatch::score,
-                        Math::max))
-                // Convertir le Map en Stream d'enregistrements
+                        Math::max
+                ))
+                // reconvertir en StopMatch pour trier
                 .entrySet().stream()
                 .map(e -> new StopMatch(e.getKey(), e.getValue()))
-                // Trier par score décroissant puis par nom
-                .sorted(Comparator.<StopMatch>comparingInt(sm -> -sm.score)
-                        .thenComparing(sm -> sm.stopName, String.CASE_INSENSITIVE_ORDER))
+                // tri **uniquement** par score décroissant
+                .sorted(Comparator.comparingInt(StopMatch::score).reversed())
                 .limit(maxResults)
+                // on ne garde que le nom d’arrêt
                 .map(StopMatch::stopName)
                 .toList();
     }
