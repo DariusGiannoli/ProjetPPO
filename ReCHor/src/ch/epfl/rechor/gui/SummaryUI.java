@@ -2,9 +2,9 @@ package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.FormatterFr;
 import ch.epfl.rechor.journey.Journey;
-import ch.epfl.rechor.journey.Journey.Leg;
 import ch.epfl.rechor.journey.Journey.Leg.Foot;
 import ch.epfl.rechor.journey.Journey.Leg.Transport;
+import ch.epfl.rechor.journey.Stop;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,326 +26,230 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Représente la vue d'ensemble des voyages. Affiche tous les voyages
- * dans une liste, avec pour chacun les informations essentielles: heure de
- * départ/arrivée, ligne, destination et changements.
- *
- * @param rootNode le nœud JavaFX à la racine du graphe de scène
- * @param selectedJourneyO valeur observable contenant le voyage sélectionné
- *
- * @author Antoine Lepin (390950)
- * @author Darius Giannoli (380759)
+ * Représente la vue d'ensemble des voyages.
  */
 public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO) {
 
-    // Rayon des cercles représentant les arrêts et changements
     private static final int RADIUS = 3;
-    // Taille des icônes de véhicule
     private static final int ICON_SIZE = 20;
-    //Espacement entre les éléments dans les boîtes horizontales
     private static final int ROUTE_BOX_SPACING = 4;
+    private static final int TIMELINE_MARGIN = 5;
 
-    /**
-     * Crée la vue d'ensemble : une ListView de Journey, style summary.css,
-     * sélectionne automatiquement le premier voyage à l'heure désirée.
-     *
-     * @param journeysO liste observable de voyages
-     * @param depTimeO heure de départ intéressée
-     * @return SummaryUI (rootNode + selectedJourneyO)
-     */
     public static SummaryUI create(ObservableValue<List<Journey>> journeysO,
                                    ObservableValue<LocalTime> depTimeO) {
+        // Création de la liste avec configuration initiale
         ListView<Journey> listView = new ListView<>();
         listView.setId("summary");
         listView.getStylesheets().add("summary.css");
         listView.setCellFactory(lv -> new JourneyCell());
 
+        // Liste backing stockée dans une variable pour éviter de la recréer
         ObservableList<Journey> backingItems = FXCollections.observableArrayList();
         listView.setItems(backingItems);
 
-        // Abonnement aux changements de la liste des voyages
-        onChange(journeysO, newList -> {
+        // Création d'un seul Consumer réutilisable pour la mise à jour des voyages
+        Consumer<List<Journey>> updateJourneys = newList -> {
             backingItems.setAll(newList);
             selectJourney(listView, depTimeO.getValue());
-        });
+        };
+        // Traitement immédiat de la valeur actuelle si disponible
+        if (journeysO.getValue() != null) updateJourneys.accept(journeysO.getValue());
+        // Abonnement aux changements futurs avec le même Consumer
+        journeysO.subscribe(newVal -> { if (newVal != null) updateJourneys.accept(newVal); });
 
-        // Abonnement aux changements de l'heure désirée
-        onChange(depTimeO, newTime -> selectJourney(listView, newTime));
+        // Même approche pour l'heure de départ
+        Consumer<LocalTime> updateTime = newTime -> selectJourney(listView, newTime);
+        if (depTimeO.getValue() != null) updateTime.accept(depTimeO.getValue());
+        depTimeO.subscribe(newVal -> { if (newVal != null) updateTime.accept(newVal); });
 
-        // Élément sélectionné dans la liste
-        ObservableValue<Journey> selected = listView.getSelectionModel().selectedItemProperty();
-        return new SummaryUI(listView, selected);
+        // Retourne directement la propriété selectedItem de la liste
+        return new SummaryUI(listView, listView.getSelectionModel().selectedItemProperty());
     }
 
     /**
-     * Helper pour gérer les changements de valeur dans un ObservableValue.
-     * Applique le consumer à la valeur actuelle si non-null et s'abonne aux
-     * changements futurs.
-     *
-     * @param <T> type de la valeur observable
-     * @param obs valeur observable à surveiller
-     * @param consumer action à exécuter lorsque la valeur change
-     */
-    private static <T> void onChange(ObservableValue<T> obs, Consumer<T> consumer) {
-        // S'abonner aux changements futurs
-        obs.subscribe((newVal) -> {
-            if (newVal != null) {
-                consumer.accept(newVal);
-            }
-        });
-
-        // Traiter la valeur actuelle si elle existe
-        T current = obs.getValue();
-        if (current != null) {
-            consumer.accept(current);
-        }
-    }
-
-    /**
-     * Sélectionne dans la liste le premier voyage dont l'heure de départ est supérieure ou égale à
-     * l'heure indiquée, ou le dernier si aucun n'est plus tard.
-     * @param view instance de ListView qui affiche l'ensemble des voyages.
-     * @param time l'heure de départ désirée.
+     * Sélectionne le premier voyage après l'heure indiquée
+     * Optimisé pour parcourir la liste une seule fois
      */
     private static void selectJourney(ListView<Journey> view, LocalTime time) {
         ObservableList<Journey> items = view.getItems();
         if (items == null || items.isEmpty() || time == null) return;
 
+        // Recherche optimisée en une seule passe
         int idx = 0;
         while (idx < items.size() && items.get(idx).depTime().toLocalTime().isBefore(time)) {
             idx++;
         }
 
+        // Ajustement si pas de résultat
         if (idx >= items.size()) idx = items.size() - 1;
+
+        // Sélection et défilement en une seule opération chacun
         view.getSelectionModel().select(idx);
         view.scrollTo(idx);
     }
 
-    /**
-     * Crée un cercle avec une classe de style et une position relative.
-     *
-     * @param styleClass la classe de style CSS à appliquer
-     * @param userData la position relative (0.0 à 1.0) sur la ligne de temps
-     * @return le cercle configuré
-     */
-    private static Circle makeCircle(String styleClass, double userData) {
-        Circle c = new Circle(RADIUS);
-        c.getStyleClass().add(styleClass);
-        c.setUserData(userData);
-        return c;
-    }
-
-    /**
-     * Cellule personnalisée affichant un résumé de voyage.
-     * Chaque voyage est présenté avec:
-     * - L'heure de départ et d'arrivée
-     * - Une icône du premier véhicule et sa destination
-     * - Une ligne temporelle avec les points de changement
-     * - La durée totale du voyage
-     */
     private static class JourneyCell extends ListCell<Journey> {
-        private final BorderPane root = new BorderPane();
-        private final Text departureText = new Text();
-        private final Text arrivalText = new Text();
-        private final HBox routeBox = new HBox(ROUTE_BOX_SPACING);
-        private final Group circlesGroup = new Group();
+        // Composants d'UI
+        private final BorderPane root;
+        private final Text departureText;
+        private final Text arrivalText;
+        private final HBox routeBox ;
+        private final Group circlesGroup ;
         private final Pane changePane;
-        private final HBox durationBox = new HBox();
+        private final HBox durationBox;
+        private final Text durationText ;
+        private final ImageView icon;
+        private final Text routeDestText;
+        private final Line timelineLine;
 
-        /**
-         * Constructeur initialisant la structure de base de la cellule.
-         */
         JourneyCell() {
-            changePane = createChangePane();
+            // Initialiser tous les objets dans le constructeur
+            root = new BorderPane();
+            departureText = new Text();
+            arrivalText = new Text();
+            routeBox = new HBox(ROUTE_BOX_SPACING);
+            circlesGroup = new Group();
+            durationBox = new HBox();
+            durationText = new Text();
+            icon = new ImageView();
+            routeDestText = new Text();
+            timelineLine = new Line();
 
+            // Configuration des styles
             root.getStyleClass().add("journey");
             departureText.getStyleClass().add("departure");
             routeBox.getStyleClass().add("route");
             durationBox.getStyleClass().add("duration");
 
+            // Pré-configuration de l'icône
+            icon.setFitWidth(ICON_SIZE);
+            icon.setFitHeight(ICON_SIZE);
+            icon.setPreserveRatio(true);
+
+            // Ajout des composants aux conteneurs
+            routeBox.getChildren().addAll(icon, routeDestText);
+            durationBox.getChildren().add(durationText);
+
+            // Création du panneau de ligne temporelle
+            changePane = new Pane() {
+                {
+                    // Initialisation des enfants
+                    getChildren().addAll(timelineLine, circlesGroup);
+                    setPrefSize(0, 0);
+                }
+
+                @Override
+                protected void layoutChildren() {
+                    // Calcul des dimensions une seule fois par layout
+                    double width = getWidth();
+                    double height = getHeight();
+                    double centerY = height / 2;
+                    double margin = TIMELINE_MARGIN;
+
+                    // Positionnement de la ligne avec des calculs minimaux
+                    timelineLine.setStartX(margin);
+                    timelineLine.setStartY(centerY);
+                    timelineLine.setEndX(width - margin);
+                    timelineLine.setEndY(centerY);
+
+                    // Calcul unique de la largeur utile pour tous les cercles
+                    double usableWidth = width - 2 * margin;
+
+                    // Positionnement optimisé des cercles
+                    for (Node n : circlesGroup.getChildren()) {
+                        if (n instanceof Circle c) {
+                            double relativePos = (double) c.getUserData();
+                            c.setCenterX(margin + relativePos * usableWidth);
+                            c.setCenterY(centerY);
+                        }
+                    }
+                }
+            };
+
+            // Assemblage de la structure
             root.setLeft(departureText);
             root.setTop(routeBox);
             root.setCenter(changePane);
             root.setRight(arrivalText);
             root.setBottom(durationBox);
-
-
         }
 
-        /**
-         * Méthode appelée par JavaFX pour mettre à jour le contenu de la cellule
-         * quand un nouvel élément lui est assigné.
-         *
-         * @param journey le voyage à afficher
-         * @param empty indique si la cellule est vide
-         */
         @Override
         protected void updateItem(Journey journey, boolean empty) {
             super.updateItem(journey, empty);
 
-            // Cas d'une cellule vide ou sans voyage
             if (empty || journey == null) {
                 setGraphic(null);
                 return;
             }
 
-            clearOldContent();
+            // Réinitialiser
+            circlesGroup.getChildren().clear();
 
-            // Extraire les étapes en transport
+            // Extraction des transports avec méthode utilitaire
             List<Transport> transports = extractTransports(journey);
             if (transports.isEmpty()) {
                 setGraphic(root);
                 return;
             }
 
-            // Calculer les informations temporelles
+            // Calcul des données principales
             Transport first = transports.getFirst();
             Transport last = transports.getLast();
             Duration total = Duration.between(first.depTime(), last.arrTime());
             double totalSec = total.toSeconds();
+            LocalTime firstDepTime = first.depTime().toLocalTime();
 
-            // Mettre à jour les différentes parties de l'interface
-            updateTimes(first, last);
-            updateRoute(first);
-            updateChangeCircles(first, journey.legs(), journey, totalSec);
-            updateDuration(total);
+            // Mise à jour des composants réutilisables avec les nouvelles données
+            departureText.setText(FormatterFr.formatTime(first.depTime()));
+            arrivalText.setText(FormatterFr.formatTime(last.arrTime()));
+            durationText.setText(FormatterFr.formatDuration(total));
 
+            // Mise à jour de l'UI de route
+            icon.setImage(VehicleIcons.iconFor(first.vehicle()));
+            routeDestText.setText(FormatterFr.formatRouteDestination(first));
+
+            // Ajout des cercles avec une seule instance par cercle
+            addCircle("dep-arr", 0.0);
+            // Passage des données pré-calculées pour éviter les recalculs
+            addTransferCircles(journey, firstDepTime, totalSec);
+            addCircle("dep-arr", 1.0);
+
+            // Affectation du graphique une seule fois à la fin
             setGraphic(root);
         }
 
-        /**
-         * Vide le contenu des composants pour éviter des duplications.
-         */
-        private void clearOldContent() {
-            routeBox.getChildren().clear();
-            durationBox.getChildren().clear();
-            circlesGroup.getChildren().clear();
-        }
-
-        /**
-         * Extrait les étapes en transport du voyage.
-         *
-         * @param journey le voyage à analyser
-         * @return liste des étapes en transport
-         */
         private List<Transport> extractTransports(Journey journey) {
             return journey.legs().stream()
-                    .filter(l -> l instanceof Transport)
-                    .map(l -> (Transport) l)
+                    .filter(Transport.class::isInstance)
+                    .map(Transport.class::cast)
                     .toList();
         }
 
-        /**
-         * Met à jour les heures de départ et d'arrivée affichées.
-         *
-         * @param first première étape en transport
-         * @param last dernière étape en transport
-         */
-        private void updateTimes(Transport first, Transport last) {
-            departureText.setText(FormatterFr.formatTime(first.depTime()));
-            arrivalText.setText(FormatterFr.formatTime(last.arrTime()));
-        }
+        private void addTransferCircles(Journey journey, LocalTime firstDepTime, double totalSec) {
+            // Stock les valeurs
+            Stop depStop = journey.depStop();
+            Stop arrStop = journey.arrStop();
 
-        /**
-         * Met à jour l'affichage de l'icône et de la destination
-         * du premier véhicule.
-         *
-         * @param first première étape en transport
-         */
-        private void updateRoute(Transport first) {
-            ImageView icon = new ImageView(VehicleIcons.iconFor(first.vehicle()));
-            icon.setFitWidth(ICON_SIZE);
-            icon.setFitHeight(ICON_SIZE);
-            icon.setPreserveRatio(true);
-
-            Text routeDest = new Text(FormatterFr.formatRouteDestination(first));
-            routeBox.getChildren().setAll(icon, routeDest);
-        }
-
-        /**
-         * Met à jour la ligne temporelle avec les cercles de départ,
-         * d'arrivée et de changement.
-         *
-         * @param first première étape en transport
-         * @param legs toutes les étapes du voyage
-         * @param journey le voyage complet
-         * @param totalSec durée totale en secondes
-         */
-        private void updateChangeCircles(Transport first, List<Leg> legs, Journey journey,
-                                         double totalSec) {
-            // Ajouter cercle départ
-            circlesGroup.getChildren().add(makeCircle("dep-arr", 0.0));
-
-            // Ajouter cercles intermédiaires pour les changements
-            legs.stream()
-                    .filter(leg -> leg instanceof Foot)
-                    .map(leg -> (Foot)leg)
-                    .filter(foot -> !foot.depStop().equals(journey.depStop())
-                            && !foot.arrStop().equals(journey.arrStop()))
+            journey.legs().stream()
+                    .filter(Foot.class::isInstance)
+                    .map(Foot.class::cast)
+                    .filter(foot -> !foot.depStop().equals(depStop) &&
+                            !foot.arrStop().equals(arrStop))
                     .forEach(foot -> {
-                        double relativePosition = Duration
-                                .between(first.depTime().toLocalTime(), foot.depTime())
+                        // Calcul optimisé de la position relative
+                        double relPos = Duration
+                                .between(firstDepTime, foot.depTime())
                                 .toSeconds() / totalSec;
-                        circlesGroup.getChildren().add(makeCircle("transfer", relativePosition));
+                        addCircle("transfer", relPos);
                     });
-
-            // Ajouter cercle d'arrivée
-            circlesGroup.getChildren().add(makeCircle("dep-arr", 1.0));
         }
 
-        /**
-         * Met à jour l'affichage de la durée du voyage.
-         *
-         * @param total durée totale du voyage
-         */
-        private void updateDuration(Duration total) {
-            Text durText = new Text(FormatterFr.formatDuration(total));
-            durationBox.getChildren().setAll(durText);
-        }
-
-        /**
-         * Crée le panneau contenant la ligne temporelle et les cercles.
-         * Utilise une sous-classe anonyme de Pane qui gère la mise en page
-         * des éléments graphiques.
-         *
-         * @return le panneau configuré
-         */
-        private Pane createChangePane() {
-            return new Pane() {
-                private final Line line = new Line();
-                {
-                    getChildren().addAll(line, circlesGroup); // Add line and circlesGroup
-                    setPrefSize(0, 0);
-                }
-
-                /**
-                 * Redéfinit la méthode layoutChildren pour positionner la ligne
-                 * et les cercles selon la taille disponible.
-                 */
-                @Override
-                protected void layoutChildren() {
-                    double w = getWidth();
-                    double h = getHeight();
-                    double y = h / 2;
-                    double m = 5;
-
-                    // Positionner la ligne
-                    line.setStartX(m);
-                    line.setStartY(y);
-                    line.setEndX(w - m);
-                    line.setEndY(y);
-
-                    // Positionner les cercles
-                    for (Node n : circlesGroup.getChildren()) {
-                        if (n instanceof Circle c) {
-                            double rel = (double) c.getUserData();
-                            double x = m + rel * (w - 2 * m);
-                            c.setCenterX(x);
-                            c.setCenterY(y);
-                        }
-                    }
-                }
-            };
+        private void addCircle(String styleClass, double relativePosition) {
+            Circle c = new Circle(RADIUS);
+            c.getStyleClass().add(styleClass);
+            c.setUserData(relativePosition); // Stocke la position pour le layout
+            circlesGroup.getChildren().add(c);
         }
     }
 }
