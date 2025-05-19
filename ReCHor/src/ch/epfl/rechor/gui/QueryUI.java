@@ -47,11 +47,13 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
      */
     public static QueryUI create(StopIndex index) {
         // Création des champs d'arrêts
-        StopField depField = createStopField(index, "depStop", "Nom de l'arrêt de départ");
-        StopField arrField = createStopField(index, "arrStop", "Nom de l'arrêt d'arrivée");
+        StopField depField = createStopField(index, "depStop",
+                "Nom de l'arrêt de départ");
+        StopField arrField = createStopField(index, "arrStop",
+                "Nom de l'arrêt d'arrivée");
 
         // Bouton d'échange
-        //créer le bouton pour échanger l'arrêt de départ et d'arrivée dans les StopField
+        // créer le bouton pour échanger l'arrêt de départ et d'arrivée dans les StopField
         Button swapButton = new Button("⟷");
         swapButton.setOnAction(e -> {
             String depText = depField.textField().getText();
@@ -59,11 +61,19 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
             arrField.setTo(depText);
             depField.setTo(arrText);
         });
+
         // Sélecteurs de date et heure
         DatePicker datePicker = new DatePicker(LocalDate.now());
         datePicker.setId("date");
 
-        TextFormatter<LocalTime> timeFormatter = createTimeFormatter();
+        // Crée un TextFormatter pour le format de l'heure avec affichage standardisé
+        // et analyse flexible de l'entrée utilisateur.
+        DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter parseFormat = DateTimeFormatter.ofPattern("H:mm");
+
+        TextFormatter<LocalTime> timeFormatter = new TextFormatter<>(
+                new LocalTimeStringConverter(displayFormat, parseFormat), LocalTime.now());
+
         TextField timeField = new TextField();
         timeField.setId("time");
         timeField.setTextFormatter(timeFormatter);
@@ -81,11 +91,7 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         VBox root = new VBox(SPACING, topBox, bottomBox);
         root.getStylesheets().add("query.css");
 
-        return new QueryUI(
-                root,
-                depField.stopO(),
-                arrField.stopO(),
-                datePicker.valueProperty(),
+        return new QueryUI(root, depField.stopO(), arrField.stopO(), datePicker.valueProperty(),
                 timeFormatter.valueProperty());
     }
 
@@ -105,19 +111,4 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         return field;
     }
 
-    /**
-     * Crée un TextFormatter pour le format de l'heure avec affichage standardisé
-     * et analyse flexible des entrées utilisateur.
-     *
-     * @return formateur configuré avec l'heure actuelle comme valeur par défaut
-     */
-    private static TextFormatter<LocalTime> createTimeFormatter() {
-        DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("HH:mm");
-        DateTimeFormatter parseFormat = DateTimeFormatter.ofPattern("H:mm");
-
-        return new TextFormatter<>(
-                new LocalTimeStringConverter(displayFormat, parseFormat),
-                LocalTime.now()
-        );
-    }
 }
