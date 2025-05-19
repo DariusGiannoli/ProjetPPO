@@ -26,7 +26,15 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Représente la vue d'ensemble des voyages.
+ * Représente la vue d'ensemble des voyages. Affiche tous les voyages
+ * dans une liste, avec pour chacun les informations essentielles: heure de
+ * départ/arrivée, ligne, destination et changements.
+ *
+ * @param rootNode le nœud JavaFX à la racine du graphe de scène
+ * @param selectedJourneyO valeur observable contenant le voyage sélectionné
+ *
+ * @author Antoine Lepin (390950)
+ * @author Darius Giannoli (380759)
  */
 public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO) {
 
@@ -35,6 +43,14 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
     private static final int ROUTE_BOX_SPACING = 4;
     private static final int TIMELINE_MARGIN = 5;
 
+    /**
+     * Crée la vue d'ensemble : une ListView de Journey, style summary.css,
+     * sélectionne automatiquement le premier voyage à l'heure désirée.
+     *
+     * @param journeysO liste observable de voyages
+     * @param depTimeO heure de départ voulue
+     * @return SummaryUI (rootNode + selectedJourneyO)
+     */
     public static SummaryUI create(ObservableValue<List<Journey>> journeysO,
                                    ObservableValue<LocalTime> depTimeO) {
         // Création de la liste avec configuration initiale
@@ -67,8 +83,10 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
     }
 
     /**
-     * Sélectionne le premier voyage après l'heure indiquée
-     * Optimisé pour parcourir la liste une seule fois
+     * Sélectionne dans la liste le premier voyage dont l'heure de départ est supérieure ou égale à
+     * l'heure indiquée, ou le dernier si aucun n'est plus tard.
+     * @param view instance de ListView qui affiche l'ensemble des voyages.
+     * @param time l'heure de départ désirée.
      */
     private static void selectJourney(ListView<Journey> view, LocalTime time) {
         ObservableList<Journey> items = view.getItems();
@@ -88,6 +106,14 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         view.scrollTo(idx);
     }
 
+    /**
+     * Cellule personnalisée affichant un résumé de voyage.
+     * Chaque voyage est présenté avec:
+     * - L'heure de départ et d'arrivée
+     * - Une icône du premier véhicule et sa destination
+     * - Une ligne temporelle avec les points de changement
+     * - La durée totale du voyage.
+     */
     private static class JourneyCell extends ListCell<Journey> {
         // Composants d'UI
         private final BorderPane root;
@@ -102,6 +128,9 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private final Text routeDestText;
         private final Line timelineLine;
 
+        /**
+         * Constructeur initialisant la structure de base de la cellule.
+         */
         JourneyCell() {
             // Initialiser tous les objets dans le constructeur
             root = new BorderPane();
@@ -138,6 +167,10 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     setPrefSize(0, 0);
                 }
 
+                /**
+                 * Redéfinit la méthode layoutChildren pour positionner la ligne rouge
+                 * et les cercles.
+                 */
                 @Override
                 protected void layoutChildren() {
                     // Calcul des dimensions une seule fois par layout
@@ -174,6 +207,13 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             root.setBottom(durationBox);
         }
 
+        /**
+         * Méthode appelée par JavaFX pour mettre à jour le contenu de la cellule
+         * quand un nouvel élément lui est assigné.
+         *
+         * @param journey le voyage à afficher
+         * @param empty indique si la cellule est vide
+         */
         @Override
         protected void updateItem(Journey journey, boolean empty) {
             super.updateItem(journey, empty);
@@ -219,6 +259,12 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             setGraphic(root);
         }
 
+        /**
+         * Extrait les étapes en transport du voyage.
+         *
+         * @param journey le voyage à analyser
+         * @return liste des étapes en transport
+         */
         private List<Transport> extractTransports(Journey journey) {
             return journey.legs().stream()
                     .filter(Transport.class::isInstance)
@@ -226,6 +272,17 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     .toList();
         }
 
+
+        /**
+         * Ajoute sur la ligne les cercles représentants les changements entre deux étapes
+         * en transport durant le voyage passé en argument.
+         *
+         * @param journey le voyage dont on doit extraire les changements pour placer les cercles.
+         * @param firstDepTime l'heure de départ de la première étape en transport.
+         * @param totalSec la durée totale du voyage, entre le début de la première étape
+         *                 en transport et la fin de la dernière étape en transport,
+         *                 exprimée en secondes.
+         */
         private void addTransferCircles(Journey journey, LocalTime firstDepTime, double totalSec) {
             // Stock les valeurs
             Stop depStop = journey.depStop();
@@ -245,6 +302,13 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     });
         }
 
+        /**
+         * Crée un cercle avec une classe de style et le positionne à la position relative
+         * passée en argument.
+         *
+         * @param styleClass la classe de style CSS à appliquer.
+         * @param relativePosition position relative à laquelle on veut placer le cercle.
+         */
         private void addCircle(String styleClass, double relativePosition) {
             Circle c = new Circle(RADIUS);
             c.getStyleClass().add(styleClass);
