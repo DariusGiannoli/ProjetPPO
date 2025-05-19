@@ -261,9 +261,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
         /**
          * Extrait les étapes en transport du voyage.
-         *
-         * @param journey le voyage à analyser
-         * @return liste des étapes en transport
          */
         private List<Transport> extractTransports(Journey journey) {
             return journey.legs().stream()
@@ -276,12 +273,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         /**
          * Ajoute sur la ligne les cercles représentants les changements entre deux étapes
          * en transport durant le voyage passé en argument.
-         *
-         * @param journey le voyage dont on doit extraire les changements pour placer les cercles.
-         * @param firstDepTime l'heure de départ de la première étape en transport.
-         * @param totalSec la durée totale du voyage, entre le début de la première étape
-         *                 en transport et la fin de la dernière étape en transport,
-         *                 exprimée en secondes.
          */
         private void addTransferCircles(Journey journey, LocalTime firstDepTime, double totalSec) {
             // Stock les valeurs
@@ -294,7 +285,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     .filter(foot -> !foot.depStop().equals(depStop) &&
                             !foot.arrStop().equals(arrStop))
                     .forEach(foot -> {
-                        // Calcul optimisé de la position relative
+                        // Calcul de la position relative
                         double relPos = Duration
                                 .between(firstDepTime, foot.depTime())
                                 .toSeconds() / totalSec;
@@ -305,9 +296,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         /**
          * Crée un cercle avec une classe de style et le positionne à la position relative
          * passée en argument.
-         *
-         * @param styleClass la classe de style CSS à appliquer.
-         * @param relativePosition position relative à laquelle on veut placer le cercle.
          */
         private void addCircle(String styleClass, double relativePosition) {
             Circle c = new Circle(RADIUS);

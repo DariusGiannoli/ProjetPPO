@@ -32,6 +32,7 @@ import static java.awt.Desktop.getDesktop;
  * @author Darius Giannoli (380759)
  */
 public record DetailUI(Node rootNode) {
+    // Constantes pour l'interface graphique
     private static final double CIRCLE_RADIUS = 3.0;
     private static final double LINE_WIDTH = 2.0;
     private static final int ICON_SIZE = 31;
