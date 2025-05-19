@@ -117,7 +117,7 @@ public record DetailUI(Node rootNode) {
             col2.setHgrow(Priority.ALWAYS);
 
             ColumnConstraints col3 = new ColumnConstraints();
-            col2.setHgrow(Priority.NEVER);
+            col3.setHgrow(Priority.NEVER);
 
             getColumnConstraints().addAll(col0, col1, col2, col3);
         }
@@ -147,11 +147,18 @@ public record DetailUI(Node rootNode) {
                     add(depTimeText, 0, row);
                     add(depCircle, 1, row);
 
-                    String depPlatform = FormatterFr.formatPlatformName(tx.depStop());
-                    Text depStationText = new Text(tx.depStop().name() +
-                            (depPlatform.isEmpty() ? "" : " " + depPlatform));
+                    // Station name in column 2
+                    Text depStationText = new Text(tx.depStop().name());
                     depStationText.getStyleClass().add("departure");
-                    add(depStationText, 2, row, 2, 1);
+                    add(depStationText, 2, row);
+
+                    // Platform in column 3
+                    String depPlatform = FormatterFr.formatPlatformName(tx.depStop());
+                    if (!depPlatform.isEmpty()) {
+                        Text depPlatformText = new Text(depPlatform);
+                        depPlatformText.getStyleClass().add("departure");
+                        add(depPlatformText, 3, row);
+                    }
                     row++;
 
                     // Add vehicle icon and destination
@@ -180,7 +187,6 @@ public record DetailUI(Node rootNode) {
                             stopsGrid.add(new Text(stop.stop().name()), 2, i);
                         });
 
-                        // Create accordion with the stops
                         TitledPane stopsPane = new TitledPane(
                                 String.format("%d arrêts, %d min",
                                         tx.intermediateStops().size(), tx.duration().toMinutes()),
@@ -189,17 +195,20 @@ public record DetailUI(Node rootNode) {
                         Accordion accordion = new Accordion();
                         accordion.setId("intermediate");
                         accordion.getPanes().add(stopsPane);
-                        add(accordion, 2, row, 1, 1);
+                        add(accordion, 2, row, 2, 1);
                         row++;
                     }
 
                     // Add arrival stop
                     add(new Text(FormatterFr.formatTime(tx.arrTime())), 0, row);
                     add(arrCircle, 1, row);
+                    add(new Text(tx.arrStop().name()), 2, row);
 
+                    // Platform in column 3
                     String arrPlatform = FormatterFr.formatPlatformName(tx.arrStop());
-                    add(new Text(tx.arrStop().name() +
-                            (arrPlatform.isEmpty() ? "" : " " + arrPlatform)), 2, row, 2, 1);
+                    if (!arrPlatform.isEmpty()) {
+                        add(new Text(arrPlatform), 3, row);
+                    }
                     row++;
                 }
             }
