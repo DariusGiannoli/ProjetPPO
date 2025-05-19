@@ -43,33 +43,44 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         popup.setHideOnEscape(false);
         popup.getContent().add(list);
 
-        // Configuration des interactions
-        //Configure la navigation clavier avec les flèches dans la liste des arrêts proposés.
+        // Cache le modèle de sélection pour éviter des appels répétés
+        MultipleSelectionModel<String> selModel = list.getSelectionModel();
+
+        // Gestion de la navigation clavier
         textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
-            MultipleSelectionModel<String> selModel = list.getSelectionModel();
             if (selModel.isEmpty()) return;
 
-            if (e.getCode() == KeyCode.UP) {
+            KeyCode code = e.getCode();
+            boolean needConsume = true;
+
+            if (code == KeyCode.UP) {
                 selModel.selectPrevious();
-                list.scrollTo(selModel.getSelectedIndex());
-                e.consume();
-            } else if (e.getCode() == KeyCode.DOWN) {
+            } else if (code == KeyCode.DOWN) {
                 selModel.selectNext();
+            } else if (code == KeyCode.ENTER) {
+                String selectedItem = selModel.getSelectedItem();
+                if (selectedItem != null) {
+                    textField.setText(selectedItem);
+                    selected.set(selectedItem);
+                }
+                popup.hide();
+            } else {
+                needConsume = false;
+            }
+
+            if (needConsume) {
                 list.scrollTo(selModel.getSelectedIndex());
                 e.consume();
             }
         });
 
-        //Configure le comportement lors des changements de focus.
+        // Gestion du focus
         textField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
             if (isFocused) {
-                // Affiche la popup quand on gagne le focus
                 updateSuggestions(list, index.stopsMatching(textField.getText(), MAX_SUGGESTIONS));
                 showPopup(textField, popup);
-
             } else {
-                // Valide la sélection quand on perd le focus
-                String selectedItem = list.getSelectionModel().getSelectedItem();
+                String selectedItem = selModel.getSelectedItem();
                 if (selectedItem != null) {
                     textField.setText(selectedItem);
                     selected.set(selectedItem);
@@ -78,7 +89,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
             }
         });
 
-        //Configure la mise à jour de la liste lors de la saisie de texte.
+        // Mise à jour lors de la saisie
         textField.textProperty().addListener((obs, oldText, newText) -> {
             if (popup.isShowing()) {
                 updateSuggestions(list, index.stopsMatching(newText, MAX_SUGGESTIONS));
@@ -91,9 +102,6 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
 
     /**
      * Met à jour les suggestions dans la liste et sélectionne le premier élément.
-     *
-     * @param list la liste que l'on affiche avec les arrêts proposés.
-     * @param suggestions la liste des arrêts proposés à mettre dans list.
      */
     private static void updateSuggestions(ListView<String> list, List<String> suggestions) {
         list.getItems().setAll(suggestions);
@@ -105,9 +113,6 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
 
     /**
      * Affiche la popup sous le champ de texte.
-     *
-     * @param textField le champ de texte dans lequel il y a la requète d'arrêt.
-     * @param popup la fenêtre qui affiche les propositions d'arrêts.
      */
     private static void showPopup(TextField textField, Popup popup) {
         Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
