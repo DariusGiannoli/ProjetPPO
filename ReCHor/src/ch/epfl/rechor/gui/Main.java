@@ -68,13 +68,35 @@ public class Main extends Application {
         Router router = new Router(timeTable);
 
         // Initialisation du cache
-        initializeCache();
+        cacheProfile = new SimpleObjectProperty<>();
+        cacheStop = new SimpleObjectProperty<>();
+        cacheDate = new SimpleObjectProperty<>();
 
         // Création du binding pour les trajets
-        createJourneysBinding(queryUI, router);
+        journeysO = Bindings.createObjectBinding(
+                () -> calculateJourneys(queryUI, router),
+                queryUI.depStopO(),
+                queryUI.arrStopO(),
+                queryUI.dateO()
+        );
 
         // Construction et affichage de l'interface
-        Scene scene = buildUserInterface(queryUI, stage);
+        // Construction des composants d'UI
+        SummaryUI summaryUI = SummaryUI.create(journeysO, queryUI.timeO());
+        DetailUI detailUI = DetailUI.create(summaryUI.selectedJourneyO());
+
+        // Assemblage de l'interface
+        SplitPane split = new SplitPane(summaryUI.rootNode(), detailUI.rootNode());
+        BorderPane root = new BorderPane(split, queryUI.rootNode(), null, null, null);
+
+        // Configuration de la scène
+        Scene scene = new Scene(root, WIDTH, HEIGHT);
+
+        stage.setScene(scene);
+        stage.setMinWidth(WIDTH);
+        stage.setMinHeight(HEIGHT);
+        stage.setTitle(APP_TITLE);
+        stage.show();
 
         // Focus initial
         Platform.runLater(() -> scene.lookup(DEP_STOP_ID).requestFocus());
@@ -92,6 +114,7 @@ public class Main extends Application {
                 .mapToObj(timeTable.stations()::name)
                 .collect(Collectors.toList());
 
+
         // Construction de la map des alias vers les noms principaux
         Map<String, String> altToMain = new HashMap<>();
         for (int i = 0; i < timeTable.stationAliases().size(); i++) {
@@ -101,31 +124,6 @@ public class Main extends Application {
             );
         }
         return new StopIndex(mainNames, altToMain);
-    }
-
-    /**
-     * Initialise le cache de profile.
-     */
-    private void initializeCache() {
-        cacheProfile = new SimpleObjectProperty<>();
-        cacheStop = new SimpleObjectProperty<>();
-        cacheDate = new SimpleObjectProperty<>();
-    }
-
-    /**
-     * Crée le binding pour la liste des trajets.
-     * Le binding recalcule les trajets lorsque les paramètres de recherche changent.
-     *
-     * @param queryUI L'interface de requête contenant les paramètres
-     * @param router Le routeur pour calculer les trajets
-     */
-    private void createJourneysBinding(QueryUI queryUI, Router router) {
-        journeysO = Bindings.createObjectBinding(
-                () -> calculateJourneys(queryUI, router),
-                queryUI.depStopO(),
-                queryUI.arrStopO(),
-                queryUI.dateO()
-        );
     }
 
     /**
@@ -172,42 +170,6 @@ public class Main extends Application {
             cacheDate.set(date);
             cacheStop.set(arrName);
         }
-    }
-    /**
-     * Construit l'interface utilisateur complète.
-     *
-     * @param queryUI L'interface de requête
-     * @param stage La scène principale
-     * @return La scène configurée
-     */
-    private Scene buildUserInterface(QueryUI queryUI, Stage stage) {
-        // Construction des composants d'UI
-        SummaryUI summaryUI = SummaryUI.create(journeysO, queryUI.timeO());
-        DetailUI detailUI = DetailUI.create(summaryUI.selectedJourneyO());
-
-        // Assemblage de l'interface
-        SplitPane split = new SplitPane(summaryUI.rootNode(), detailUI.rootNode());
-        BorderPane root = new BorderPane(split, queryUI.rootNode(), null, null, null);
-
-        // Configuration de la scène
-        Scene scene = new Scene(root, WIDTH, HEIGHT);
-        configureStage(stage, scene);
-
-        return scene;
-    }
-
-    /**
-     * Configure la fenêtre principale.
-     *
-     * @param stage La fenêtre à configurer
-     * @param scene La scène à afficher
-     */
-    private void configureStage(Stage stage, Scene scene) {
-        stage.setScene(scene);
-        stage.setMinWidth(WIDTH);
-        stage.setMinHeight(HEIGHT);
-        stage.setTitle(APP_TITLE);
-        stage.show();
     }
 
     /**
