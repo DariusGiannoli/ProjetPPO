@@ -43,44 +43,32 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         popup.setHideOnEscape(false);
         popup.getContent().add(list);
 
-        // Cache le modèle de sélection pour éviter des appels répétés
-        MultipleSelectionModel<String> selModel = list.getSelectionModel();
-
-        // Gestion de la navigation clavier
+        //Configure la navigation clavier avec les flèches dans la liste des arrêts proposés.
         textField.addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            MultipleSelectionModel<String> selModel = list.getSelectionModel();
             if (selModel.isEmpty()) return;
 
-            KeyCode code = e.getCode();
-            boolean needConsume = true;
-
-            if (code == KeyCode.UP) {
+            if (e.getCode() == KeyCode.UP) {
                 selModel.selectPrevious();
-            } else if (code == KeyCode.DOWN) {
+                list.scrollTo(selModel.getSelectedIndex());
+                e.consume();
+            } else if (e.getCode() == KeyCode.DOWN) {
                 selModel.selectNext();
-            } else if (code == KeyCode.ENTER) {
-                String selectedItem = selModel.getSelectedItem();
-                if (selectedItem != null) {
-                    textField.setText(selectedItem);
-                    selected.set(selectedItem);
-                }
-                popup.hide();
-            } else {
-                needConsume = false;
-            }
-
-            if (needConsume) {
                 list.scrollTo(selModel.getSelectedIndex());
                 e.consume();
             }
         });
 
-        // Gestion du focus
+        //Configure le comportement lors des changements de focus.
         textField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
             if (isFocused) {
+                // Affiche la popup quand on gagne le focus
                 updateSuggestions(list, index.stopsMatching(textField.getText(), MAX_SUGGESTIONS));
                 showPopup(textField, popup);
+
             } else {
-                String selectedItem = selModel.getSelectedItem();
+                // Valide la sélection quand on perd le focus
+                String selectedItem = list.getSelectionModel().getSelectedItem();
                 if (selectedItem != null) {
                     textField.setText(selectedItem);
                     selected.set(selectedItem);
