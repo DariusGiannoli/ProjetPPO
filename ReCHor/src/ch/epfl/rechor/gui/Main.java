@@ -110,13 +110,10 @@ public class Main extends Application {
      */
     private StopIndex createStopIndex(TimeTable timeTable) {
         // Extraction des noms principaux des stations
-        mainNames = new ArrayList<>();
-        for(int i = 0; i < timeTable.stations().size(); i++) {
-            mainNames.add(timeTable.stations().name(i));
-        }
-//        mainNames = IntStream.range(0, timeTable.stations().size())
-//                .mapToObj(timeTable.stations()::name)
-//                .collect(Collectors.toList());
+
+        mainNames = IntStream.range(0, timeTable.stations().size())
+                .mapToObj(timeTable.stations()::name)
+                .collect(Collectors.toList());
 
 
         // Construction de la map des alias vers les noms principaux
@@ -126,7 +123,6 @@ public class Main extends Application {
                     timeTable.stationAliases().alias(i),
                     timeTable.stationAliases().stationName(i)
             );
-//            mainNames.add(timeTable.stationAliases().alias(i));
         }
         return new StopIndex(mainNames, altToMain);
     }
