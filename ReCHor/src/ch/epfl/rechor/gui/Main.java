@@ -113,7 +113,6 @@ public class Main extends Application {
                 .mapToObj(timeTable.stations()::name)
                 .collect(Collectors.toList());
 
-
         // Construction de la map des alias vers les noms principaux
         LinkedHashMap<String, String> altToMain = new LinkedHashMap<>();
         for (int i = 0; i < timeTable.stationAliases().size(); i++) {
