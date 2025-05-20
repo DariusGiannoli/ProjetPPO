@@ -53,9 +53,9 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         // Bouton d'échange
         Button swapButton = new Button("⟷");
         swapButton.setOnAction(e -> {
-            String temp = depField.textField().getText();
-            arrField.setTo(temp);
-            depField.setTo(arrField.textField().getText());
+            String temp = arrField.textField().getText();
+            arrField.setTo(depField.textField().getText());
+            depField.setTo(temp);
         });
 
         // Configuration date et heure
