@@ -106,7 +106,7 @@ public record DetailUI(Node rootNode) {
             boolean hasJourney = journey != null;
             noJourney.setVisible(!hasJourney);
             detailBox.setVisible(hasJourney);
-            if (hasJourney) legsGrid.updateLegs(journey);
+            legsGrid.updateLegs(journey);
         });
 
         return new DetailUI(scroll);
@@ -154,91 +154,92 @@ public record DetailUI(Node rootNode) {
         void updateLegs(Journey journey) {
             getChildren().clear();
             circlePairs.clear();
+            if(journey != null) {
+                int row = 0;
+                for (Leg leg : journey.legs()) {
+                    if (leg instanceof Leg.Foot foot) {
+                        // Add foot leg
+                        add(new Text(FormatterFr.formatLeg(foot)), 2, row, 2, 1);
+                        row++;
+                    } else {
+                        // Add transport leg
+                        Leg.Transport tx = (Leg.Transport) leg;
 
-            int row = 0;
-            for (Leg leg : journey.legs()) {
-                if (leg instanceof Leg.Foot foot) {
-                    // Add foot leg
-                    add(new Text(FormatterFr.formatLeg(foot)), 2, row, 2, 1);
-                    row++;
-                } else {
-                    // Add transport leg
-                    Leg.Transport tx = (Leg.Transport) leg;
+                        // Create circles for departure and arrival
+                        Circle depCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
+                        Circle arrCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
+                        circlePairs.add(new Pair<>(depCircle, arrCircle));
 
-                    // Create circles for departure and arrival
-                    Circle depCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
-                    Circle arrCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
-                    circlePairs.add(new Pair<>(depCircle, arrCircle));
+                        // Add departure stop
+                        Text depTimeText = new Text(FormatterFr.formatTime(tx.depTime()));
+                        depTimeText.getStyleClass().add("departure");
+                        add(depTimeText, 0, row);
+                        add(depCircle, 1, row);
 
-                    // Add departure stop
-                    Text depTimeText = new Text(FormatterFr.formatTime(tx.depTime()));
-                    depTimeText.getStyleClass().add("departure");
-                    add(depTimeText, 0, row);
-                    add(depCircle, 1, row);
+                        // Station name in column 2
+                        Text depStationText = new Text(tx.depStop().name());
+                        depStationText.getStyleClass().add("departure");
+                        add(depStationText, 2, row);
 
-                    // Station name in column 2
-                    Text depStationText = new Text(tx.depStop().name());
-                    depStationText.getStyleClass().add("departure");
-                    add(depStationText, 2, row);
+                        // Platform in column 3
+                        String depPlatform = FormatterFr.formatPlatformName(tx.depStop());
+                        if (!depPlatform.isEmpty()) {
+                            Text depPlatformText = new Text(depPlatform);
+                            depPlatformText.getStyleClass().add("departure");
+                            add(depPlatformText, 3, row);
+                        }
+                        row++;
 
-                    // Platform in column 3
-                    String depPlatform = FormatterFr.formatPlatformName(tx.depStop());
-                    if (!depPlatform.isEmpty()) {
-                        Text depPlatformText = new Text(depPlatform);
-                        depPlatformText.getStyleClass().add("departure");
-                        add(depPlatformText, 3, row);
-                    }
-                    row++;
+                        // Add vehicle icon and destination
+                        ImageView icon = new ImageView(VehicleIcons.iconFor(tx.vehicle()));
+                        icon.setFitWidth(ICON_SIZE);
+                        icon.setFitHeight(ICON_SIZE);
+                        icon.setPreserveRatio(true);
 
-                    // Add vehicle icon and destination
-                    ImageView icon = new ImageView(VehicleIcons.iconFor(tx.vehicle()));
-                    icon.setFitWidth(ICON_SIZE);
-                    icon.setFitHeight(ICON_SIZE);
-                    icon.setPreserveRatio(true);
+                        boolean hasIntermediates = !tx.intermediateStops().isEmpty();
+                        add(icon, 0, row, 1, hasIntermediates ? 2 : 1);
+                        add(new Text(FormatterFr.formatRouteDestination(tx)), 2, row, 2, 1);
+                        row++;
 
-                    boolean hasIntermediates = !tx.intermediateStops().isEmpty();
-                    add(icon, 0, row, 1, hasIntermediates ? 2 : 1);
-                    add(new Text(FormatterFr.formatRouteDestination(tx)), 2, row, 2, 1);
-                    row++;
+                        // Add intermediate stops if any
+                        if (hasIntermediates) {
+                            // Build the grid for intermediate stops
+                            GridPane stopsGrid = new GridPane();
+                            stopsGrid.setId("intermediate-stops");
+                            stopsGrid.getStyleClass().add("intermediate-stops");
+                            stopsGrid.setHgap(GAP);
 
-                    // Add intermediate stops if any
-                    if (hasIntermediates) {
-                        // Build the grid for intermediate stops
-                        GridPane stopsGrid = new GridPane();
-                        stopsGrid.setId("intermediate-stops");
-                        stopsGrid.getStyleClass().add("intermediate-stops");
-                        stopsGrid.setHgap(GAP);
+                            IntStream.range(0, tx.intermediateStops().size()).forEach(i -> {
+                                Leg.IntermediateStop stop = tx.intermediateStops().get(i);
+                                stopsGrid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, i);
+                                stopsGrid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, i);
+                                stopsGrid.add(new Text(stop.stop().name()), 2, i);
+                            });
 
-                        IntStream.range(0, tx.intermediateStops().size()).forEach(i -> {
-                            Leg.IntermediateStop stop = tx.intermediateStops().get(i);
-                            stopsGrid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, i);
-                            stopsGrid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, i);
-                            stopsGrid.add(new Text(stop.stop().name()), 2, i);
-                        });
+                            TitledPane stopsPane = new TitledPane(
+                                    String.format("%d arrêts, %d min",
+                                            tx.intermediateStops().size(), tx.duration().toMinutes()),
+                                    stopsGrid);
 
-                        TitledPane stopsPane = new TitledPane(
-                                String.format("%d arrêts, %d min",
-                                        tx.intermediateStops().size(), tx.duration().toMinutes()),
-                                stopsGrid);
+                            Accordion accordion = new Accordion();
+                            accordion.setId("intermediate");
+                            accordion.getPanes().add(stopsPane);
+                            add(accordion, 2, row, 2, 1);
+                            row++;
+                        }
 
-                        Accordion accordion = new Accordion();
-                        accordion.setId("intermediate");
-                        accordion.getPanes().add(stopsPane);
-                        add(accordion, 2, row, 2, 1);
+                        // Add arrival stop
+                        add(new Text(FormatterFr.formatTime(tx.arrTime())), 0, row);
+                        add(arrCircle, 1, row);
+                        add(new Text(tx.arrStop().name()), 2, row);
+
+                        // Platform in column 3
+                        String arrPlatform = FormatterFr.formatPlatformName(tx.arrStop());
+                        if (!arrPlatform.isEmpty()) {
+                            add(new Text(arrPlatform), 3, row);
+                        }
                         row++;
                     }
-
-                    // Add arrival stop
-                    add(new Text(FormatterFr.formatTime(tx.arrTime())), 0, row);
-                    add(arrCircle, 1, row);
-                    add(new Text(tx.arrStop().name()), 2, row);
-
-                    // Platform in column 3
-                    String arrPlatform = FormatterFr.formatPlatformName(tx.arrStop());
-                    if (!arrPlatform.isEmpty()) {
-                        add(new Text(arrPlatform), 3, row);
-                    }
-                    row++;
                 }
             }
         }
