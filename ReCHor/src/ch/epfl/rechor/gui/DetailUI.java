@@ -5,7 +5,6 @@ import ch.epfl.rechor.journey.Journey.Leg;
 import ch.epfl.rechor.FormatterFr;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
-import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -20,6 +19,7 @@ import javafx.util.Pair;
 import java.io.File;
 import java.net.URI;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -32,11 +32,33 @@ import static java.awt.Desktop.getDesktop;
  * @author Darius Giannoli (380759)
  */
 public record DetailUI(Node rootNode) {
-    // Constantes pour l'interface graphique
+    // Dimensions et mesures visuelles
     private static final double CIRCLE_RADIUS = 3.0;
     private static final double LINE_WIDTH = 2.0;
     private static final int ICON_SIZE = 31;
     private static final int GAP = 5;
+
+    // Textes d'interface et libellés
+    private static final String CALENDAR_TAB_LABEL = "Calendrier";
+    private static final String MAP_TAB_LABEL = "Carte";
+    private static final String NO_JOURNEY_MESSAGE = "Aucun voyage";
+
+    // Identifiants de types d'événements
+    private static final String DEPARTURE_EVENT_TYPE = "departure";
+    private static final String INTERMEDIATE_STOP_TYPE = "intermediate";
+    private static final String INTERMEDIATE_STOPS_IDENTIFIER = "intermediate-stops";
+
+    // Formats et modèles de chaînes
+    private static final String VOYAGE_CALENDAR_FILENAME_TEMPLATE = "voyage_%s.ics";
+    private static final String STOPS_DURATION_FORMAT = "%d arrêts, %d min";
+    private static final String DETAIL_STYLESHEET_FILENAME = "detail.css";
+
+    // Identifiants des éléments d'interface
+    private static final String BUTTONS_CONTAINER_ID = "buttons";
+    private static final String DETAIL_PANEL_ID = "detail";
+    private static final String EMPTY_JOURNEY_CONTAINER_ID = "no-journey";
+    private static final String JOURNEY_ANNOTATIONS_LAYER_ID = "annotations";
+    private static final String JOURNEY_SEGMENTS_GRID_ID = "legs";
 
     /**
      * Crée le graphe de scène et retourne une instance de DetailUI
@@ -47,44 +69,49 @@ public record DetailUI(Node rootNode) {
      * @return retourne une instance de DetailUI contenant une référence à sa racine.
      */
     public static DetailUI create(ObservableValue<Journey> journeyO) {
-        // ScrollPane
+        // Crée un panneau défilant pour contenir tous les éléments
         ScrollPane scroll = new ScrollPane();
-        scroll.setId("detail");
-        scroll.getStylesheets().add("detail.css");
+        scroll.setId(DETAIL_PANEL_ID);
+        scroll.getStylesheets().add(DETAIL_STYLESHEET_FILENAME);
         scroll.setFitToWidth(true);
 
-        // "No journey" message
-        VBox noJourney = new VBox(new Text("Aucun voyage"));
-        noJourney.setId("no-journey");
+        // Message affiché quand aucun itinéraire n'est sélectionné
+        VBox noJourney = new VBox(new Text(NO_JOURNEY_MESSAGE));
+        noJourney.setId(EMPTY_JOURNEY_CONTAINER_ID);
         noJourney.setAlignment(Pos.CENTER);
 
-        // Grid for journey
+        // Crée la grille pour afficher les segments de l'itinéraire
         Pane annotations = new Pane();
-        annotations.setId("annotations");
+        annotations.setId(JOURNEY_ANNOTATIONS_LAYER_ID);
         DetailGridPane legsGrid = new DetailGridPane(annotations);
-        legsGrid.setId("legs");
+        legsGrid.setId(JOURNEY_SEGMENTS_GRID_ID);
 
-        // Buttons
-        Button btnMap = new Button("Carte");
-        btnMap.setId("Carte");
+        // Crée un bouton pour afficher l'itinéraire sur une carte
+        Button btnMap = new Button(MAP_TAB_LABEL);
+        btnMap.setId(MAP_TAB_LABEL);
         btnMap.setOnAction(e -> {
             Journey j = journeyO.getValue();
             if (j != null) {
                 try {
-                    getDesktop().browse(new URI("https", "umap.osm.ch", "/fr/map",
+                    // Ouvre l'itinéraire dans le navigateur avec umap.osm.ch
+                    getDesktop().browse(
+                            new URI("https", "umap.osm.ch", "/fr/map",
                             "data=" + JourneyGeoJsonConverter.toGeoJson(j), null));
                 } catch (Exception ignored) {}
             }
         });
 
-        Button btnCalendar = new Button("Calendrier");
-        btnCalendar.setId("Calendrier");
+        // Crée un bouton pour exporter l'itinéraire au format calendrier
+        Button btnCalendar = new Button(CALENDAR_TAB_LABEL);
+        btnCalendar.setId(CALENDAR_TAB_LABEL);
         btnCalendar.setOnAction(e -> {
             Journey j = journeyO.getValue();
             if (j != null) {
                 try {
+                    // Affiche un dialogue pour enregistrer le fichier calendrier
                     FileChooser fc = new FileChooser();
-                    fc.setInitialFileName("voyage_" + j.depTime().toLocalDate() + ".ics");
+                    fc.setInitialFileName(String.format(
+                            VOYAGE_CALENDAR_FILENAME_TEMPLATE, j.depTime().toLocalDate()));
                     File file = fc.showSaveDialog(null);
                     if (file != null) {
                         Files.writeString(file.toPath(), JourneyIcalConverter.toIcalendar(j));
@@ -93,15 +120,16 @@ public record DetailUI(Node rootNode) {
             }
         });
 
+        // Conteneur pour les boutons
         HBox buttons = new HBox(10, btnMap, btnCalendar);
-        buttons.setId("buttons");
+        buttons.setId(BUTTONS_CONTAINER_ID);
         buttons.setAlignment(Pos.CENTER);
 
-        // Assembly
+        // Assemblage des composants
         VBox detailBox = new VBox(GAP, new StackPane(annotations, legsGrid), buttons);
         scroll.setContent(new StackPane(noJourney, detailBox));
 
-        // Bindings
+        // Configure les réactions aux changements d'itinéraire
         journeyO.subscribe(journey -> {
             boolean hasJourney = journey != null;
             noJourney.setVisible(!hasJourney);
@@ -109,6 +137,7 @@ public record DetailUI(Node rootNode) {
             legsGrid.updateLegs(journey);
         });
 
+        // Retourne l'interface utilisateur encapsulée
         return new DetailUI(scroll);
     }
 
@@ -120,6 +149,20 @@ public record DetailUI(Node rootNode) {
         private final List<Pair<Circle, Circle>> circlePairs = new ArrayList<>();
         private final Pane annotations;
 
+        // Column positions
+        private static final int COL_TIME = 0;
+        private static final int COL_CIRCLE = 1;
+        private static final int COL_STATION = 2;
+        private static final int COL_PLATFORM = 3;
+
+        // Column spans
+        private static final int FOOT_LEG_COLSPAN = 2;
+        private static final int DESTINATION_COLSPAN = 2;
+        private static final int ACCORDION_COLSPAN = 2;
+
+        // Row increments
+        private static final int ROW_INCREMENT = 1;
+
         /**
          * Constructeur de DetailGridPane, qui configure les colonnes de ce GridPane.
          *
@@ -129,7 +172,6 @@ public record DetailUI(Node rootNode) {
             this.annotations = annotations;
             setVgap(GAP);
             setHgap(GAP);
-
         }
 
         /**
@@ -137,97 +179,212 @@ public record DetailUI(Node rootNode) {
          *
          * @param journey voyage qui soit être affiché dans le DetailGridPane.
          */
+//        void updateLegs(Journey journey) {
+//            getChildren().clear();
+//            circlePairs.clear();
+//            if(journey != null) {
+//                int row = 0;
+//                for (Leg leg : journey.legs()) {
+//                    if (leg instanceof Leg.Foot foot) {
+//                        // Add foot leg
+//                        add(new Text(FormatterFr.formatLeg(foot)), 2, row, 2, 1);
+//                    } else {
+//                        // Add transport leg
+//                        Leg.Transport tx = (Leg.Transport) leg;
+//
+//                        // Create circles for departure and arrival
+//                        Circle depCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
+//                        Circle arrCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
+//                        circlePairs.add(new Pair<>(depCircle, arrCircle));
+//
+//                        // Add departure stop
+//                        Text depTimeText = new Text(FormatterFr.formatTime(tx.depTime()));
+//                        depTimeText.getStyleClass().add(DEPARTURE_EVENT_TYPE);
+//                        add(depTimeText, 0, row);
+//                        add(depCircle, 1, row);
+//
+//                        // Station name in column 2
+//                        Text depStationText = new Text(tx.depStop().name());
+//                        depStationText.getStyleClass().add(DEPARTURE_EVENT_TYPE);
+//                        add(depStationText, 2, row);
+//
+//                        // Platform in column 3
+//                        String depPlatform = FormatterFr.formatPlatformName(tx.depStop());
+//                        if (!depPlatform.isEmpty()) {
+//                            Text depPlatformText = new Text(depPlatform);
+//                            depPlatformText.getStyleClass().add(DEPARTURE_EVENT_TYPE);
+//                            add(depPlatformText, 3, row);
+//                        }
+//                        row++;
+//
+//                        // Add vehicle icon and destination
+//                        ImageView icon = new ImageView(VehicleIcons.iconFor(tx.vehicle()));
+//                        icon.setFitWidth(ICON_SIZE);
+//                        icon.setFitHeight(ICON_SIZE);
+//                        icon.setPreserveRatio(true);
+//
+//                        boolean hasIntermediates = !tx.intermediateStops().isEmpty();
+//                        add(icon, 0, row, 1, hasIntermediates ? 2 : 1);
+//                        add(new Text(FormatterFr.formatRouteDestination(tx)), 2, row, 2, 1);
+//                        row++;
+//
+//                        // Add intermediate stops if any
+//                        if (hasIntermediates) {
+//                            // Build the grid for intermediate stops
+//                            GridPane stopsGrid = new GridPane();
+//                            stopsGrid.setId(INTERMEDIATE_STOPS_IDENTIFIER);
+//                            stopsGrid.getStyleClass().add(INTERMEDIATE_STOPS_IDENTIFIER);
+//                            stopsGrid.setHgap(GAP);
+//
+//                            IntStream.range(0, tx.intermediateStops().size()).forEach(i -> {
+//                                Leg.IntermediateStop stop = tx.intermediateStops().get(i);
+//                                stopsGrid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, i);
+//                                stopsGrid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, i);
+//                                stopsGrid.add(new Text(stop.stop().name()), 2, i);
+//                            });
+//
+//                            TitledPane stopsPane = new TitledPane(
+//                                    String.format(STOPS_DURATION_FORMAT,
+//                                            tx.intermediateStops().size(), tx.duration().toMinutes()),
+//                                    stopsGrid);
+//
+//                            Accordion accordion = new Accordion();
+//                            accordion.setId(INTERMEDIATE_STOP_TYPE);
+//                            accordion.getPanes().add(stopsPane);
+//                            add(accordion, 2, row, 2, 1);
+//                            row++;
+//                        }
+//
+//                        // Add arrival stop
+//                        add(new Text(FormatterFr.formatTime(tx.arrTime())), 0, row);
+//                        add(arrCircle, 1, row);
+//                        add(new Text(tx.arrStop().name()), 2, row);
+//
+//                        // Platform in column 3
+//                        String arrPlatform = FormatterFr.formatPlatformName(tx.arrStop());
+//                        if (!arrPlatform.isEmpty()) {
+//                            add(new Text(arrPlatform), 3, row);
+//                        }
+//                    }
+//                    row++;
+//                }
+//            }
+//        }
         void updateLegs(Journey journey) {
+            // Efface l'affichage précédent
             getChildren().clear();
             circlePairs.clear();
             if(journey != null) {
                 int row = 0;
                 for (Leg leg : journey.legs()) {
                     if (leg instanceof Leg.Foot foot) {
-                        // Add foot leg
-                        add(new Text(FormatterFr.formatLeg(foot)), 2, row, 2, 1);
-                        row++;
+                        // Ajoute un segment de marche
+                        add(new Text(FormatterFr.formatLeg(foot)),COL_STATION,row,
+                                FOOT_LEG_COLSPAN,ROW_INCREMENT);
                     } else {
-                        // Add transport leg
+                        // Ajoute un segment de transport (bus, train, etc.)
                         Leg.Transport tx = (Leg.Transport) leg;
 
-                        // Create circles for departure and arrival
+                        // Crée des cercles pour représenter le départ et l'arrivée
                         Circle depCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
                         Circle arrCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
                         circlePairs.add(new Pair<>(depCircle, arrCircle));
 
-                        // Add departure stop
-                        Text depTimeText = new Text(FormatterFr.formatTime(tx.depTime()));
-                        depTimeText.getStyleClass().add("departure");
-                        add(depTimeText, 0, row);
-                        add(depCircle, 1, row);
+                        // Ajoute la ligne de départ avec heure, cercle, nom de station et quai
+                        addStopRow(tx.depTime(),depCircle,tx.depStop(),DEPARTURE_EVENT_TYPE, row);
+                        row += ROW_INCREMENT;
 
-                        // Station name in column 2
-                        Text depStationText = new Text(tx.depStop().name());
-                        depStationText.getStyleClass().add("departure");
-                        add(depStationText, 2, row);
-
-                        // Platform in column 3
-                        String depPlatform = FormatterFr.formatPlatformName(tx.depStop());
-                        if (!depPlatform.isEmpty()) {
-                            Text depPlatformText = new Text(depPlatform);
-                            depPlatformText.getStyleClass().add("departure");
-                            add(depPlatformText, 3, row);
-                        }
-                        row++;
-
-                        // Add vehicle icon and destination
+                        // Ajoute l'icône du véhicule et la destination
                         ImageView icon = new ImageView(VehicleIcons.iconFor(tx.vehicle()));
                         icon.setFitWidth(ICON_SIZE);
                         icon.setFitHeight(ICON_SIZE);
                         icon.setPreserveRatio(true);
 
+                        // Ajuste la taille verticale de l'icône
                         boolean hasIntermediates = !tx.intermediateStops().isEmpty();
-                        add(icon, 0, row, 1, hasIntermediates ? 2 : 1);
-                        add(new Text(FormatterFr.formatRouteDestination(tx)), 2, row, 2, 1);
-                        row++;
+                        add(icon, COL_TIME, row, ROW_INCREMENT, hasIntermediates ? 2 : 1);
+                        add(new Text(FormatterFr.formatRouteDestination(tx)), COL_STATION, row,
+                                DESTINATION_COLSPAN, ROW_INCREMENT);
+                        row += ROW_INCREMENT;
 
-                        // Add intermediate stops if any
+                        // Ajoute les arrêts intermédiaires si présents
                         if (hasIntermediates) {
-                            // Build the grid for intermediate stops
-                            GridPane stopsGrid = new GridPane();
-                            stopsGrid.setId("intermediate-stops");
-                            stopsGrid.getStyleClass().add("intermediate-stops");
-                            stopsGrid.setHgap(GAP);
-
-                            IntStream.range(0, tx.intermediateStops().size()).forEach(i -> {
-                                Leg.IntermediateStop stop = tx.intermediateStops().get(i);
-                                stopsGrid.add(new Text(FormatterFr.formatTime(stop.arrTime())), 0, i);
-                                stopsGrid.add(new Text(FormatterFr.formatTime(stop.depTime())), 1, i);
-                                stopsGrid.add(new Text(stop.stop().name()), 2, i);
-                            });
-
-                            TitledPane stopsPane = new TitledPane(
-                                    String.format("%d arrêts, %d min",
-                                            tx.intermediateStops().size(), tx.duration().toMinutes()),
-                                    stopsGrid);
-
-                            Accordion accordion = new Accordion();
-                            accordion.setId("intermediate");
-                            accordion.getPanes().add(stopsPane);
-                            add(accordion, 2, row, 2, 1);
-                            row++;
+                            row = addIntermediateStops(tx, row);
                         }
 
-                        // Add arrival stop
-                        add(new Text(FormatterFr.formatTime(tx.arrTime())), 0, row);
-                        add(arrCircle, 1, row);
-                        add(new Text(tx.arrStop().name()), 2, row);
-
-                        // Platform in column 3
-                        String arrPlatform = FormatterFr.formatPlatformName(tx.arrStop());
-                        if (!arrPlatform.isEmpty()) {
-                            add(new Text(arrPlatform), 3, row);
-                        }
-                        row++;
+                        // Ajoute la ligne d'arrivée
+                        addStopRow(tx.arrTime(), arrCircle, tx.arrStop(), null, row);
                     }
+                    row += ROW_INCREMENT; // Espace entre les segments
                 }
             }
+        }
+
+        /**
+         * Ajoute une ligne représentant un arrêt (départ ou arrivée) dans la grille.
+         */
+        private void addStopRow(LocalDateTime time, Circle circle, Stop stop,
+                                String styleClass, int row) {
+            // Ajoute l'heure formatée
+            Text timeText = new Text(FormatterFr.formatTime(time));
+            if (styleClass != null) {
+                timeText.getStyleClass().add(styleClass);
+            }
+            add(timeText, COL_TIME, row);
+
+            // Ajoute le cercle de visualisation
+            add(circle, COL_CIRCLE, row);
+
+            // Ajoute le nom de la station
+            Text stationText = new Text(stop.name());
+            if (styleClass != null) {
+                stationText.getStyleClass().add(styleClass);
+            }
+            add(stationText, COL_STATION, row);
+
+            // Ajoute le quai si disponible
+            String platform = FormatterFr.formatPlatformName(stop);
+            if (!platform.isEmpty()) {
+                Text platformText = new Text(platform);
+                if (styleClass != null) {
+                    platformText.getStyleClass().add(styleClass);
+                }
+                add(platformText, COL_PLATFORM, row);
+            }
+        }
+
+        /**
+         * Crée et ajoute un accordéon contenant les arrêts intermédiaires d'un segment de transport.
+         */
+        private int addIntermediateStops(Leg.Transport tx, int row) {
+            // Crée une grille pour les arrêts intermédiaires
+            GridPane stopsGrid = new GridPane();
+            stopsGrid.setId(INTERMEDIATE_STOPS_IDENTIFIER);
+            stopsGrid.getStyleClass().add(INTERMEDIATE_STOPS_IDENTIFIER);
+            stopsGrid.setHgap(GAP);
+
+            // Ajoute chaque arrêt intermédiaire à la grille
+            IntStream.range(0, tx.intermediateStops().size()).forEach(i -> {
+                Leg.IntermediateStop stop = tx.intermediateStops().get(i);
+                stopsGrid.add(new Text(FormatterFr.formatTime(stop.arrTime())), COL_TIME, i);
+                stopsGrid.add(new Text(FormatterFr.formatTime(stop.depTime())), COL_CIRCLE, i);
+                stopsGrid.add(new Text(stop.stop().name()), COL_STATION, i);
+            });
+
+            // Crée un panneau avec titre indiquant le nombre d'arrêts et la durée totale
+            TitledPane stopsPane = new TitledPane(
+                    String.format(STOPS_DURATION_FORMAT,
+                            tx.intermediateStops().size(), tx.duration().toMinutes()),
+                    stopsGrid);
+
+            // Ajoute le panneau dans un accordéon
+            Accordion accordion = new Accordion();
+            accordion.setId(INTERMEDIATE_STOP_TYPE);
+            accordion.getPanes().add(stopsPane);
+            add(accordion, COL_STATION, row, ACCORDION_COLSPAN, ROW_INCREMENT);
+
+            // Retourne la ligne suivante
+            return row + ROW_INCREMENT;
         }
 
         /**
@@ -238,13 +395,14 @@ public record DetailUI(Node rootNode) {
         protected void layoutChildren() {
             super.layoutChildren();
 
-            // Create connecting lines between circle pairs
+            // Crée des lignes connectant les paires de cercles
             List<Line> lines = circlePairs.stream().map(pair -> {
                 Circle dep = pair.getKey();
                 Circle arr = pair.getValue();
                 Bounds depBounds = dep.getBoundsInParent();
                 Bounds arrBounds = arr.getBoundsInParent();
 
+                // Crée une ligne reliant les centres des deux cercles
                 Line line = new Line(
                         depBounds.getCenterX(), depBounds.getCenterY(),
                         arrBounds.getCenterX(), arrBounds.getCenterY());
@@ -253,6 +411,7 @@ public record DetailUI(Node rootNode) {
                 return line;
             }).toList();
 
+            // Met à jour le groupe d'annotations avec les nouvelles lignes
             annotations.getChildren().setAll(lines);
             annotations.getParent().requestLayout();
         }
