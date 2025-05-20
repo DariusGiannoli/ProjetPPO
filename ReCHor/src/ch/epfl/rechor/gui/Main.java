@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
  * @author Darius Giannoli (380759)
  */
 public class Main extends Application {
-
     // Constantes de l'interface
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
@@ -110,7 +109,6 @@ public class Main extends Application {
      */
     private StopIndex createStopIndex(TimeTable timeTable) {
         // Extraction des noms principaux des stations
-
         mainNames = IntStream.range(0, timeTable.stations().size())
                 .mapToObj(timeTable.stations()::name)
                 .collect(Collectors.toList());

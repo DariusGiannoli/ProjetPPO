@@ -33,8 +33,29 @@ import java.time.format.DateTimeFormatter;
 public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         ObservableValue<String> arrStopO, ObservableValue<LocalDate> dateO,
         ObservableValue<LocalTime> timeO) {
+    // Field IDs
+    private static final String DEP_STOP_ID = "depStop";
+    private static final String ARR_STOP_ID = "arrStop";
+    private static final String DATE_ID = "date";
+    private static final String TIME_ID = "time";
+
+    // Placeholder texts
+    private static final String DEP_STOP_PROMPT = "Nom de l'arrêt de départ";
+    private static final String ARR_STOP_PROMPT = "Nom de l'arrêt d'arrivée";
+
+    // Labels
+    private static final String DEP_LABEL = "Départ";
+    private static final String ARR_LABEL = "Arrivée";
+    private static final String DATE_LABEL = "Date";
+    private static final String TIME_LABEL = "Heure";
+
+    // Format patterns
+    private static final String TIME_FORMAT_WITH_ZEROS = "HH:mm";
+    private static final String TIME_FORMAT_WITHOUT_ZEROS = "H:mm";
 
     // Constantes
+    private static final String SWAP_BUTTON_SYMBOL = "⟷";
+    private static final String STYLESHEET_PATH = "query.css";
     private static final int SPACING = 5;
     private static final String THIN_SPACE_COLON = "\u202f:";
 
@@ -47,11 +68,11 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
      */
     public static QueryUI create(StopIndex index) {
         // Création des champs d'arrêts
-        StopField depField = createStopField(index, "depStop", "Nom de l'arrêt de départ");
-        StopField arrField = createStopField(index, "arrStop", "Nom de l'arrêt d'arrivée");
+        StopField depField = createStopField(index, DEP_STOP_ID, DEP_STOP_PROMPT);
+        StopField arrField = createStopField(index, ARR_STOP_ID, ARR_STOP_PROMPT);
 
         // Bouton d'échange
-        Button swapButton = new Button("⟷");
+        Button swapButton = new Button(SWAP_BUTTON_SYMBOL);
         swapButton.setOnAction(e -> {
             String temp = arrField.textField().getText();
             arrField.setTo(depField.textField().getText());
@@ -60,29 +81,29 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
 
         // Configuration date et heure
         DatePicker datePicker = new DatePicker(LocalDate.now());
-        datePicker.setId("date");
+        datePicker.setId(DATE_ID);
 
         TextFormatter<LocalTime> timeFormatter = new TextFormatter<>(
                 new LocalTimeStringConverter(
-                        DateTimeFormatter.ofPattern("HH:mm"),
-                        DateTimeFormatter.ofPattern("H:mm")),
+                        DateTimeFormatter.ofPattern(TIME_FORMAT_WITH_ZEROS),
+                        DateTimeFormatter.ofPattern(TIME_FORMAT_WITHOUT_ZEROS)),
                 LocalTime.now());
 
         TextField timeField = new TextField();
-        timeField.setId("time");
+        timeField.setId(TIME_ID);
         timeField.setTextFormatter(timeFormatter);
 
         // Construction de l'interface
         VBox root = new VBox(SPACING,
                 new HBox(SPACING,
-                        createLabeledControl("Départ", depField.textField()),
+                        createLabeledControl(DEP_LABEL, depField.textField()),
                         swapButton,
-                        createLabeledControl("Arrivée", arrField.textField())),
+                        createLabeledControl(ARR_LABEL, arrField.textField())),
                 new HBox(SPACING,
-                        createLabeledControl("Date", datePicker),
-                        createLabeledControl("Heure", timeField))
+                        createLabeledControl(DATE_LABEL, datePicker),
+                        createLabeledControl(TIME_LABEL, timeField))
         );
-        root.getStylesheets().add("query.css");
+        root.getStylesheets().add(STYLESHEET_PATH);
 
         return new QueryUI(root, depField.stopO(), arrField.stopO(),
                 datePicker.valueProperty(), timeFormatter.valueProperty());
