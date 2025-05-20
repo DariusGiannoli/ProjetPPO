@@ -126,6 +126,7 @@ public class Main extends Application {
                     timeTable.stationAliases().alias(i),
                     timeTable.stationAliases().stationName(i)
             );
+//            mainNames.add(timeTable.stationAliases().alias(i));
         }
         return new StopIndex(mainNames, altToMain);
     }

@@ -43,14 +43,17 @@ public final class StopIndex {
      * @param altToMain table de correspondance entre nom alternatif → nom principal
      */
     public StopIndex(List<String> mainNames, Map<String, String> altToMain) {
-        HashMap<String, String> tempMap = new HashMap<>();
-        mainNames.forEach(n -> tempMap.put(n, n));
-        altToMain.forEach((alt, main) -> {
-            if (tempMap.containsKey(main)) {
-                tempMap.put(alt, main);
-            }
-        });
-        nameToMain = Map.copyOf(tempMap);
+//        Map<String, String> tempMap = new TreeMap<>();
+//        mainNames.forEach(n -> altToMain.put(n, n));
+        for(int i = 0; i < mainNames.size(); i++) {
+            altToMain.put(mainNames.get(i), mainNames.get(i));
+        }
+//        altToMain.forEach((alt, main) -> {
+//            if (tempMap.containsKey(main)) {
+//                tempMap.put(alt, main);
+//            }
+//        });
+        nameToMain = Map.copyOf(altToMain);
         allNames   = List.copyOf(nameToMain.keySet());
     }
 
@@ -87,7 +90,7 @@ public final class StopIndex {
                 .map(this::regexFor)
                 .toList();
 
-        Map<String, Integer> bestScore = new HashMap<>();
+        Map<String, Integer> bestScore = new TreeMap<>();
         for (String name : allNames) {
             int total = scoreIfMatchesAll(name, subLengths, patterns);
             if (total == 0) {
@@ -100,7 +103,8 @@ public final class StopIndex {
 
         return bestScore.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder())
-                        .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
+                        .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER)
+                )
                 .limit(maxResults)
                 .map(Map.Entry::getKey)
                 .toList();
