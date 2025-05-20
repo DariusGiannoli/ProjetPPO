@@ -130,20 +130,20 @@ public record DetailUI(Node rootNode) {
             setVgap(GAP);
             setHgap(GAP);
 
-            // Configure columns
-            ColumnConstraints col0 = new ColumnConstraints();
-            col0.setHalignment(HPos.RIGHT);
-
-            ColumnConstraints col1 = new ColumnConstraints(10.0);
-            col1.setHalignment(HPos.CENTER);
-
-            ColumnConstraints col2 = new ColumnConstraints();
-            col2.setHgrow(Priority.ALWAYS);
-
-            ColumnConstraints col3 = new ColumnConstraints();
-            col3.setHgrow(Priority.NEVER);
-
-            getColumnConstraints().addAll(col0, col1, col2, col3);
+//            // Configure columns
+//            ColumnConstraints col0 = new ColumnConstraints();
+//            col0.setHalignment(HPos.RIGHT);
+//
+//            ColumnConstraints col1 = new ColumnConstraints(10.0);
+//            col1.setHalignment(HPos.CENTER);
+//
+////            ColumnConstraints col2 = new ColumnConstraints();
+////            col2.setHgrow(Priority.ALWAYS);
+////
+////            ColumnConstraints col3 = new ColumnConstraints();
+////            col3.setHgrow(Priority.NEVER);
+////
+//            getColumnConstraints().addAll(col0, col1);
         }
 
         /**
