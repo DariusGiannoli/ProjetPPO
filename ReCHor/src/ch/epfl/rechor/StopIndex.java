@@ -43,10 +43,13 @@ public final class StopIndex {
      * @param altToMain table de correspondance entre nom alternatif → nom principal
      */
     public StopIndex(List<String> mainNames, Map<String, String> altToMain) {
-        mainNames.forEach(n -> altToMain.put(n, n));
-
+        mainNames.forEach(n -> {
+            if(!altToMain.containsKey(n)) {
+                altToMain.put(n, n);
+            }
+        });
+        allNames = List.copyOf(mainNames);
         nameToMain = Map.copyOf(altToMain);
-        allNames   = List.copyOf(nameToMain.keySet());
     }
 
     /**
@@ -82,7 +85,7 @@ public final class StopIndex {
                 .map(this::regexFor)
                 .toList();
 
-        Map<String, Integer> bestScore = new TreeMap<>();
+        Map<String, Integer> bestScore = new LinkedHashMap<>();
         for (String name : allNames) {
             int total = scoreIfMatchesAll(name, subLengths, patterns);
             if (total == 0) {
@@ -95,7 +98,6 @@ public final class StopIndex {
 
         return bestScore.entrySet().stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder())
-                        .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER)
                 )
                 .limit(maxResults)
                 .map(Map.Entry::getKey)

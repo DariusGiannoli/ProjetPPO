@@ -117,12 +117,13 @@ public class Main extends Application {
 
 
         // Construction de la map des alias vers les noms principaux
-        TreeMap<String, String> altToMain = new TreeMap<>();
+        LinkedHashMap<String, String> altToMain = new LinkedHashMap<>();
         for (int i = 0; i < timeTable.stationAliases().size(); i++) {
             altToMain.put(
                     timeTable.stationAliases().alias(i),
                     timeTable.stationAliases().stationName(i)
             );
+            mainNames.add(timeTable.stationAliases().stationName(i));
         }
         return new StopIndex(mainNames, altToMain);
     }
