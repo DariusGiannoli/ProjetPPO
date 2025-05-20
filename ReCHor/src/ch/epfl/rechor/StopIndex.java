@@ -43,16 +43,8 @@ public final class StopIndex {
      * @param altToMain table de correspondance entre nom alternatif → nom principal
      */
     public StopIndex(List<String> mainNames, Map<String, String> altToMain) {
-//        Map<String, String> tempMap = new TreeMap<>();
-//        mainNames.forEach(n -> altToMain.put(n, n));
-        for(int i = 0; i < mainNames.size(); i++) {
-            altToMain.put(mainNames.get(i), mainNames.get(i));
-        }
-//        altToMain.forEach((alt, main) -> {
-//            if (tempMap.containsKey(main)) {
-//                tempMap.put(alt, main);
-//            }
-//        });
+        mainNames.forEach(n -> altToMain.put(n, n));
+
         nameToMain = Map.copyOf(altToMain);
         allNames   = List.copyOf(nameToMain.keySet());
     }
