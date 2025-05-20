@@ -3,8 +3,6 @@ package ch.epfl.rechor;
 
 import java.util.*;
 import java.util.regex.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * StopIndex représente un index de nom d'arrêts dans lequel il est possible d'effectuer
@@ -68,49 +66,43 @@ public final class StopIndex {
      * @throws IllegalArgumentException si maxResults est négatif
      */
     public List<String> stopsMatching(String query, int maxResults) {
-        // record local pour représenter (nom d’arrêt principal, score)
-        record StopMatch(String stopName, int score) {}
-
-        // découper la requête en sous-chaînes
         String[] subs = query.trim().split("\\s+");
-        if (subs.length == 0 || (subs.length == 1 && subs[0].isEmpty())) {
-            return Collections.emptyList();
+
+        // Cas où la requête est vide ou ne contient que des espaces
+        if (subs.length == 0 || subs[0].isEmpty()) {
+            return nameToMain.values().stream()
+                    .distinct()
+                    .sorted(String.CASE_INSENSITIVE_ORDER)
+                    .limit(maxResults)
+                    .toList();
         }
 
-        // longueurs pour le calcul de score
-        int[] subLengths = Arrays.stream(subs)
-                .mapToInt(String::length)
-                .toArray();
+        // Précalcul des longueurs des sous-requêtes
+        int[] subLengths = new int[subs.length];
+        for (int i = 0; i < subs.length; i++) {
+            subLengths[i] = subs[i].length();
+        }
 
-        // patterns par sous‐chaîne
         List<Pattern> patterns = Arrays.stream(subs)
                 .map(this::regexFor)
                 .toList();
 
-        return allNames.stream()
-                .flatMap(name -> {
-                    int score = scoreIfMatchesAll(name, subLengths, patterns);
-                    if (score > 0) {
-                        String mainName = nameToMain.get(name);
-                        return Stream.of(new StopMatch(mainName, score));
-                    } else {
-                        return Stream.empty();
-                    }
-                })
-                // fusionner les scores par nom principal en gardant le max
-                .collect(Collectors.toMap(
-                        StopMatch::stopName,
-                        StopMatch::score,
-                        Math::max
-                ))
-                // reconvertir en StopMatch pour trier
-                .entrySet().stream()
-                .map(e -> new StopMatch(e.getKey(), e.getValue()))
-                // tri **uniquement** par score décroissant
-                .sorted(Comparator.comparingInt(StopMatch::score).reversed())
+        Map<String, Integer> bestScore = new HashMap<>();
+        for (String name : allNames) {
+            int total = scoreIfMatchesAll(name, subLengths, patterns);
+            if (total == 0) {
+                continue;
+            }
+
+            String main = nameToMain.get(name);
+            bestScore.merge(main, total, Math::max);
+        }
+
+        return bestScore.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue(Comparator.reverseOrder())
+                        .thenComparing(Map.Entry::getKey, String.CASE_INSENSITIVE_ORDER))
                 .limit(maxResults)
-                // on ne garde que le nom d’arrêt
-                .map(StopMatch::stopName)
+                .map(Map.Entry::getKey)
                 .toList();
     }
 
