@@ -37,11 +37,8 @@ import java.util.function.Consumer;
  * @author Darius Giannoli (380759)
  */
 public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO) {
-
-    private static final int RADIUS = 3;
-    private static final int ICON_SIZE = 20;
-    private static final int ROUTE_BOX_SPACING = 4;
-    private static final int TIMELINE_MARGIN = 5;
+    private static final String SUMMARY_ID = "summary";
+    private static final String SUMMARY_CSS = "summary.css";
 
     /**
      * Crée la vue d'ensemble : une ListView de Journey, style summary.css,
@@ -55,8 +52,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                                    ObservableValue<LocalTime> depTimeO) {
         // Création de la liste avec configuration initiale
         ListView<Journey> listView = new ListView<>();
-        listView.setId("summary");
-        listView.getStylesheets().add("summary.css");
+        listView.setId(SUMMARY_ID);
+        listView.getStylesheets().add(SUMMARY_CSS);
         listView.setCellFactory(lv -> new JourneyCell());
 
         // Liste backing stockée dans une variable pour éviter de la recréer
@@ -114,6 +111,23 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private final Group circlesGroup;
         private final ImageView icon;
         private final Line timelineLine;
+        private final Pane timelinePane;
+
+        // Constantes de style
+        private static final String JOURNEY_STYLE_CLASS = "journey";
+        private static final String DEPARTURE_STYLE_CLASS = "departure";
+        private static final String ROUTE_STYLE_CLASS = "route";
+        private static final String DURATION_STYLE_CLASS = "duration";
+        private static final String DEP_ARR_STYLE_CLASS = "dep-arr";
+        private static final String TRANSFER_STYLE_CLASS = "transfer";
+
+        // Constantes dimensions
+        private static final int RADIUS = 3;
+        private static final int ICON_SIZE = 20;
+        private static final int ROUTE_BOX_SPACING = 4;
+        private static final int TIMELINE_MARGIN = 5;
+        private static final double START_POSITION = 0.0;
+        private static final double END_POSITION = 1.0;
 
         /**
          * Constructeur initialisant la structure de base de la cellule.
@@ -134,46 +148,53 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             HBox durationBox = new HBox();
 
             // Configuration des styles
-            root.getStyleClass().add("journey");
-            departureText.getStyleClass().add("departure");
-            routeBox.getStyleClass().add("route");
-            durationBox.getStyleClass().add("duration");
+            root.getStyleClass().add(JOURNEY_STYLE_CLASS);
+            departureText.getStyleClass().add(DEPARTURE_STYLE_CLASS);
+            routeBox.getStyleClass().add(ROUTE_STYLE_CLASS);
+            durationBox.getStyleClass().add(DURATION_STYLE_CLASS);
 
             // Configuration de l'icône
             icon.setFitWidth(ICON_SIZE);
             icon.setFitHeight(ICON_SIZE);
             icon.setPreserveRatio(true);
 
+            // Panneau de ligne temporelle
+            timelinePane = createTimelinePane();
+
             // Assemblage des conteneurs
             routeBox.getChildren().addAll(icon, routeDestText);
             durationBox.getChildren().add(durationText);
 
-            // Création du panneau de ligne temporelle
-            Pane changePane = new Pane() {
+            // Assemblage de la structure principale
+            root.setLeft(departureText);
+            root.setTop(routeBox);
+            root.setCenter(timelinePane);
+            root.setRight(arrivalText);
+            root.setBottom(durationBox);
+        }
+
+        /**
+         * Crée le panneau de timeline avec positionnement dynamique
+         */
+        private Pane createTimelinePane() {
+            return new Pane() {
                 {
                     getChildren().addAll(timelineLine, circlesGroup);
                     setPrefSize(0, 0);
                 }
 
-                /**
-                 * Redéfinit la méthode layoutChildren pour positionner la ligne rouge
-                 * et les cercles.
-                 */
                 @Override
                 protected void layoutChildren() {
                     double width = getWidth();
                     double centerY = getHeight() / 2;
 
-                    // Configuration de la ligne temporelle
                     timelineLine.setStartX(TIMELINE_MARGIN);
                     timelineLine.setStartY(centerY);
                     timelineLine.setEndX(width - TIMELINE_MARGIN);
                     timelineLine.setEndY(centerY);
 
-                    // Largeur utilisable calculée une seule fois pour tous les cercles
                     double usableWidth = width - 2 * TIMELINE_MARGIN;
 
-                    // Positionnement des cercles avec leurs positions relatives
                     circlesGroup.getChildren().forEach(n -> {
                         if (n instanceof Circle c) {
                             double relativePos = (double) c.getUserData();
@@ -183,21 +204,11 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     });
                 }
             };
-
-            // Assemblage de la structure principale
-            root.setLeft(departureText);
-            root.setTop(routeBox);
-            root.setCenter(changePane);
-            root.setRight(arrivalText);
-            root.setBottom(durationBox);
         }
 
         /**
          * Méthode appelée par JavaFX pour mettre à jour le contenu de la cellule
          * quand un nouvel élément lui est assigné.
-         *
-         * @param journey le voyage à afficher
-         * @param empty indique si la cellule est vide
          */
         @Override
         protected void updateItem(Journey journey, boolean empty) {
@@ -208,10 +219,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 return;
             }
 
-            // Réinitialiser
             circlesGroup.getChildren().clear();
 
-            // Récupération et validation des transports
             List<Transport> transports = journey.legs().stream()
                     .filter(Transport.class::isInstance)
                     .map(Transport.class::cast)
@@ -222,7 +231,14 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 return;
             }
 
-            // Calcul des données principales
+            updateJourneyDisplay(journey, transports);
+            setGraphic(root);
+        }
+
+        /**
+         * Met à jour l'affichage avec les informations du voyage
+         */
+        private void updateJourneyDisplay(Journey journey, List<Transport> transports) {
             Transport first = transports.getFirst();
             Transport last = transports.getLast();
             Duration total = Duration.between(first.depTime(), last.arrTime());
@@ -239,7 +255,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             routeDestText.setText(FormatterFr.formatRouteDestination(first));
 
             // Ajout des cercles de départ/arrivée et des transferts
-            addCircle("dep-arr", 0.0);
+            addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
+
             Stop depStop = journey.depStop();
             Stop arrStop = journey.arrStop();
 
@@ -249,16 +266,13 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                             && !(leg.arrStop().equals(arrStop)))
                     .map(Foot.class::cast)
                     .forEach(foot -> {
-                        // Calcul de la position relative du cercle de transfert
                         double relPos = Duration
                                 .between(firstDepTime, foot.depTime())
                                 .toSeconds() / totalSec;
-                        addCircle("transfer", relPos);
+                        addCircle(TRANSFER_STYLE_CLASS, relPos);
                     });
-            addCircle("dep-arr", 1.0);
 
-            // Affectation du graphique
-            setGraphic(root);
+            addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
         }
 
         /**
@@ -268,7 +282,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private void addCircle(String styleClass, double relativePosition) {
             Circle c = new Circle(RADIUS);
             c.getStyleClass().add(styleClass);
-            c.setUserData(relativePosition); // Stocke la position pour le layout
+            c.setUserData(relativePosition);
             circlesGroup.getChildren().add(c);
         }
     }
