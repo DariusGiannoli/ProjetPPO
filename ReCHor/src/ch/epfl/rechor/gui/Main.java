@@ -1,6 +1,8 @@
 package ch.epfl.rechor.gui;
 
 import ch.epfl.rechor.timetable.CachedTimeTable;
+import ch.epfl.rechor.timetable.StationAliases;
+import ch.epfl.rechor.timetable.Stations;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -109,18 +111,21 @@ public class Main extends Application {
      */
     private StopIndex createStopIndex(TimeTable timeTable) {
         // Extraction des noms principaux des stations
-        mainNames = IntStream.range(0, timeTable.stations().size())
-                .mapToObj(timeTable.stations()::name)
+        Stations stations = timeTable.stations();
+        mainNames = IntStream.range(0, stations.size())
+                .mapToObj(stations::name)
                 .collect(Collectors.toList());
 
         // Construction de la map des alias vers les noms principaux
+        StationAliases stationAliases = timeTable.stationAliases();
         LinkedHashMap<String, String> altToMain = new LinkedHashMap<>();
-        for (int i = 0; i < timeTable.stationAliases().size(); i++) {
+        for (int i = 0; i < stationAliases.size(); i++) {
+            String stationName = stationAliases.stationName(i);
             altToMain.put(
-                    timeTable.stationAliases().alias(i),
-                    timeTable.stationAliases().stationName(i)
+                    stationAliases.alias(i),
+                    stationName
             );
-            mainNames.add(timeTable.stationAliases().stationName(i));
+            mainNames.add(stationName);
         }
         return new StopIndex(mainNames, altToMain);
     }
@@ -159,10 +164,12 @@ public class Main extends Application {
      * @param router Routeur pour calculer les profils
      */
     private void updateCacheIfNeeded(LocalDate date, String arrName, int arrId, Router router) {
-        boolean cacheValid = cacheDate.getValue() != null
-                && cacheStop.getValue() != null
-                && date.equals(cacheDate.getValue())
-                && arrName.equals(cacheStop.getValue());
+        LocalDate cacheDateValue = cacheDate.getValue();
+        String cacheStopValue = cacheStop.getValue();
+        boolean cacheValid = cacheDateValue != null
+                && cacheStopValue != null
+                && date.equals(cacheDateValue)
+                && arrName.equals(cacheStopValue);
 
         if (!cacheValid) {
             cacheProfile.set(router.profile(date, arrId));

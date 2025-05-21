@@ -11,6 +11,7 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.LocalTimeStringConverter;
+import org.w3c.dom.Text;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -72,10 +73,14 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         StopField arrField = createStopField(index, ARR_STOP_ID, ARR_STOP_PROMPT);
 
         // Bouton d'échange
+
         Button swapButton = new Button(SWAP_BUTTON_SYMBOL);
+        TextField depTextField = depField.textField();
+        TextField arrTextField = arrField.textField();
+
         swapButton.setOnAction(e -> {
-            String temp = arrField.textField().getText();
-            arrField.setTo(depField.textField().getText());
+            String temp = arrTextField.getText();
+            arrField.setTo(depTextField.getText());
             depField.setTo(temp);
         });
 
@@ -96,9 +101,9 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         // Construction de l'interface
         VBox root = new VBox(SPACING,
                 new HBox(SPACING,
-                        createLabeledControl(DEP_LABEL, depField.textField()),
+                        createLabeledControl(DEP_LABEL, depTextField),
                         swapButton,
-                        createLabeledControl(ARR_LABEL, arrField.textField())),
+                        createLabeledControl(ARR_LABEL, arrTextField)),
                 new HBox(SPACING,
                         createLabeledControl(DATE_LABEL, datePicker),
                         createLabeledControl(TIME_LABEL, timeField))
@@ -114,8 +119,9 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
      */
     private static StopField createStopField(StopIndex index, String id, String prompt) {
         StopField field = StopField.create(index);
-        field.textField().setId(id);
-        field.textField().setPromptText(prompt);
+        TextField textField = field.textField();
+        textField.setId(id);
+        textField.setPromptText(prompt);
         return field;
     }
 

@@ -3,6 +3,7 @@ package ch.epfl.rechor.gui;
 import ch.epfl.rechor.StopIndex;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
@@ -48,11 +49,12 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
             MultipleSelectionModel<String> selModel = list.getSelectionModel();
             if (selModel.isEmpty()) return;
 
-            if (e.getCode() == KeyCode.UP) {
+            KeyCode code = e.getCode();
+            if (code == KeyCode.UP) {
                 selModel.selectPrevious();
                 list.scrollTo(selModel.getSelectedIndex());
                 e.consume();
-            } else if (e.getCode() == KeyCode.DOWN) {
+            } else if (code == KeyCode.DOWN) {
                 selModel.selectNext();
                 list.scrollTo(selModel.getSelectedIndex());
                 e.consume();
@@ -92,8 +94,9 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
      * Met à jour les suggestions dans la liste et sélectionne le premier élément.
      */
     private static void updateSuggestions(ListView<String> list, List<String> suggestions) {
-        list.getItems().setAll(suggestions);
-        if (!list.getItems().isEmpty()) {
+        ObservableList<String> listItems = list.getItems();
+        listItems.setAll(suggestions);
+        if (!listItems.isEmpty()) {
             list.getSelectionModel().selectFirst();
             list.scrollTo(0);
         }
