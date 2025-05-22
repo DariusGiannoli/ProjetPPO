@@ -21,6 +21,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.function.Consumer;
@@ -62,8 +63,9 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
         // Handler unifié pour les mises à jour des journeys et du temps
         Consumer<Object> updateHandler = o -> {
-            if (journeysO.getValue() != null && depTimeO.getValue() != null) {
-                backingItems.setAll(journeysO.getValue());
+            List<Journey> journeysValue = journeysO.getValue();
+            if (journeysValue != null && depTimeO.getValue() != null) {
+                backingItems.setAll(journeysValue);
                 selectJourney(listView, depTimeO.getValue());
             }
         };
@@ -88,13 +90,14 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         if (items == null || items.isEmpty() || time == null) return;
 
         // Recherche en une seule passe avec index direct
+        int itemsSize = items.size();
         int idx = 0;
-        while (idx < items.size() && items.get(idx).depTime().toLocalTime().isBefore(time)) {
+        while (idx < itemsSize && items.get(idx).depTime().toLocalTime().isBefore(time)) {
             idx++;
         }
 
         // Si aucun résultat, prendre le dernier élément
-        if (idx >= items.size()) idx = items.size() - 1;
+        if (idx >= itemsSize) idx = itemsSize - 1;
 
         // Sélection et défilement combinés
         view.getSelectionModel().select(idx);
@@ -241,13 +244,14 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private void updateJourneyDisplay(Journey journey, List<Transport> transports) {
             Transport first = transports.getFirst();
             Transport last = transports.getLast();
-            Duration total = Duration.between(first.depTime(), last.arrTime());
-            LocalTime firstDepTime = first.depTime().toLocalTime();
+            LocalDateTime lastArrTime = last.arrTime();
+            LocalDateTime firstDateDepTime = first.depTime();
+            Duration total = Duration.between(firstDateDepTime, lastArrTime);
             double totalSec = total.toSeconds();
 
             // Mise à jour des textes
-            departureText.setText(FormatterFr.formatTime(first.depTime()));
-            arrivalText.setText(FormatterFr.formatTime(last.arrTime()));
+            departureText.setText(FormatterFr.formatTime(firstDateDepTime));
+            arrivalText.setText(FormatterFr.formatTime(lastArrTime));
             durationText.setText(FormatterFr.formatDuration(total));
 
             // Mise à jour de l'icône et de la destination
@@ -267,7 +271,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     .map(Foot.class::cast)
                     .forEach(foot -> {
                         double relPos = Duration
-                                .between(firstDepTime, foot.depTime())
+                                .between(firstDateDepTime.toLocalTime(), foot.depTime())
                                 .toSeconds() / totalSec;
                         addCircle(TRANSFER_STYLE_CLASS, relPos);
                     });

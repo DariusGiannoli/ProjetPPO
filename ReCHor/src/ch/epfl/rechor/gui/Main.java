@@ -88,7 +88,8 @@ public class Main extends Application {
 
         // Assemblage de l'interface
         SplitPane split = new SplitPane(summaryUI.rootNode(), detailUI.rootNode());
-        BorderPane root = new BorderPane(split, queryUI.rootNode(), null, null, null);
+        BorderPane root = new BorderPane(split, queryUI.rootNode(), null, null,
+                null);
 
         // Configuration de la scène
         Scene scene = new Scene(root, WIDTH, HEIGHT);

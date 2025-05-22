@@ -266,7 +266,8 @@ public record DetailUI(Node rootNode) {
         /**
          * Crée et ajoute un accordéon contenant les arrêts intermédiaires d'un segment de transport.
          */
-        private int addIntermediateStops(Leg.Transport tx, List<Leg.IntermediateStop> intermediateStops, int row) {
+        private int addIntermediateStops(Leg.Transport tx,
+                                         List<Leg.IntermediateStop> intermediateStops, int row) {
             // Crée une grille pour les arrêts intermédiaires
             GridPane stopsGrid = new GridPane();
             stopsGrid.setId(INTERMEDIATE_STOPS_IDENTIFIER);
