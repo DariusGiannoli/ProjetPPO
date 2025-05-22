@@ -11,7 +11,6 @@ import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.converter.LocalTimeStringConverter;
-import org.w3c.dom.Text;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,23 +33,23 @@ import java.time.format.DateTimeFormatter;
 public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         ObservableValue<String> arrStopO, ObservableValue<LocalDate> dateO,
         ObservableValue<LocalTime> timeO) {
-    // Field IDs
+    // Identifiants des champs
     private static final String DEP_STOP_ID = "depStop";
     private static final String ARR_STOP_ID = "arrStop";
     private static final String DATE_ID = "date";
     private static final String TIME_ID = "time";
 
-    // Placeholder texts
+    // Textes d'indication
     private static final String DEP_STOP_PROMPT = "Nom de l'arrêt de départ";
     private static final String ARR_STOP_PROMPT = "Nom de l'arrêt d'arrivée";
 
-    // Labels
+    // Étiquettes
     private static final String DEP_LABEL = "Départ";
     private static final String ARR_LABEL = "Arrivée";
     private static final String DATE_LABEL = "Date";
     private static final String TIME_LABEL = "Heure";
 
-    // Format patterns
+    // Motifs de format
     private static final String TIME_FORMAT_WITH_ZEROS = "HH:mm";
     private static final String TIME_FORMAT_WITHOUT_ZEROS = "H:mm";
 
@@ -73,7 +72,6 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         StopField arrField = createStopField(index, ARR_STOP_ID, ARR_STOP_PROMPT);
 
         // Bouton d'échange
-
         Button swapButton = new Button(SWAP_BUTTON_SYMBOL);
         TextField depTextField = depField.textField();
         TextField arrTextField = arrField.textField();
@@ -87,7 +85,6 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         // Configuration date et heure
         DatePicker datePicker = new DatePicker(LocalDate.now());
         datePicker.setId(DATE_ID);
-
         TextFormatter<LocalTime> timeFormatter = new TextFormatter<>(
                 new LocalTimeStringConverter(
                         DateTimeFormatter.ofPattern(TIME_FORMAT_WITH_ZEROS),
