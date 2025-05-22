@@ -49,13 +49,17 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
             MultipleSelectionModel<String> selModel = list.getSelectionModel();
             if (selModel.isEmpty()) return;
 
-            KeyCode code = e.getCode();
-            if (code == KeyCode.UP) {
+            // Logique de navigation
+            boolean handled = false;
+            if (e.getCode() == KeyCode.UP) {
                 selModel.selectPrevious();
-                list.scrollTo(selModel.getSelectedIndex());
-                e.consume();
-            } else if (code == KeyCode.DOWN) {
+                handled = true;
+            } else if (e.getCode() == KeyCode.DOWN) {
                 selModel.selectNext();
+                handled = true;
+            }
+
+            if (handled) {
                 list.scrollTo(selModel.getSelectedIndex());
                 e.consume();
             }
@@ -64,9 +68,9 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         //Configure le comportement lors des changements de focus.
         textField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
             if (isFocused) {
-                // Affiche la popup quand on gagne le focus
-                updateSuggestions(list, index.stopsMatching(textField.getText(), MAX_SUGGESTIONS));
-                showPopup(textField, popup);
+                // Affiche la popup avec les suggestions quand on gagne le focus
+                updateAndShowSuggestions(textField, list, popup,
+                        index.stopsMatching(textField.getText(), MAX_SUGGESTIONS));
 
             } else {
                 // Valide la sélection quand on perd le focus
@@ -81,9 +85,10 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
 
         // Mise à jour lors de la saisie
         textField.textProperty().addListener((obs, oldText, newText) -> {
+            // Ne met à jour que si la popup est visible pour éviter les calculs inutiles
             if (popup.isShowing()) {
-                updateSuggestions(list, index.stopsMatching(newText, MAX_SUGGESTIONS));
-                showPopup(textField, popup);
+                updateAndShowSuggestions(textField, list, popup,
+                        index.stopsMatching(newText, MAX_SUGGESTIONS));
             }
         });
 
@@ -91,25 +96,27 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
     }
 
     /**
-     * Met à jour les suggestions dans la liste et sélectionne le premier élément.
+     * Met à jour les suggestions dans la liste et affiche la popup sous le champ de texte.
      */
-    private static void updateSuggestions(ListView<String> list, List<String> suggestions) {
+    private static void updateAndShowSuggestions(TextField textField, ListView<String> list,
+                                                 Popup popup, List<String> suggestions) {
+        // Met à jour les suggestions uniquement si elles ont changé
         ObservableList<String> listItems = list.getItems();
-        listItems.setAll(suggestions);
+        if (!listItems.equals(suggestions)) {
+            listItems.setAll(suggestions);
+        }
+
+        // Sélectionne le premier élément si la liste n'est pas vide
         if (!listItems.isEmpty()) {
             list.getSelectionModel().selectFirst();
             list.scrollTo(0);
         }
-    }
 
-    /**
-     * Affiche la popup sous le champ de texte.
-     */
-    private static void showPopup(TextField textField, Popup popup) {
-        Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
-        popup.setX(bounds.getMinX());
-        popup.setY(bounds.getMaxY());
+        // Affiche la popup uniquement si elle n'est pas déjà visible
         if (!popup.isShowing()) {
+            Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
+            popup.setX(bounds.getMinX());
+            popup.setY(bounds.getMaxY());
             popup.show(textField.getScene().getWindow());
         }
     }
@@ -121,7 +128,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
      */
     public void setTo(String stop) {
         textField.setText(stop);
-        // Nous savons que stopO est un ReadOnlyStringWrapper grâce à la factory method
+        // Cast sûr car stopO est créé comme ReadOnlyStringWrapper dans create()
         ((ReadOnlyStringWrapper) stopO).setValue(stop);
     }
 }
