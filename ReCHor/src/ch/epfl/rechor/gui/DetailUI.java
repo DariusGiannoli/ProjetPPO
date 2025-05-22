@@ -231,37 +231,36 @@ public record DetailUI(Node rootNode) {
         }
 
         /**
+         * Crée un Text avec style optionnel et l'ajoute à la grille.
+         */
+        private void addStyledText(String content, String styleClass, int col, int row) {
+            Text text = new Text(content);
+            if (styleClass != null) {
+                text.getStyleClass().add(styleClass);
+            }
+            add(text, col, row);
+        }
+
+        /**
          * Ajoute une ligne représentant un arrêt (départ ou arrivée) dans la grille.
          */
         private void addStopRow(LocalDateTime time, Circle circle, Stop stop,
                                 String styleClass, int row) {
             // Ajoute l'heure formatée
-            Text timeText = new Text(FormatterFr.formatTime(time));
-            if (styleClass != null) {
-                timeText.getStyleClass().add(styleClass);
-            }
-            add(timeText, COL_TIME, row);
+            addStyledText(FormatterFr.formatTime(time), styleClass, COL_TIME, row);
 
             // Ajoute le cercle de visualisation
             add(circle, COL_CIRCLE, row);
 
             // Ajoute le nom de la station
-            Text stationText = new Text(stop.name());
-            if (styleClass != null) {
-                stationText.getStyleClass().add(styleClass);
-            }
-            add(stationText, COL_STATION, row);
+            addStyledText(stop.name(), styleClass, COL_STATION, row);
 
             // Ajoute le quai si disponible
             String platform = FormatterFr.formatPlatformName(stop);
             if (!platform.isEmpty()) {
-                Text platformText = new Text(platform);
-                if (styleClass != null) {
-                    platformText.getStyleClass().add(styleClass);
-                }
-                add(platformText, COL_PLATFORM, row);
+                addStyledText(platform, styleClass, COL_PLATFORM, row);
             }
-        }
+      }
 
         /**
          * Crée et ajoute un accordéon contenant les arrêts intermédiaires d'un segment de transport.
