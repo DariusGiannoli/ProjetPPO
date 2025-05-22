@@ -62,20 +62,17 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         listView.setItems(backingItems);
 
         // Handler unifié pour les mises à jour des journeys et du temps
-        Consumer<Object> updateHandler = o -> {
-            List<Journey> journeysValue = journeysO.getValue();
-            if (journeysValue != null && depTimeO.getValue() != null) {
-                backingItems.setAll(journeysValue);
-                selectJourney(listView, depTimeO.getValue());
+        Runnable updateHandler = () -> {
+            List<Journey> journeys = journeysO.getValue();
+            LocalTime depTime = depTimeO.getValue();
+            if (journeys != null && depTime != null) {
+                backingItems.setAll(journeys);
+                selectJourney(listView, depTime);
             }
         };
-
-        // Abonnement aux deux observables avec le même handler
-        journeysO.subscribe(newVal -> updateHandler.accept(null));
-        depTimeO.subscribe(newVal -> updateHandler.accept(null));
-
-        // Traitement initial si les valeurs sont disponibles
-        updateHandler.accept(null);
+        journeysO.subscribe(v -> updateHandler.run());
+        depTimeO.subscribe(v -> updateHandler.run());
+        updateHandler.run(); // Appel initial
 
         // Retourne directement la propriété selectedItem de la liste
         return new SummaryUI(listView, listView.getSelectionModel().selectedItemProperty());
@@ -87,21 +84,36 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
      */
     private static void selectJourney(ListView<Journey> view, LocalTime time) {
         ObservableList<Journey> items = view.getItems();
-        if (items == null || items.isEmpty() || time == null) return;
+        if (items == null || items.isEmpty()) return;
 
-        // Recherche en une seule passe avec index direct
-        int itemsSize = items.size();
-        int idx = 0;
-        while (idx < itemsSize && items.get(idx).depTime().toLocalTime().isBefore(time)) {
-            idx++;
+        int selectedIndex = items.size() - 1; // Par défaut le dernier
+        for (int i = 0; i < items.size(); i++) {
+            if (!items.get(i).depTime().toLocalTime().isBefore(time)) {
+                selectedIndex = i;
+                break;
+            }
         }
 
-        // Si aucun résultat, prendre le dernier élément
-        if (idx >= itemsSize) idx = itemsSize - 1;
+        view.getSelectionModel().select(selectedIndex);
 
-        // Sélection et défilement combinés
-        view.getSelectionModel().select(idx);
-        view.scrollTo(idx);
+
+
+//        ObservableList<Journey> items = view.getItems();
+//        if (items == null || items.isEmpty() || time == null) return;
+//
+//        // Recherche en une seule passe avec index direct
+//        int itemsSize = items.size();
+//        int idx = 0;
+//        while (idx < itemsSize && items.get(idx).depTime().toLocalTime().isBefore(time)) {
+//            idx++;
+//        }
+//
+//        // Si aucun résultat, prendre le dernier élément
+//        if (idx >= itemsSize) idx = itemsSize - 1;
+//
+//        // Sélection et défilement combinés
+//        view.getSelectionModel().select(idx);
+//        view.scrollTo(idx);
     }
 
     /**
