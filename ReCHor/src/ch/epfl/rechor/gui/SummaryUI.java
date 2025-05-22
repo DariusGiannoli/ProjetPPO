@@ -190,33 +190,59 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
          * Crée le panneau de timeline avec positionnement dynamique
          */
         private Pane createTimelinePane() {
-            return new Pane() {
-                {
-                    getChildren().addAll(timelineLine, circlesGroup);
-                    setPrefSize(0, 0);
-                }
-
+            Pane pane = new Pane() {
                 @Override
                 protected void layoutChildren() {
                     double width = getWidth();
                     double centerY = getHeight() / 2;
-
-                    timelineLine.setStartX(TIMELINE_MARGIN);
-                    timelineLine.setStartY(centerY);
-                    timelineLine.setEndX(width - TIMELINE_MARGIN);
-                    timelineLine.setEndY(centerY);
-
                     double usableWidth = width - 2 * TIMELINE_MARGIN;
 
-                    circlesGroup.getChildren().forEach(n -> {
-                        if (n instanceof Circle c) {
-                            double relativePos = (double) c.getUserData();
-                            c.setCenterX(TIMELINE_MARGIN + relativePos * usableWidth);
-                            c.setCenterY(centerY);
-                        }
-                    });
+                    // Configuration de la ligne en une fois
+                    timelineLine.setStartX(TIMELINE_MARGIN);
+                    timelineLine.setEndX(width - TIMELINE_MARGIN);
+                    timelineLine.setStartY(centerY);
+                    timelineLine.setEndY(centerY);
+
+                    // Positionnement optimisé des cercles
+                    circlesGroup.getChildren().stream()
+                            .filter(Circle.class::isInstance)
+                            .map(Circle.class::cast)
+                            .forEach(circle -> {
+                                double relativePos = (double) circle.getUserData();
+                                circle.setCenterX(TIMELINE_MARGIN + relativePos * usableWidth);
+                                circle.setCenterY(centerY);
+                            });
                 }
             };
+            pane.getChildren().addAll(timelineLine, circlesGroup);
+            return pane;
+//            return new Pane() {
+//                {
+//                    getChildren().addAll(timelineLine, circlesGroup);
+//                    setPrefSize(0, 0);
+//                }
+//
+//                @Override
+//                protected void layoutChildren() {
+//                    double width = getWidth();
+//                    double centerY = getHeight() / 2;
+//
+//                    timelineLine.setStartX(TIMELINE_MARGIN);
+//                    timelineLine.setStartY(centerY);
+//                    timelineLine.setEndX(width - TIMELINE_MARGIN);
+//                    timelineLine.setEndY(centerY);
+//
+//                    double usableWidth = width - 2 * TIMELINE_MARGIN;
+//
+//                    circlesGroup.getChildren().forEach(n -> {
+//                        if (n instanceof Circle c) {
+//                            double relativePos = (double) c.getUserData();
+//                            c.setCenterX(TIMELINE_MARGIN + relativePos * usableWidth);
+//                            c.setCenterY(centerY);
+//                        }
+//                    });
+//                }
+//            };
         }
 
         /**
@@ -233,14 +259,14 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             }
 
             circlesGroup.getChildren().clear();
-
             List<Transport> transports = journey.legs().stream()
                     .filter(Transport.class::isInstance)
                     .map(Transport.class::cast)
                     .toList();
 
             if (transports.isEmpty()) {
-                setGraphic(root);
+                //setGraphic(root);
+                setGraphic(null);// Pas besoin d'afficher si pas de transport
                 return;
             }
 
@@ -254,17 +280,19 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private void updateJourneyDisplay(Journey journey, List<Transport> transports) {
             Transport first = transports.getFirst();
             Transport last = transports.getLast();
+
+            // Calculs de temps
+            LocalDateTime firstDepTime = first.depTime();
             LocalDateTime lastArrTime = last.arrTime();
-            LocalDateTime firstDateDepTime = first.depTime();
-            Duration total = Duration.between(firstDateDepTime, lastArrTime);
-            double totalSec = total.toSeconds();
+            Duration totalDuration = Duration.between(firstDepTime, lastArrTime);
+            double totalSeconds = totalDuration.toSeconds();
 
             // Mise à jour des textes
-            departureText.setText(FormatterFr.formatTime(firstDateDepTime));
+            departureText.setText(FormatterFr.formatTime(firstDepTime));
             arrivalText.setText(FormatterFr.formatTime(lastArrTime));
-            durationText.setText(FormatterFr.formatDuration(total));
+            durationText.setText(FormatterFr.formatDuration(totalDuration));
 
-            // Mise à jour de l'icône et de la destination
+            // Icône et destination
             icon.setImage(VehicleIcons.iconFor(first.vehicle()));
             routeDestText.setText(FormatterFr.formatRouteDestination(first));
 
@@ -273,20 +301,33 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
             Stop depStop = journey.depStop();
             Stop arrStop = journey.arrStop();
+            LocalTime firstDepLocalTime = firstDepTime.toLocalTime();
 
             journey.legs().stream()
-                    .filter(leg -> leg instanceof Foot
-                            && !(leg.depStop().equals(depStop))
-                            && !(leg.arrStop().equals(arrStop)))
+                    .filter(Foot.class::isInstance)
                     .map(Foot.class::cast)
-                    .forEach(foot -> {
-                        double relPos = Duration
-                                .between(firstDateDepTime.toLocalTime(), foot.depTime())
-                                .toSeconds() / totalSec;
+                    .filter(foot -> !foot.depStop().equals(depStop)
+                            && !foot.arrStop().equals(arrStop))
+                    .forEach(foot -> {double relPos = Duration.between(firstDepLocalTime,
+                                foot.depTime()).toSeconds() / totalSeconds;
                         addCircle(TRANSFER_STYLE_CLASS, relPos);
                     });
 
             addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
+
+//            journey.legs().stream()
+//                    .filter(leg -> leg instanceof Foot
+//                            && !(leg.depStop().equals(depStop))
+//                            && !(leg.arrStop().equals(arrStop)))
+//                    .map(Foot.class::cast)
+//                    .forEach(foot -> {
+//                        double relPos = Duration
+//                                .between(firstDepTime.toLocalTime(), foot.depTime())
+//                                .toSeconds() / totalSeconds;
+//                        addCircle(TRANSFER_STYLE_CLASS, relPos);
+//                    });
+//
+//            addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
         }
 
         /**
