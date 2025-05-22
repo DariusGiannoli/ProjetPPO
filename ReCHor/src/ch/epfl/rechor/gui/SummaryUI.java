@@ -86,7 +86,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         ObservableList<Journey> items = view.getItems();
         if (items == null || items.isEmpty()) return;
 
-        int selectedIndex = items.size() - 1; // Par défaut le dernier
+        int itemsSize = items.size();
+        int selectedIndex = itemsSize- 1; // Par défaut le dernier
         for (int i = 0; i < items.size(); i++) {
             if (!items.get(i).depTime().toLocalTime().isBefore(time)) {
                 selectedIndex = i;
@@ -308,8 +309,9 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     .map(Foot.class::cast)
                     .filter(foot -> !foot.depStop().equals(depStop)
                             && !foot.arrStop().equals(arrStop))
-                    .forEach(foot -> {double relPos = Duration.between(firstDepLocalTime,
-                                foot.depTime()).toSeconds() / totalSeconds;
+                    .forEach(foot -> {
+                        double relPos = Duration.between(firstDepLocalTime, foot.depTime())
+                                .toSeconds() / totalSeconds;
                         addCircle(TRANSFER_STYLE_CLASS, relPos);
                     });
 
