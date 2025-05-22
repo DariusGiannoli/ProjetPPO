@@ -22,8 +22,6 @@ import ch.epfl.rechor.journey.*;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.IntStream;
-import java.util.stream.Collectors;
 
 /**
  * Classe principale, qui permet de lancer le programme.
@@ -39,9 +37,8 @@ public class Main extends Application {
     private static final String DEP_STOP_ID = "#depStop";
     private static final String TIMETABLE_PATH = "timetable";
 
-    // Attributs nécessaires pour le binding des données
-    private ObservableValue<List<Journey>> journeysO;
-    private List<String> mainNames;
+    // Map pour les lookups des indices de stations
+    private Map<String, Integer> stationNameToIndex;
 
     // Cache de profils pour optimiser les recherches répétées
     private ObjectProperty<Profile> cacheProfile;
@@ -74,7 +71,7 @@ public class Main extends Application {
         cacheDate = new SimpleObjectProperty<>();
 
         // Création du binding pour les trajets
-        journeysO = Bindings.createObjectBinding(
+        ObservableValue<List<Journey>> journeysO = Bindings.createObjectBinding(
                 () -> calculateJourneys(queryUI, router),
                 queryUI.depStopO(),
                 queryUI.arrStopO(),
@@ -82,18 +79,15 @@ public class Main extends Application {
         );
 
         // Construction et affichage de l'interface
-        // Construction des composants d'UI
         SummaryUI summaryUI = SummaryUI.create(journeysO, queryUI.timeO());
         DetailUI detailUI = DetailUI.create(summaryUI.selectedJourneyO());
 
         // Assemblage de l'interface
         SplitPane split = new SplitPane(summaryUI.rootNode(), detailUI.rootNode());
-        BorderPane root = new BorderPane(split, queryUI.rootNode(), null, null,
-                null);
+        BorderPane root = new BorderPane(split,queryUI.rootNode(),null,null,null);
 
         // Configuration de la scène
         Scene scene = new Scene(root, WIDTH, HEIGHT);
-
         stage.setScene(scene);
         stage.setMinWidth(WIDTH);
         stage.setMinHeight(HEIGHT);
@@ -106,37 +100,42 @@ public class Main extends Application {
 
     /**
      * Crée l'index des arrêts à partir de la table horaire.
-     *
-     * @param timeTable La table horaire contenant les informations sur les stations
-     * @return L'index des arrêts configuré
      */
     private StopIndex createStopIndex(TimeTable timeTable) {
-        // Extraction des noms principaux des stations
         Stations stations = timeTable.stations();
-        mainNames = IntStream.range(0, stations.size())
-                .mapToObj(stations::name)
-                .collect(Collectors.toList());
-
-        // Construction de la map des alias vers les noms principaux
         StationAliases stationAliases = timeTable.stationAliases();
-        LinkedHashMap<String, String> altToMain = new LinkedHashMap<>();
-        for (int i = 0; i < stationAliases.size(); i++) {
-            String stationName = stationAliases.stationName(i);
-            altToMain.put(
-                    stationAliases.alias(i),
-                    stationName
-            );
-            mainNames.add(stationName);
+
+        // Construction directe
+        List<String> allNamesForStopIndex = new ArrayList<>();
+        stationNameToIndex = new HashMap<>();
+        LinkedHashMap<String, String> aliasToMain = new LinkedHashMap<>();
+
+        // Ajout des noms principaux
+        for (int i = 0; i < stations.size(); i++) {
+            String stationName = stations.name(i);
+            allNamesForStopIndex.add(stationName);
+            stationNameToIndex.put(stationName, i);
         }
-        return new StopIndex(mainNames, altToMain);
+
+        // Ajout des alias avec référence aux noms principaux
+        for (int i = 0; i < stationAliases.size(); i++) {
+            String alias = stationAliases.alias(i);
+            String mainName = stationAliases.stationName(i);
+
+            aliasToMain.put(alias, mainName);
+            allNamesForStopIndex.add(mainName);
+
+            // Alias pointent vers l'index de leur station principale
+            Integer mainIndex = stationNameToIndex.get(mainName);
+            if (mainIndex != null) {
+                stationNameToIndex.put(alias, mainIndex);
+            }
+        }
+        return new StopIndex(allNamesForStopIndex, aliasToMain);
     }
 
     /**
      * Calcule les trajets en fonction des paramètres de recherche.
-     *
-     * @param queryUI L'interface de requête contenant les paramètres
-     * @param router Le routeur pour calculer les trajets
-     * @return La liste des trajets calculés
      */
     private List<Journey> calculateJourneys(QueryUI queryUI, Router router) {
         String depName = queryUI.depStopO().getValue();
@@ -147,9 +146,11 @@ public class Main extends Application {
         if (depName.isEmpty() || arrName.isEmpty())
             return List.of();
 
-        int depId = mainNames.indexOf(depName);
-        int arrId = mainNames.indexOf(arrName);
-        if (depId < 0 || arrId < 0)
+        // Lookup
+        Integer depId = stationNameToIndex.get(depName);
+        Integer arrId = stationNameToIndex.get(arrName);
+
+        if (depId == null || arrId == null)
             return List.of();
 
         updateCacheIfNeeded(date, arrName, arrId, router);
@@ -158,21 +159,13 @@ public class Main extends Application {
 
     /**
      * Met à jour le cache de profil si nécessaire.
-     *
-     * @param date Date de recherche
-     * @param arrName Nom de la station d'arrivée
-     * @param arrId ID de la station d'arrivée
-     * @param router Routeur pour calculer les profils
      */
     private void updateCacheIfNeeded(LocalDate date, String arrName, int arrId, Router router) {
-        LocalDate cacheDateValue = cacheDate.getValue();
-        String cacheStopValue = cacheStop.getValue();
-        boolean cacheValid = cacheDateValue != null
-                && cacheStopValue != null
-                && date.equals(cacheDateValue)
-                && arrName.equals(cacheStopValue);
+        // Cache invalide si les valeurs ne correspondent pas
+        boolean cacheInvalid = !Objects.equals(date, cacheDate.getValue()) ||
+                !Objects.equals(arrName, cacheStop.getValue());
 
-        if (!cacheValid) {
+        if (cacheInvalid) {
             cacheProfile.set(router.profile(date, arrId));
             cacheDate.set(date);
             cacheStop.set(arrName);
