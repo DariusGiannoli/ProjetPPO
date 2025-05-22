@@ -95,9 +95,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         }
 
         view.getSelectionModel().select(selectedIndex);
-
-
-
+        view.scrollTo(selectedIndex);
 //        ObservableList<Journey> items = view.getItems();
 //        if (items == null || items.isEmpty() || time == null) return;
 //
