@@ -123,7 +123,7 @@ public class Main extends Application {
             String mainName = stationAliases.stationName(i);
 
             aliasToMain.put(alias, mainName);
-            allNamesForStopIndex.add(mainName);
+            allNamesForStopIndex.add(alias);
 
             // Alias pointent vers l'index de leur station principale
             Integer mainIndex = stationNameToIndex.get(mainName);
