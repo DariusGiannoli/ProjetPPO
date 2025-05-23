@@ -28,6 +28,8 @@ import static java.awt.Desktop.getDesktop;
 /**
  * DetailUI représente la partie de l'interface graphique qui montre les détails d'un voyage.
  *
+ * @param rootNode le nœud JavaFX à la racine de son graphe de scène.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
@@ -263,7 +265,8 @@ public record DetailUI(Node rootNode) {
       }
 
         /**
-         * Crée et ajoute un accordéon contenant les arrêts intermédiaires d'un segment de transport.
+         * Crée et ajoute un accordéon contenant les arrêts intermédiaires
+         * d'un segment de transport.
          */
         private int addIntermediateStops(Leg.Transport tx,
                                          List<Leg.IntermediateStop> intermediateStops, int row) {

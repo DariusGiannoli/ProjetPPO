@@ -18,6 +18,9 @@ import java.util.List;
  * Combinaison d'un TextField et d'un Popup pour sélectionner un arrêt.
  * La valeur observable stopO change lorsque le curseur quitte le champ textuel.
  *
+ * @param textField le champ textuel de ce StopField
+ * @param stopO une valeur observable contenant le nom de l'arrêt sélectionné.
+ *
  * @author Antoine Lepin (390950)
  * @author Darius Giannoli (380759)
  */
@@ -55,7 +58,8 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
             if (e.getCode() == KeyCode.UP && !selModel.isSelected(INDEX_ZERO)) {
                 selModel.selectPrevious();
                 handled = true;
-            } else if (e.getCode() == KeyCode.DOWN && !selModel.isSelected(list.getItems().size() - 1)) {
+            } else if (e.getCode() == KeyCode.DOWN && !selModel.isSelected(
+                    list.getItems().size() - 1)) {
                 selModel.selectNext();
                 handled = true;
             }
