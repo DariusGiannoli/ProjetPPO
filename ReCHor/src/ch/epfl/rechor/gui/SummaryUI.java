@@ -143,6 +143,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private static final double START_POSITION = 0.0;
         private static final double END_POSITION = 1.0;
 
+        private boolean isCreated = false;
+
         /**
          * Constructeur initialisant la structure de base de la cellule.
          */
@@ -259,7 +261,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 return;
             }
 
-            circlesGroup.getChildren().clear();
+//            circlesGroup.getChildren().clear();
             List<Transport> transports = journey.legs().stream()
                     .filter(Transport.class::isInstance)
                     .map(Transport.class::cast)
@@ -297,25 +299,28 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             icon.setImage(VehicleIcons.iconFor(first.vehicle()));
             routeDestText.setText(FormatterFr.formatRouteDestination(first));
 
-            // Ajout des cercles de départ/arrivée et des transferts
-            addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
+            if(!isCreated) {
+                // Ajout des cercles de départ/arrivée et des transferts
+                addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
 
-            Stop depStop = journey.depStop();
-            Stop arrStop = journey.arrStop();
-            LocalTime firstDepLocalTime = firstDepTime.toLocalTime();
+                Stop depStop = journey.depStop();
+                Stop arrStop = journey.arrStop();
+                LocalTime firstDepLocalTime = firstDepTime.toLocalTime();
 
-            journey.legs().stream()
-                    .filter(Foot.class::isInstance)
-                    .map(Foot.class::cast)
-                    .filter(foot -> !foot.depStop().equals(depStop)
-                            && !foot.arrStop().equals(arrStop))
-                    .forEach(foot -> {
-                        double relPos = Duration.between(firstDepLocalTime, foot.depTime())
-                                .toSeconds() / totalSeconds;
-                        addCircle(TRANSFER_STYLE_CLASS, relPos);
-                    });
+                journey.legs().stream()
+                        .filter(Foot.class::isInstance)
+                        .map(Foot.class::cast)
+                        .filter(foot -> !foot.depStop().equals(depStop)
+                                && !foot.arrStop().equals(arrStop))
+                        .forEach(foot -> {
+                            double relPos = Duration.between(firstDepLocalTime, foot.depTime())
+                                    .toSeconds() / totalSeconds;
+                            addCircle(TRANSFER_STYLE_CLASS, relPos);
+                        });
 
-            addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
+                addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
+                isCreated = true;
+            }
 
 //            journey.legs().stream()
 //                    .filter(leg -> leg instanceof Foot
