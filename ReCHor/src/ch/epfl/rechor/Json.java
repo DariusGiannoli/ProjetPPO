@@ -69,7 +69,7 @@ public sealed interface Json {
     }
 
     /**
-     * représente un nombre JSON
+     * Représente un nombre JSON
      * et possède comme attribut une valeur de type double dont la valeur est celle du nombre JSON.
      * @param number double dont la valeur est celle du nombre JSON
      */

@@ -24,7 +24,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Représente la vue d'ensemble des voyages. Affiche tous les voyages

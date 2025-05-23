@@ -178,7 +178,8 @@ public record Router(TimeTable timetable) {
                 int TripPosition = connections.tripPos(connectionId);
                 int currentTripPos = connections.tripPos(currentConnectionId);
 
-                int newPayload = Bits32_24_8.pack(currentConnectionId,TripPosition - currentTripPos);
+                int newPayload = Bits32_24_8.pack(currentConnectionId,TripPosition -
+                        currentTripPos);
 
                 long newCriteria = PackedCriteria.withDepMins(
                         PackedCriteria.pack(PackedCriteria.arrMins(tuple),

@@ -75,7 +75,8 @@ public final class CachedTimeTable implements TimeTable {
 
     /**
      * Retourne les courses actives pour la date donnée.
-     * Si les données ont déjà été chargées pour cette date, elles sont retournées directement depuis le cache.
+     * Si les données ont déjà été chargées pour cette date,
+     * elles sont retournées directement depuis le cache.
      * Sinon, elles sont chargées depuis l'horaire sous-jacent et stockées dans le cache.
      *
      * @param date la date du voyage.
@@ -94,7 +95,8 @@ public final class CachedTimeTable implements TimeTable {
 
     /**
      * Retourne les liaisons actives pour la date donnée.
-     * Si les données ont déjà été chargées pour cette date, elles sont retournées directement depuis le cache.
+     * Si les données ont déjà été chargées pour cette date,
+     * elles sont retournées directement depuis le cache.
      * Sinon, elles sont chargées depuis l'horaire sous-jacent et stockées dans le cache.
      *
      * @param date la date du voyage.
