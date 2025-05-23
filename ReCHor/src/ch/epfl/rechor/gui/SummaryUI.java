@@ -215,6 +215,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                             });
                 }
             };
+            pane.setPrefSize(0, 0);
             pane.getChildren().addAll(timelineLine, circlesGroup);
             return pane;
 //            return new Pane() {
