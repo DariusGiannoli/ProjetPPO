@@ -66,7 +66,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         });
 
         //Configure le comportement lors des changements de focus.
-        textField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+        textField.focusedProperty().subscribe((isFocused) -> {
             if (isFocused) {
                 // Affiche la popup avec les suggestions quand on gagne le focus
                 updateAndShowSuggestions(textField, list, popup,
@@ -84,7 +84,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         });
 
         // Mise à jour lors de la saisie
-        textField.textProperty().addListener((obs, oldText, newText) -> {
+        textField.textProperty().subscribe((newText) -> {
             // Ne met à jour que si la popup est visible pour éviter les calculs inutiles
             if (popup.isShowing()) {
                 updateAndShowSuggestions(textField, list, popup,
