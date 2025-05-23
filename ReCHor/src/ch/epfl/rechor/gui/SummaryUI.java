@@ -127,8 +127,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private static final double START_POSITION = 0.0;
         private static final double END_POSITION = 1.0;
 
-        private boolean isCreated = false;
-
         /**
          * Constructeur initialisant la structure de base de la cellule.
          */
@@ -257,7 +255,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             icon.setImage(VehicleIcons.iconFor(first.vehicle()));
             routeDestText.setText(FormatterFr.formatRouteDestination(first));
 
-            if(!isCreated) {
+            // Création des cercles
+            if (circlesGroup.getChildren().isEmpty()) {
                 // Ajout des cercles de départ/arrivée et des transferts
                 addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
 
@@ -277,7 +276,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                         });
 
                 addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
-                isCreated = true;
             }
 
         }
