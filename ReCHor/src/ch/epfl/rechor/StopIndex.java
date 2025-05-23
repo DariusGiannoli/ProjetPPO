@@ -1,4 +1,3 @@
-// StopIndex.java
 package ch.epfl.rechor;
 
 import java.util.*;
