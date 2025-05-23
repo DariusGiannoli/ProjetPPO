@@ -97,6 +97,22 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
         view.getSelectionModel().select(selectedIndex);
         view.scrollTo(selectedIndex);
+//        ObservableList<Journey> items = view.getItems();
+//        if (items == null || items.isEmpty() || time == null) return;
+//
+//        // Recherche en une seule passe avec index direct
+//        int itemsSize = items.size();
+//        int idx = 0;
+//        while (idx < itemsSize && items.get(idx).depTime().toLocalTime().isBefore(time)) {
+//            idx++;
+//        }
+//
+//        // Si aucun résultat, prendre le dernier élément
+//        if (idx >= itemsSize) idx = itemsSize - 1;
+//
+//        // Sélection et défilement combinés
+//        view.getSelectionModel().select(idx);
+//        view.scrollTo(idx);
     }
 
     /**
@@ -201,7 +217,33 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             };
             pane.getChildren().addAll(timelineLine, circlesGroup);
             return pane;
-
+//            return new Pane() {
+//                {
+//                    getChildren().addAll(timelineLine, circlesGroup);
+//                    setPrefSize(0, 0);
+//                }
+//
+//                @Override
+//                protected void layoutChildren() {
+//                    double width = getWidth();
+//                    double centerY = getHeight() / 2;
+//
+//                    timelineLine.setStartX(TIMELINE_MARGIN);
+//                    timelineLine.setStartY(centerY);
+//                    timelineLine.setEndX(width - TIMELINE_MARGIN);
+//                    timelineLine.setEndY(centerY);
+//
+//                    double usableWidth = width - 2 * TIMELINE_MARGIN;
+//
+//                    circlesGroup.getChildren().forEach(n -> {
+//                        if (n instanceof Circle c) {
+//                            double relativePos = (double) c.getUserData();
+//                            c.setCenterX(TIMELINE_MARGIN + relativePos * usableWidth);
+//                            c.setCenterY(centerY);
+//                        }
+//                    });
+//                }
+//            };
         }
 
         /**
@@ -217,7 +259,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 return;
             }
 
-//            circlesGroup.getChildren().clear();
+            circlesGroup.getChildren().clear();
             List<Transport> transports = journey.legs().stream()
                     .filter(Transport.class::isInstance)
                     .map(Transport.class::cast)
@@ -255,30 +297,39 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             icon.setImage(VehicleIcons.iconFor(first.vehicle()));
             routeDestText.setText(FormatterFr.formatRouteDestination(first));
 
-            // Création des cercles
-            if (circlesGroup.getChildren().isEmpty()) {
-                // Ajout des cercles de départ/arrivée et des transferts
-                addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
-            }
+            // Ajout des cercles de départ/arrivée et des transferts
+            addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
 
-                Stop depStop = journey.depStop();
-                Stop arrStop = journey.arrStop();
-                LocalTime firstDepLocalTime = firstDepTime.toLocalTime();
+            Stop depStop = journey.depStop();
+            Stop arrStop = journey.arrStop();
+            LocalTime firstDepLocalTime = firstDepTime.toLocalTime();
 
-                journey.legs().stream()
-                        .filter(Foot.class::isInstance)
-                        .map(Foot.class::cast)
-                        .filter(foot -> !foot.depStop().equals(depStop)
-                                && !foot.arrStop().equals(arrStop))
-                        .forEach(foot -> {
-                            double relPos = Duration.between(firstDepLocalTime, foot.depTime())
-                                    .toSeconds() / totalSeconds;
-                            addCircle(TRANSFER_STYLE_CLASS, relPos);
-                        });
+            journey.legs().stream()
+                    .filter(Foot.class::isInstance)
+                    .map(Foot.class::cast)
+                    .filter(foot -> !foot.depStop().equals(depStop)
+                            && !foot.arrStop().equals(arrStop))
+                    .forEach(foot -> {
+                        double relPos = Duration.between(firstDepLocalTime, foot.depTime())
+                                .toSeconds() / totalSeconds;
+                        addCircle(TRANSFER_STYLE_CLASS, relPos);
+                    });
 
-                addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
+            addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
 
-
+//            journey.legs().stream()
+//                    .filter(leg -> leg instanceof Foot
+//                            && !(leg.depStop().equals(depStop))
+//                            && !(leg.arrStop().equals(arrStop)))
+//                    .map(Foot.class::cast)
+//                    .forEach(foot -> {
+//                        double relPos = Duration
+//                                .between(firstDepTime.toLocalTime(), foot.depTime())
+//                                .toSeconds() / totalSeconds;
+//                        addCircle(TRANSFER_STYLE_CLASS, relPos);
+//                    });
+//
+//            addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
         }
 
         /**
