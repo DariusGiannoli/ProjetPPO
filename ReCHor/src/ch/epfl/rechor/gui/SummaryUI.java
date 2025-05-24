@@ -88,7 +88,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         int itemsSize = items.size();
         int selectedIndex = itemsSize- 1; // Par défaut le dernier
         for (int i = 0; i < items.size(); i++) {
-            if (!items.get(i).depTime().toLocalTime().isBefore(time)) {
+            LocalTime itemDepTime = items.get(i).depTime().toLocalTime();
+            if (!itemDepTime.isBefore(time)) {
                 selectedIndex = i;
                 break;
             }
@@ -102,15 +103,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
      * Cellule personnalisée affichant un résumé de voyage.
      */
     private static class JourneyCell extends ListCell<Journey> {
-        // Composants d'UI
-        private final BorderPane root;
-        private final Text departureText, arrivalText, routeDestText, durationText;
-        private final Group circlesGroup;
-        private final ImageView icon;
-        private final Line timelineLine;
-        private final Pane timelinePane;
-        private Journey pastJourney;
-
         // Constantes de style
         private static final String JOURNEY_STYLE_CLASS = "journey";
         private static final String DEPARTURE_STYLE_CLASS = "departure";
@@ -126,6 +118,22 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private static final int TIMELINE_MARGIN = 5;
         private static final double START_POSITION = 0.0;
         private static final double END_POSITION = 1.0;
+
+        // Composants d'UI
+        private final BorderPane root;
+        private final Text departureText, arrivalText, routeDestText, durationText;
+        private final Group circlesGroup;
+        private final ImageView icon;
+        private final Line timelineLine;
+        private final Pane timelinePane;
+        //private Journey pastJourney;
+
+        // Cache pour éviter les recalculs
+        private Journey cachedJourney;
+        private String cachedDepartureTime;
+        private String cachedArrivalTime;
+        private String cachedDuration;
+        private String cachedRouteDestination;
 
         /**
          * Constructeur initialisant la structure de base de la cellule.
@@ -222,9 +230,9 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                     .map(Transport.class::cast)
                     .toList();
 
+            // Pas besoin d'afficher si pas de transport
             if (transports.isEmpty()) {
-                //setGraphic(root);
-                setGraphic(null);// Pas besoin d'afficher si pas de transport
+                setGraphic(null);
                 return;
             }
 
@@ -243,43 +251,67 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             LocalDateTime firstDepTime = first.depTime();
             LocalDateTime lastArrTime = last.arrTime();
             Duration totalDuration = Duration.between(firstDepTime, lastArrTime);
-            double totalSeconds = totalDuration.toSeconds();
 
-            // Mise à jour des textes
-            departureText.setText(FormatterFr.formatTime(firstDepTime));
-            arrivalText.setText(FormatterFr.formatTime(lastArrTime));
-            durationText.setText(FormatterFr.formatDuration(totalDuration));
+            boolean journeyChanged = !journey.equals(cachedJourney);
+            if (journeyChanged) {
+                cachedDepartureTime = FormatterFr.formatTime(firstDepTime);
+                cachedArrivalTime = FormatterFr.formatTime(lastArrTime);
+                cachedDuration = FormatterFr.formatDuration(totalDuration);
+                cachedRouteDestination = FormatterFr.formatRouteDestination(first);
+                cachedJourney = journey;
+            }
 
-            // Icône et destination
-            icon.setImage(VehicleIcons.iconFor(first.vehicle()));
-            routeDestText.setText(FormatterFr.formatRouteDestination(first));
+            // Mise à jour des textes avec cache
+            departureText.setText(cachedDepartureTime);
+            arrivalText.setText(cachedArrivalTime);
+            durationText.setText(cachedDuration);
+            routeDestText.setText(cachedRouteDestination);
 
-            if(pastJourney == null || !pastJourney.equals(journey)) {
+            // Icône mise à jour uniquement si nécessaire
+            if (journeyChanged) {
+                icon.setImage(VehicleIcons.iconFor(first.vehicle()));
+            }
+
+            // Régénération des cercles seulement si le voyage a changé
+            if(journeyChanged) {
                 circlesGroup.getChildren().clear();
 
                 // Ajout des cercles de départ/arrivée et des transferts
+                addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
+                addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
 
+                double totalSeconds = totalDuration.toSeconds();
                 Stop depStop = journey.depStop();
                 Stop arrStop = journey.arrStop();
                 LocalTime firstDepLocalTime = firstDepTime.toLocalTime();
 
-                journey.legs().stream()
-                        .filter(Foot.class::isInstance)
-                        .map(Foot.class::cast)
-                        .filter(foot -> !foot.depStop().equals(depStop)
-                                && !foot.arrStop().equals(arrStop))
-                        .forEach(foot -> {
-                            double relPos = Duration.between(firstDepLocalTime, foot.depTime())
-                                    .toSeconds() / totalSeconds;
-                            addCircle(TRANSFER_STYLE_CLASS, relPos);
-                        });
+                // Boucle pour les segments à pied (transferts)
+                for (Journey.Leg leg : journey.legs()) {
+                    if (leg instanceof Foot foot) {
+                        Stop footDepStop = foot.depStop();
+                        Stop footArrStop = foot.arrStop();
 
-                addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
-                addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
-
-                pastJourney = journey;
+                        // Filtre les transferts (exclut départ/arrivée principaux)
+                        if (!footDepStop.equals(depStop) && !footArrStop.equals(arrStop)) {
+                            double secondsFromStart =
+                                    Duration.between(firstDepLocalTime, foot.depTime()).toSeconds();
+                            double relativePosition = secondsFromStart / totalSeconds;
+                            addCircle(TRANSFER_STYLE_CLASS, relativePosition);
+                        }
+                    }
+                }
+//                journey.legs().stream()
+//                        .filter(Foot.class::isInstance)
+//                        .map(Foot.class::cast)
+//                        .filter(foot -> !foot.depStop().equals(depStop)
+//                                && !foot.arrStop().equals(arrStop))
+//                        .forEach(foot -> {
+//                            double relPos = Duration.between(firstDepLocalTime, foot.depTime())
+//                                    .toSeconds() / totalSeconds;
+//                            addCircle(TRANSFER_STYLE_CLASS, relPos);
+//                        });
+//                pastJourney = journey;
             }
-
         }
 
         /**
