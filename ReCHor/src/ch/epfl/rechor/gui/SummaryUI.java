@@ -126,14 +126,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         private final ImageView icon;
         private final Line timelineLine;
         private final Pane timelinePane;
-        //private Journey pastJourney;
 
-        // Cache pour éviter les recalculs
-        private Journey cachedJourney;
-        private String cachedDepartureTime;
-        private String cachedArrivalTime;
-        private String cachedDuration;
-        private String cachedRouteDestination;
+        private Journey pastJourney;
 
         /**
          * Constructeur initialisant la structure de base de la cellule.
@@ -252,28 +246,17 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             LocalDateTime lastArrTime = last.arrTime();
             Duration totalDuration = Duration.between(firstDepTime, lastArrTime);
 
-            boolean journeyChanged = !journey.equals(cachedJourney);
-            if (journeyChanged) {
-                cachedDepartureTime = FormatterFr.formatTime(firstDepTime);
-                cachedArrivalTime = FormatterFr.formatTime(lastArrTime);
-                cachedDuration = FormatterFr.formatDuration(totalDuration);
-                cachedRouteDestination = FormatterFr.formatRouteDestination(first);
-                cachedJourney = journey;
-            }
+            // Mise à jour directe des textes
+            departureText.setText(FormatterFr.formatTime(firstDepTime));
+            arrivalText.setText(FormatterFr.formatTime(lastArrTime));
+            durationText.setText(FormatterFr.formatDuration(totalDuration));
+            routeDestText.setText(FormatterFr.formatRouteDestination(first));
 
-            // Mise à jour des textes avec cache
-            departureText.setText(cachedDepartureTime);
-            arrivalText.setText(cachedArrivalTime);
-            durationText.setText(cachedDuration);
-            routeDestText.setText(cachedRouteDestination);
-
-            // Icône mise à jour uniquement si nécessaire
-            if (journeyChanged) {
-                icon.setImage(VehicleIcons.iconFor(first.vehicle()));
-            }
+            // Icône
+            icon.setImage(VehicleIcons.iconFor(first.vehicle()));
 
             // Régénération des cercles seulement si le voyage a changé
-            if(journeyChanged) {
+            if (!journey.equals(pastJourney)) {
                 circlesGroup.getChildren().clear();
 
                 // Ajout des cercles de départ/arrivée et des transferts
@@ -300,17 +283,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                         }
                     }
                 }
-//                journey.legs().stream()
-//                        .filter(Foot.class::isInstance)
-//                        .map(Foot.class::cast)
-//                        .filter(foot -> !foot.depStop().equals(depStop)
-//                                && !foot.arrStop().equals(arrStop))
-//                        .forEach(foot -> {
-//                            double relPos = Duration.between(firstDepLocalTime, foot.depTime())
-//                                    .toSeconds() / totalSeconds;
-//                            addCircle(TRANSFER_STYLE_CLASS, relPos);
-//                        });
-//                pastJourney = journey;
+                pastJourney = journey;
             }
         }
 
