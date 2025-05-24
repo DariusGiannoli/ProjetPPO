@@ -27,6 +27,8 @@ import static java.awt.Desktop.getDesktop;
 
 /**
  * DetailUI représente la partie de l'interface graphique qui montre les détails d'un voyage.
+ * Cette interface affiche les segments de voyage avec une représentation visuelle des étapes
+ * et propose l'export vers une carte ou un calendrier.
  *
  * @param rootNode le nœud JavaFX à la racine de son graphe de scène.
  *
@@ -38,7 +40,12 @@ public record DetailUI(Node rootNode) {
     private static final double CIRCLE_RADIUS = 3.0;
     private static final double LINE_WIDTH = 2.0;
     private static final int ICON_SIZE = 31;
-    private static final int GAP = 5;
+    private static final int GAP_SMALL = 5;
+    private static final int GAP_MEDIUM = 10;
+
+    // Constantes de mise en page
+    private static final int ICON_ROWS_WITH_INTERMEDIATES = 2;
+    private static final int ICON_ROWS_WITHOUT_INTERMEDIATES = 1;
 
     // Textes d'interface et libellés
     private static final String CALENDAR_TAB_LABEL = "Calendrier";
@@ -88,47 +95,11 @@ public record DetailUI(Node rootNode) {
         DetailGridPane legsGrid = new DetailGridPane(annotations);
         legsGrid.setId(JOURNEY_SEGMENTS_GRID_ID);
 
-        // Crée un bouton pour afficher l'itinéraire sur une carte
-        Button btnMap = new Button(MAP_TAB_LABEL);
-        btnMap.setId(MAP_TAB_LABEL);
-        btnMap.setOnAction(e -> {
-            Journey j = journeyO.getValue();
-            if (j != null) {
-                try {
-                    // Ouvre l'itinéraire dans le navigateur avec umap.osm.ch
-                    getDesktop().browse(
-                            new URI("https", "umap.osm.ch", "/fr/map",
-                            "data=" + JourneyGeoJsonConverter.toGeoJson(j), null));
-                } catch (Exception ignored) {}
-            }
-        });
-
-        // Crée un bouton pour exporter l'itinéraire au format calendrier
-        Button btnCalendar = new Button(CALENDAR_TAB_LABEL);
-        btnCalendar.setId(CALENDAR_TAB_LABEL);
-        btnCalendar.setOnAction(e -> {
-            Journey j = journeyO.getValue();
-            if (j != null) {
-                try {
-                    // Affiche un dialogue pour enregistrer le fichier calendrier
-                    FileChooser fc = new FileChooser();
-                    fc.setInitialFileName(String.format(
-                            VOYAGE_CALENDAR_FILENAME_TEMPLATE, j.depTime().toLocalDate()));
-                    File file = fc.showSaveDialog(null);
-                    if (file != null) {
-                        Files.writeString(file.toPath(), JourneyIcalConverter.toIcalendar(j));
-                    }
-                } catch (Exception ignored) {}
-            }
-        });
-
-        // Conteneur pour les boutons
-        HBox buttons = new HBox(10, btnMap, btnCalendar);
-        buttons.setId(BUTTONS_CONTAINER_ID);
-        buttons.setAlignment(Pos.CENTER);
+        // Création des boutons d'export
+        HBox buttons = createExportButtons(journeyO);
 
         // Assemblage des composants
-        VBox detailBox = new VBox(GAP, new StackPane(annotations, legsGrid), buttons);
+        VBox detailBox = new VBox(GAP_SMALL, new StackPane(annotations, legsGrid), buttons);
         scroll.setContent(new StackPane(noJourney, detailBox));
 
         // Configure les réactions aux changements d'itinéraire
@@ -139,8 +110,58 @@ public record DetailUI(Node rootNode) {
             legsGrid.updateLegs(journey);
         });
 
-        // Retourne l'interface utilisateur encapsulée
         return new DetailUI(scroll);
+    }
+
+    /**
+     * Crée et configure les boutons pour l'export de l'itinéraire.
+     *
+     * @param journeyO valeur observable contenant le voyage
+     * @return un HBox contenant les boutons configurés
+     */
+    private static HBox createExportButtons(ObservableValue<Journey> journeyO) {
+        // Crée un bouton pour afficher l'itinéraire sur une carte
+        Button btnMap = new Button(MAP_TAB_LABEL);
+        btnMap.setId(MAP_TAB_LABEL);
+        btnMap.setOnAction(e -> {
+            Journey j = journeyO.getValue();
+            if (j != null) {
+                try {
+                    // Ouvre l'itinéraire dans le navigateur avec umap.osm.ch
+                    getDesktop().browse(
+                            new URI("https", "umap.osm.ch", "/fr/map",
+                                    "data=" + JourneyGeoJsonConverter.toGeoJson(j),
+                                    null));
+                } catch (Exception ignored) {}
+            }
+        });
+
+        // Créer un bouton pour exporter l'itinéraire au format calendrier
+        Button btnCalendar = new Button(CALENDAR_TAB_LABEL);
+        btnCalendar.setId(CALENDAR_TAB_LABEL);
+        btnCalendar.setOnAction(e -> {
+            Journey j = journeyO.getValue();
+            if (j != null) {
+                try {
+                    // Affiche un dialogue pour enregistrer le fichier calendrier
+                    FileChooser fc = new FileChooser();
+                    fc.setInitialFileName(String.format(VOYAGE_CALENDAR_FILENAME_TEMPLATE,
+                            j.depTime().toLocalDate()));
+
+                    File file = fc.showSaveDialog(null);
+                    if (file != null) {
+                        Files.writeString(file.toPath(), JourneyIcalConverter.toIcalendar(j));
+                    }
+                } catch (Exception ignored) {}
+            }
+        });
+
+        // Conteneur pour les boutons
+        HBox buttons = new HBox(GAP_MEDIUM, btnMap, btnCalendar);
+        buttons.setId(BUTTONS_CONTAINER_ID);
+        buttons.setAlignment(Pos.CENTER);
+
+        return buttons;
     }
 
     /**
@@ -151,18 +172,18 @@ public record DetailUI(Node rootNode) {
         private final List<Pair<Circle, Circle>> circlePairs = new ArrayList<>();
         private final Pane annotations;
 
-        // Column positions
+        // Positions des colonnes
         private static final int COL_TIME = 0;
         private static final int COL_CIRCLE = 1;
         private static final int COL_STATION = 2;
         private static final int COL_PLATFORM = 3;
 
-        // Column spans
+        // Etendues des colonnes
         private static final int FOOT_LEG_COLSPAN = 2;
         private static final int DESTINATION_COLSPAN = 2;
         private static final int ACCORDION_COLSPAN = 2;
 
-        // Row increments
+        // Incréments des lignes
         private static final int ROW_INCREMENT = 1;
 
         /**
@@ -172,8 +193,8 @@ public record DetailUI(Node rootNode) {
          */
         DetailGridPane(Pane annotations) {
             this.annotations = annotations;
-            setVgap(GAP);
-            setHgap(GAP);
+            setVgap(GAP_SMALL);
+            setHgap(GAP_SMALL);
         }
 
         /**
@@ -185,16 +206,21 @@ public record DetailUI(Node rootNode) {
             // Efface l'affichage précédent
             getChildren().clear();
             circlePairs.clear();
+
             if(journey != null) {
                 int row = 0;
                 for (Leg leg : journey.legs()) {
                     if (leg instanceof Leg.Foot foot) {
                         // Ajoute un segment de marche
-                        add(new Text(FormatterFr.formatLeg(foot)),COL_STATION,row,
-                                FOOT_LEG_COLSPAN,ROW_INCREMENT);
+                        add(new Text(FormatterFr.formatLeg(foot)), COL_STATION, row,
+                                FOOT_LEG_COLSPAN, ROW_INCREMENT);
                     } else {
-                        // Ajoute un segment de transport (bus, train, etc.)
+                        // Ajoute un segment de tx (bus, train, etc.)
                         Leg.Transport tx = (Leg.Transport) leg;
+
+                        // Cache les valeurs utilisées plusieurs fois pour optimiser les performances
+                        List<Leg.IntermediateStop> intermediateStops = tx.intermediateStops();
+                        boolean hasIntermediates = !intermediateStops.isEmpty();
 
                         // Crée des cercles pour représenter le départ et l'arrivée
                         Circle depCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
@@ -202,7 +228,7 @@ public record DetailUI(Node rootNode) {
                         circlePairs.add(new Pair<>(depCircle, arrCircle));
 
                         // Ajoute la ligne de départ avec heure, cercle, nom de station et quai
-                        addStopRow(tx.depTime(),depCircle,tx.depStop(),DEPARTURE_EVENT_TYPE, row);
+                        addStopRow(tx.depTime(),depCircle,tx.depStop(), DEPARTURE_EVENT_TYPE, row);
                         row += ROW_INCREMENT;
 
                         // Ajoute l'icône du véhicule et la destination
@@ -211,12 +237,15 @@ public record DetailUI(Node rootNode) {
                         icon.setFitHeight(ICON_SIZE);
                         icon.setPreserveRatio(true);
 
+                        // Détermine la hauteur de l'icône selon la présence d'arrêts intermédiaires
+                        int iconRowSpan = hasIntermediates
+                                ? ICON_ROWS_WITH_INTERMEDIATES
+                                : ICON_ROWS_WITHOUT_INTERMEDIATES;
+
                         // Ajuste la taille verticale de l'icône
-                        List<Leg.IntermediateStop> intermediateStops = tx.intermediateStops();
-                        boolean hasIntermediates = !intermediateStops.isEmpty();
-                        add(icon, COL_TIME, row, ROW_INCREMENT, hasIntermediates ? 2 : 1);
-                        add(new Text(FormatterFr.formatRouteDestination(tx)), COL_STATION, row,
-                                DESTINATION_COLSPAN, ROW_INCREMENT);
+                        add(icon, COL_TIME, row, ROW_INCREMENT, iconRowSpan);
+                        add(new Text(FormatterFr.formatRouteDestination(tx)),
+                                COL_STATION, row, DESTINATION_COLSPAN, ROW_INCREMENT);
                         row += ROW_INCREMENT;
 
                         // Ajoute les arrêts intermédiaires si présents
@@ -274,7 +303,7 @@ public record DetailUI(Node rootNode) {
             GridPane stopsGrid = new GridPane();
             stopsGrid.setId(INTERMEDIATE_STOPS_IDENTIFIER);
             stopsGrid.getStyleClass().add(INTERMEDIATE_STOPS_IDENTIFIER);
-            stopsGrid.setHgap(GAP);
+            stopsGrid.setHgap(GAP_SMALL);
 
             // Ajoute chaque arrêt intermédiaire à la grille
             IntStream.range(0, intermediateStops.size()).forEach(i -> {
@@ -285,10 +314,10 @@ public record DetailUI(Node rootNode) {
             });
 
             // Crée un panneau avec titre indiquant le nombre d'arrêts et la durée totale
-            TitledPane stopsPane = new TitledPane(
-                    String.format(STOPS_DURATION_FORMAT,
-                            intermediateStops.size(), tx.duration().toMinutes()),
-                    stopsGrid);
+            long totalDurationMinutes = tx.duration().toMinutes();
+            String accordionTitle = String.format(STOPS_DURATION_FORMAT, intermediateStops.size(),
+                    totalDurationMinutes);
+            TitledPane stopsPane = new TitledPane(accordionTitle, stopsGrid);
 
             // Ajoute le panneau dans un accordéon
             Accordion accordion = new Accordion();
@@ -296,7 +325,6 @@ public record DetailUI(Node rootNode) {
             accordion.getPanes().add(stopsPane);
             add(accordion, COL_STATION, row, ACCORDION_COLSPAN, ROW_INCREMENT);
 
-            // Retourne la ligne suivante
             return row + ROW_INCREMENT;
         }
 
@@ -309,23 +337,27 @@ public record DetailUI(Node rootNode) {
             super.layoutChildren();
 
             // Crée des lignes connectant les paires de cercles
-            List<Line> lines = circlePairs.stream().map(pair -> {
+            List<Line> connectionLines = circlePairs.stream().map(pair -> {
                 Circle dep = pair.getKey();
                 Circle arr = pair.getValue();
+
+                // Calcule les centres des cercles
                 Bounds depBounds = dep.getBoundsInParent();
                 Bounds arrBounds = arr.getBoundsInParent();
 
                 // Crée une ligne reliant les centres des deux cercles
-                Line line = new Line(
+                Line connectionLine = new Line(
                         depBounds.getCenterX(), depBounds.getCenterY(),
                         arrBounds.getCenterX(), arrBounds.getCenterY());
-                line.setStrokeWidth(LINE_WIDTH);
-                line.setStroke(Color.RED);
-                return line;
+
+                connectionLine.setStrokeWidth(LINE_WIDTH);
+                connectionLine.setStroke(Color.RED);
+
+                return connectionLine;
             }).toList();
 
             // Met à jour le groupe d'annotations avec les nouvelles lignes
-            annotations.getChildren().setAll(lines);
+            annotations.getChildren().setAll(connectionLines);
             annotations.getParent().requestLayout();
         }
     }
