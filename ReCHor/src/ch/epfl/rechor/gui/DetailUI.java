@@ -262,17 +262,6 @@ public record DetailUI(Node rootNode) {
         }
 
         /**
-         * Crée un Text avec style optionnel et l'ajoute à la grille.
-         */
-        private void addStyledText(String content, String styleClass, int col, int row) {
-            Text text = new Text(content);
-            if (styleClass != null) {
-                text.getStyleClass().add(styleClass);
-            }
-            add(text, col, row);
-        }
-
-        /**
          * Ajoute une ligne représentant un arrêt (départ ou arrivée) dans la grille.
          */
         private void addStopRow(LocalDateTime time, Circle circle, Stop stop,
@@ -291,7 +280,18 @@ public record DetailUI(Node rootNode) {
             if (!platform.isEmpty()) {
                 addStyledText(platform, styleClass, COL_PLATFORM, row);
             }
-      }
+        }
+
+        /**
+         * Crée un Text avec style optionnel et l'ajoute à la grille.
+         */
+        private void addStyledText(String content, String styleClass, int col, int row) {
+            Text text = new Text(content);
+            if (styleClass != null) {
+                text.getStyleClass().add(styleClass);
+            }
+            add(text, col, row);
+        }
 
         /**
          * Crée et ajoute un accordéon contenant les arrêts intermédiaires
