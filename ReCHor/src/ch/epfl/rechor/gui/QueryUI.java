@@ -44,20 +44,24 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
     private static final String ARR_STOP_PROMPT = "Nom de l'arrêt d'arrivée";
 
     // Étiquettes
-    private static final String DEP_LABEL = "Départ";
-    private static final String ARR_LABEL = "Arrivée";
-    private static final String DATE_LABEL = "Date";
-    private static final String TIME_LABEL = "Heure";
+    private static final String THIN_SPACE_COLON = "\u202f:";
+    private static final String DEP_LABEL = "Départ" + THIN_SPACE_COLON;
+    private static final String ARR_LABEL = "Arrivée" + THIN_SPACE_COLON;
+    private static final String DATE_LABEL = "Date" + THIN_SPACE_COLON;
+    private static final String TIME_LABEL = "Heure" + THIN_SPACE_COLON;
 
     // Motifs de format
-    private static final String TIME_FORMAT_WITH_ZEROS = "HH:mm";
-    private static final String TIME_FORMAT_WITHOUT_ZEROS = "H:mm";
+    private static final DateTimeFormatter TIME_FORMATTER_WITH_ZEROS =
+            DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter TIME_FORMATTER_WITHOUT_ZEROS =
+            DateTimeFormatter.ofPattern("H:mm");
+    private static final LocalDate CURRENT_DATE = LocalDate.now();
+    private static final LocalTime CURRENT_TIME = LocalTime.now();
 
     // Constantes
     private static final String SWAP_BUTTON_SYMBOL = "⟷";
     private static final String STYLESHEET_PATH = "query.css";
     private static final int SPACING = 5;
-    private static final String THIN_SPACE_COLON = "\u202f:";
 
     /**
      * Construit le graphe de scène pour la recherche de voyages, avec les champs pour choisir
@@ -83,13 +87,11 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         });
 
         // Configuration date et heure
-        DatePicker datePicker = new DatePicker(LocalDate.now());
+        DatePicker datePicker = new DatePicker(CURRENT_DATE);
         datePicker.setId(DATE_ID);
         TextFormatter<LocalTime> timeFormatter = new TextFormatter<>(
-                new LocalTimeStringConverter(
-                        DateTimeFormatter.ofPattern(TIME_FORMAT_WITH_ZEROS),
-                        DateTimeFormatter.ofPattern(TIME_FORMAT_WITHOUT_ZEROS)),
-                LocalTime.now());
+                new LocalTimeStringConverter(TIME_FORMATTER_WITH_ZEROS, TIME_FORMATTER_WITHOUT_ZEROS),
+                CURRENT_TIME);
 
         TextField timeField = new TextField();
         timeField.setId(TIME_ID);
@@ -126,6 +128,6 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
      * Crée un contrôle avec label.
      */
     private static HBox createLabeledControl(String labelText, Node control) {
-        return new HBox(SPACING, new Label(labelText + THIN_SPACE_COLON), control);
+        return new HBox(SPACING, new Label(labelText), control);
     }
 }
