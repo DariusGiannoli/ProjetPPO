@@ -42,13 +42,21 @@ public final class StopIndex {
      * @param altToMain table de correspondance entre nom alternatif → nom principal
      */
     public StopIndex(List<String> mainNames, Map<String, String> altToMain) {
-        mainNames.forEach(n -> {
-            if(!altToMain.containsKey(n)) {
-                altToMain.put(n, n);
-            }
-        });
-        allNames = List.copyOf(mainNames);
-        nameToMain = Map.copyOf(altToMain);
+//        mainNames.forEach(n -> {
+//            if(!altToMain.containsKey(n)) {
+//                altToMain.put(n, n);
+//            }
+//        });
+//        allNames = List.copyOf(mainNames);
+//        nameToMain = Map.copyOf(altToMain);
+
+        //Moins efficaace à cause de la copy mais plus sur
+        Map<String, String> completeMap = new HashMap<>(altToMain);
+        for (String name : mainNames) {
+            completeMap.putIfAbsent(name, name);
+        }
+        this.allNames = List.copyOf(mainNames);
+        this.nameToMain = Map.copyOf(completeMap);
     }
 
     /**
@@ -96,8 +104,7 @@ public final class StopIndex {
         }
 
         return bestScore.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())
-                )
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .limit(maxResults)
                 .map(Map.Entry::getKey)
                 .toList();
@@ -106,11 +113,6 @@ public final class StopIndex {
     /**
      * Calcule le score total d'un nom selon toutes les sous-requêtes,
      * ou retourne 0 si une sous-requête ne matche pas.
-     *
-     * @param name     nom complet testé
-     * @param subLengths     tableau des sous-chaînes de la requête
-     * @param patterns patterns compilés correspondant aux sous-chaînes
-     * @return score total (≥ 0)
      */
     private int scoreIfMatchesAll(String name, int[] subLengths, List<Pattern> patterns) {
         int total = 0;
@@ -141,16 +143,14 @@ public final class StopIndex {
     /**
      * Construit un Pattern Java pour une sous-requête,
      * tenant compte des variantes accentuées et de la casse.
-     *
-     * @param sub sous-chaîne de la requête
-     * @return Pattern correspondant à la recherche de sub
      */
     private Pattern regexFor(String sub) {
         boolean hasUpper = sub.chars().anyMatch(Character::isUpperCase);
         int flags = Pattern.UNICODE_CASE | (hasUpper ? 0 : Pattern.CASE_INSENSITIVE);
 
         StringBuilder sb = new StringBuilder();
-        for (char c : sub.toCharArray()) {
+        for (int i = 0; i < sub.length(); i++) {
+            char c = sub.charAt(i);
             char low = Character.toLowerCase(c);
             if (ACCENT_EQUIVALENCES.containsKey(low)) {
                 String variants = ACCENT_EQUIVALENCES.get(low);
@@ -159,6 +159,7 @@ public final class StopIndex {
                 }
                 sb.append(LBRACKET).append(variants).append(RBRACKET);
             } else {
+                //sb.append('\\').append(c);
                 sb.append(Pattern.quote(String.valueOf(c)));
             }
         }
