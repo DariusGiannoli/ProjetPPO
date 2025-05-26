@@ -23,6 +23,7 @@ import javafx.scene.text.Text;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
         ListView<Journey> listView = new ListView<>();
         listView.setId(SUMMARY_ID);
         listView.getStylesheets().add(SUMMARY_CSS);
-        listView.setCellFactory(lv -> new JourneyCell());
+        listView.setCellFactory(lv -> new JourneyCell()); // pb ici
 
         // Liste backing stockée dans une variable pour éviter de la recréer
         ObservableList<Journey> backingItems = FXCollections.observableArrayList();
@@ -87,7 +88,7 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
 
         int itemsSize = items.size();
         int selectedIndex = itemsSize- 1; // Par défaut le dernier
-        for (int i = 0; i < items.size(); i++) {
+        for (int i = 0; i < itemsSize; i++) {
             LocalTime itemDepTime = items.get(i).depTime().toLocalTime();
             if (!itemDepTime.isBefore(time)) {
                 selectedIndex = i;
@@ -219,10 +220,12 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                 return;
             }
 
-            List<Transport> transports = journey.legs().stream()
-                    .filter(Transport.class::isInstance)
-                    .map(Transport.class::cast)
-                    .toList();
+            List<Transport> transports = new ArrayList<>();
+            for (Journey.Leg leg : journey.legs()) {
+                if (leg instanceof Transport transport) {
+                    transports.add(transport);
+                }
+            }
 
             // Pas besoin d'afficher si pas de transport
             if (transports.isEmpty()) {
