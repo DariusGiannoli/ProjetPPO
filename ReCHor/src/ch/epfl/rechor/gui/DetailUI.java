@@ -22,7 +22,7 @@ import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.Objects;
 import static java.awt.Desktop.getDesktop;
 
 /**
@@ -170,7 +170,10 @@ public record DetailUI(Node rootNode) {
      */
     private static class DetailGridPane extends GridPane {
         private final List<Pair<Circle, Circle>> circlePairs = new ArrayList<>();
+        private final List<Line> connectionLines = new ArrayList<>();
         private final Pane annotations;
+        private Journey lastJourney;
+        private boolean needsLineUpdate = true;
 
         // Positions des colonnes
         private static final int COL_TIME = 0;
@@ -203,60 +206,64 @@ public record DetailUI(Node rootNode) {
          * @param journey voyage qui soit être affiché dans le DetailGridPane.
          */
         void updateLegs(Journey journey) {
-            // Efface l'affichage précédent
-            getChildren().clear();
-            circlePairs.clear();
+            // Recalcule seulement si le voyage a changé
+            if (!Objects.equals(journey, lastJourney)) {
+                getChildren().clear();
+                circlePairs.clear();
+                needsLineUpdate = true;
+                lastJourney = journey;
 
-            if(journey != null) {
-                int row = 0;
-                for (Leg leg : journey.legs()) {
-                    if (leg instanceof Leg.Foot foot) {
-                        // Ajoute un segment de marche
-                        add(new Text(FormatterFr.formatLeg(foot)), COL_STATION, row,
-                                FOOT_LEG_COLSPAN, ROW_INCREMENT);
-                    } else {
-                        // Ajoute un segment de tx (bus, train, etc.)
-                        Leg.Transport tx = (Leg.Transport) leg;
+                if (journey != null) {
+                    int row = 0;
+                    for (Leg leg : journey.legs()) {
+                        if (leg instanceof Leg.Foot foot) {
+                            // Ajoute un segment de marche
+                            add(new Text(FormatterFr.formatLeg(foot)), COL_STATION, row,
+                                    FOOT_LEG_COLSPAN, ROW_INCREMENT);
+                        } else {
+                            // Ajoute un segment de tx (bus, train, etc.)
+                            Leg.Transport tx = (Leg.Transport) leg;
 
-                        // Cache les valeurs utilisées plusieurs fois pour optimiser les performances
-                        List<Leg.IntermediateStop> intermediateStops = tx.intermediateStops();
-                        boolean hasIntermediates = !intermediateStops.isEmpty();
+                            // Cache les valeurs utilisées plusieurs fois pour optimiser les performances
+                            List<Leg.IntermediateStop> intermediateStops = tx.intermediateStops();
+                            boolean hasIntermediates = !intermediateStops.isEmpty();
 
-                        // Crée des cercles pour représenter le départ et l'arrivée
-                        Circle depCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
-                        Circle arrCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
-                        circlePairs.add(new Pair<>(depCircle, arrCircle));
+                            // Crée des cercles pour représenter le départ et l'arrivée
+                            Circle depCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
+                            Circle arrCircle = new Circle(CIRCLE_RADIUS, Color.BLACK);
+                            circlePairs.add(new Pair<>(depCircle, arrCircle));
 
-                        // Ajoute la ligne de départ avec heure, cercle, nom de station et quai
-                        addStopRow(tx.depTime(),depCircle,tx.depStop(), DEPARTURE_EVENT_TYPE, row);
-                        row += ROW_INCREMENT;
+                            // Ajoute la ligne de départ avec heure, cercle, nom de station et quai
+                            addStopRow(tx.depTime(), depCircle, tx.depStop(), DEPARTURE_EVENT_TYPE, row);
+                            row += ROW_INCREMENT;
 
-                        // Ajoute l'icône du véhicule et la destination
-                        ImageView icon = new ImageView(VehicleIcons.iconFor(tx.vehicle()));
-                        icon.setFitWidth(ICON_SIZE);
-                        icon.setFitHeight(ICON_SIZE);
-                        icon.setPreserveRatio(true);
+                            // Ajoute l'icône du véhicule et la destination
+                            ImageView icon = new ImageView(VehicleIcons.iconFor(tx.vehicle()));
+                            icon.setFitWidth(ICON_SIZE);
+                            icon.setFitHeight(ICON_SIZE);
+                            icon.setPreserveRatio(true);
 
-                        // Détermine la hauteur de l'icône selon la présence d'arrêts intermédiaires
-                        int iconRowSpan = hasIntermediates
-                                ? ICON_ROWS_WITH_INTERMEDIATES
-                                : ICON_ROWS_WITHOUT_INTERMEDIATES;
+                            // Détermine la hauteur de l'icône selon la présence d'arrêts intermédiaires
+                            int iconRowSpan = hasIntermediates
+                                    ? ICON_ROWS_WITH_INTERMEDIATES
+                                    : ICON_ROWS_WITHOUT_INTERMEDIATES;
 
-                        // Ajuste la taille verticale de l'icône
-                        add(icon, COL_TIME, row, ROW_INCREMENT, iconRowSpan);
-                        add(new Text(FormatterFr.formatRouteDestination(tx)),
-                                COL_STATION, row, DESTINATION_COLSPAN, ROW_INCREMENT);
-                        row += ROW_INCREMENT;
+                            // Ajuste la taille verticale de l'icône
+                            add(icon, COL_TIME, row, ROW_INCREMENT, iconRowSpan);
+                            add(new Text(FormatterFr.formatRouteDestination(tx)),
+                                    COL_STATION, row, DESTINATION_COLSPAN, ROW_INCREMENT);
+                            row += ROW_INCREMENT;
 
-                        // Ajoute les arrêts intermédiaires si présents
-                        if (hasIntermediates) {
-                            row = addIntermediateStops(tx, intermediateStops, row);
+                            // Ajoute les arrêts intermédiaires si présents
+                            if (hasIntermediates) {
+                                row = addIntermediateStops(tx, intermediateStops, row);
+                            }
+
+                            // Ajoute la ligne d'arrivée
+                            addStopRow(tx.arrTime(), arrCircle, tx.arrStop(), null, row);
                         }
-
-                        // Ajoute la ligne d'arrivée
-                        addStopRow(tx.arrTime(), arrCircle, tx.arrStop(), null, row);
+                        row += ROW_INCREMENT; // Espace entre les segments
                     }
-                    row += ROW_INCREMENT; // Espace entre les segments
                 }
             }
         }
@@ -306,12 +313,12 @@ public record DetailUI(Node rootNode) {
             stopsGrid.setHgap(GAP_SMALL);
 
             // Ajoute chaque arrêt intermédiaire à la grille
-            IntStream.range(0, intermediateStops.size()).forEach(i -> {
+            for (int i = 0; i < intermediateStops.size(); i++) {
                 Leg.IntermediateStop stop = intermediateStops.get(i);
                 stopsGrid.add(new Text(FormatterFr.formatTime(stop.arrTime())), COL_TIME, i);
                 stopsGrid.add(new Text(FormatterFr.formatTime(stop.depTime())), COL_CIRCLE, i);
                 stopsGrid.add(new Text(stop.stop().name()), COL_STATION, i);
-            });
+            }
 
             // Crée un panneau avec titre indiquant le nombre d'arrêts et la durée totale
             long totalDurationMinutes = tx.duration().toMinutes();
@@ -336,29 +343,24 @@ public record DetailUI(Node rootNode) {
         protected void layoutChildren() {
             super.layoutChildren();
 
-            // Crée des lignes connectant les paires de cercles
-            List<Line> connectionLines = circlePairs.stream().map(pair -> {
-                Circle dep = pair.getKey();
-                Circle arr = pair.getValue();
+            if (needsLineUpdate) {
+                connectionLines.clear();
+                for (Pair<Circle, Circle> pair : circlePairs) {
+                    Circle dep = pair.getKey();
+                    Circle arr = pair.getValue();
+                    Bounds depBounds = dep.getBoundsInParent();
+                    Bounds arrBounds = arr.getBoundsInParent();
 
-                // Calcule les centres des cercles
-                Bounds depBounds = dep.getBoundsInParent();
-                Bounds arrBounds = arr.getBoundsInParent();
-
-                // Crée une ligne reliant les centres des deux cercles
-                Line connectionLine = new Line(
-                        depBounds.getCenterX(), depBounds.getCenterY(),
-                        arrBounds.getCenterX(), arrBounds.getCenterY());
-
-                connectionLine.setStrokeWidth(LINE_WIDTH);
-                connectionLine.setStroke(Color.RED);
-
-                return connectionLine;
-            }).toList();
-
-            // Met à jour le groupe d'annotations avec les nouvelles lignes
-            annotations.getChildren().setAll(connectionLines);
-            annotations.getParent().requestLayout();
+                    Line line = new Line(depBounds.getCenterX(), depBounds.getCenterY(),
+                            arrBounds.getCenterX(), arrBounds.getCenterY());
+                    line.setStrokeWidth(LINE_WIDTH);
+                    line.setStroke(Color.RED);
+                    connectionLines.add(line);
+                }
+                annotations.getChildren().setAll(connectionLines);
+                needsLineUpdate = false;
+            }
         }
+
     }
 }
