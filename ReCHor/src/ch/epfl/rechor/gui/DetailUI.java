@@ -280,7 +280,7 @@ public record DetailUI(Node rootNode) {
             add(circle, COL_CIRCLE, row);
 
             // Ajoute le nom de la station
-            addStyledText(stop.name(), styleClass, COL_STATION, row);
+            addStyledText(stop.name(), null, COL_STATION, row);
 
             // Ajoute le quai si disponible
             String platform = FormatterFr.formatPlatformName(stop);
