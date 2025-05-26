@@ -37,6 +37,8 @@ public class Main extends Application {
     private static final String DEP_STOP_ID = "#depStop";
     private static final String TIMETABLE_PATH = "timetable";
 
+    private static final List<Journey> EMPTY_JOURNEY_LIST = List.of();
+
     // Map pour les lookups des indices de stations
     private Map<String, Integer> stationNameToIndex;
 
@@ -144,14 +146,14 @@ public class Main extends Application {
 
         // Retour anticipé pour les entrées vides
         if (depName.isEmpty() || arrName.isEmpty())
-            return List.of();
+            return EMPTY_JOURNEY_LIST;
 
         // Lookup
         Integer depId = stationNameToIndex.get(depName);
         Integer arrId = stationNameToIndex.get(arrName);
 
         if (depId == null || arrId == null)
-            return List.of();
+            return EMPTY_JOURNEY_LIST;
 
         updateCacheIfNeeded(date, arrName, arrId, router);
         return JourneyExtractor.journeys(cacheProfile.get(), depId);
