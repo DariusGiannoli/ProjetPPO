@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Représente la vue d'ensemble des voyages. Affiche tous les voyages
- * dans une liste, avec pour chacun les informations essentielles: heure de
+ * dans une liste, avec pour chacun les informations essentielles : heure de
  * départ/arrivée, ligne, destination et changements.
  *
  * @param rootNode le nœud JavaFX à la racine du graphe de scène
@@ -38,8 +38,6 @@ import java.util.List;
  * @author Darius Giannoli (380759)
  */
 public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO) {
-    private static final String SUMMARY_ID = "summary";
-    private static final String SUMMARY_CSS = "summary.css";
 
     /**
      * Crée la vue d'ensemble : une ListView de Journey, style summary.css,
@@ -53,8 +51,8 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                                    ObservableValue<LocalTime> depTimeO) {
         // Création de la liste avec configuration initiale
         ListView<Journey> listView = new ListView<>();
-        listView.setId(SUMMARY_ID);
-        listView.getStylesheets().add(SUMMARY_CSS);
+        listView.setId("summary");
+        listView.getStylesheets().add("summary.css");
         listView.setCellFactory(lv -> new JourneyCell()); // pb ici
 
         // Liste backing stockée dans une variable pour éviter de la recréer
@@ -105,10 +103,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
      */
     private static class JourneyCell extends ListCell<Journey> {
         // Constantes de style
-        private static final String JOURNEY_STYLE_CLASS = "journey";
-        private static final String DEPARTURE_STYLE_CLASS = "departure";
-        private static final String ROUTE_STYLE_CLASS = "route";
-        private static final String DURATION_STYLE_CLASS = "duration";
         private static final String DEP_ARR_STYLE_CLASS = "dep-arr";
         private static final String TRANSFER_STYLE_CLASS = "transfer";
 
@@ -149,10 +143,10 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             HBox durationBox = new HBox();
 
             // Configuration des styles
-            root.getStyleClass().add(JOURNEY_STYLE_CLASS);
-            departureText.getStyleClass().add(DEPARTURE_STYLE_CLASS);
-            routeBox.getStyleClass().add(ROUTE_STYLE_CLASS);
-            durationBox.getStyleClass().add(DURATION_STYLE_CLASS);
+            root.getStyleClass().add("journey");
+            departureText.getStyleClass().add("departure");
+            routeBox.getStyleClass().add("route");
+            durationBox.getStyleClass().add("duration");
 
             // Configuration de l'icône
             icon.setFitWidth(ICON_SIZE);

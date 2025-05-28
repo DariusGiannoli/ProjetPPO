@@ -42,16 +42,7 @@ public final class StopIndex {
      * @param altToMain table de correspondance entre nom alternatif → nom principal
      */
     public StopIndex(List<String> mainNames, Map<String, String> altToMain) {
-//        mainNames.forEach(n -> {
-//            if(!altToMain.containsKey(n)) {
-//                altToMain.put(n, n);
-//            }
-//        });
-//        allNames = List.copyOf(mainNames);
-//        nameToMain = Map.copyOf(altToMain);
-
-        //Moins efficaace à cause de la copy mais plus sur
-        Map<String, String> completeMap = new HashMap<>(altToMain);
+        Map<String, String> completeMap = new LinkedHashMap<>(altToMain);
         for (String name : mainNames) {
             completeMap.putIfAbsent(name, name);
         }

@@ -50,17 +50,14 @@ public record DetailUI(Node rootNode) {
     // Textes d'interface et libellés
     private static final String CALENDAR_TAB_LABEL = "Calendrier";
     private static final String MAP_TAB_LABEL = "Carte";
-    private static final String NO_JOURNEY_MESSAGE = "Aucun voyage";
 
     // Identifiants de types d'événements
     private static final String DEPARTURE_EVENT_TYPE = "departure";
-    private static final String INTERMEDIATE_STOP_TYPE = "intermediate";
     private static final String INTERMEDIATE_STOPS_IDENTIFIER = "intermediate-stops";
 
     // Formats et modèles de chaînes
     private static final String VOYAGE_CALENDAR_FILENAME_TEMPLATE = "voyage_%s.ics";
     private static final String STOPS_DURATION_FORMAT = "%d arrêts, %d min";
-    private static final String DETAIL_STYLESHEET_FILENAME = "detail.css";
 
     // Identifiants des éléments d'interface
     private static final String BUTTONS_CONTAINER_ID = "buttons";
@@ -81,11 +78,11 @@ public record DetailUI(Node rootNode) {
         // Crée un panneau défilant pour contenir tous les éléments
         ScrollPane scroll = new ScrollPane();
         scroll.setId(DETAIL_PANEL_ID);
-        scroll.getStylesheets().add(DETAIL_STYLESHEET_FILENAME);
+        scroll.getStylesheets().add("detail.css");
         scroll.setFitToWidth(true);
 
         // Message affiché quand aucun itinéraire n'est sélectionné
-        VBox noJourney = new VBox(new Text(NO_JOURNEY_MESSAGE));
+        VBox noJourney = new VBox(new Text("Aucun voyage"));
         noJourney.setId(EMPTY_JOURNEY_CONTAINER_ID);
         noJourney.setAlignment(Pos.CENTER);
 
@@ -328,7 +325,7 @@ public record DetailUI(Node rootNode) {
 
             // Ajoute le panneau dans un accordéon
             Accordion accordion = new Accordion();
-            accordion.setId(INTERMEDIATE_STOP_TYPE);
+            accordion.setId("intermediate");
             accordion.getPanes().add(stopsPane);
             add(accordion, COL_STATION, row, ACCORDION_COLSPAN, ROW_INCREMENT);
 

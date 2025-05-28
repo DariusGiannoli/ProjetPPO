@@ -27,7 +27,6 @@ import java.util.List;
 public record StopField(TextField textField, ObservableValue<String> stopO) {
     private static final int MAX_SUGGESTIONS = 30;
     private static final double LIST_MAX_HEIGHT = 240.0;
-    private static final int INDEX_ZERO = 0;
 
     /**
      * Crée un StopField donc le champ textuel et la fenêtre associés à l'index donné.
@@ -55,7 +54,7 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
 
             // Logique de navigation
             boolean handled = false;
-            if (e.getCode() == KeyCode.UP && !selModel.isSelected(INDEX_ZERO)) {
+            if (e.getCode() == KeyCode.UP && !selModel.isSelected(0)) {
                 selModel.selectPrevious();
                 handled = true;
             } else if (e.getCode() == KeyCode.DOWN && !selModel.isSelected(
@@ -114,15 +113,14 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
         // Sélectionne le premier élément si la liste n'est pas vide
         if (!listItems.isEmpty()) {
             list.getSelectionModel().selectFirst();
-            list.scrollTo(INDEX_ZERO);
+            list.scrollTo(0);
         }
 
         // Affiche la popup uniquement si elle n'est pas déjà visible
-        Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
-        popup.setX(bounds.getMinX());
-        popup.setY(bounds.getMaxY());
-        popup.show(textField.getScene().getWindow());
-
+            Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
+            popup.setX(bounds.getMinX());
+            popup.setY(bounds.getMaxY());
+            popup.show(textField.getScene().getWindow());
     }
 
     /**

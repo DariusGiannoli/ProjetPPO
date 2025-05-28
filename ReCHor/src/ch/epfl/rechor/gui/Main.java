@@ -33,10 +33,7 @@ public class Main extends Application {
     // Constantes de l'interface
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
-    private static final String APP_TITLE = "ReCHor";
     private static final String DEP_STOP_ID = "#depStop";
-    private static final String TIMETABLE_PATH = "timetable";
-
     private static final List<Journey> EMPTY_JOURNEY_LIST = List.of();
 
     // Map pour les lookups des indices de stations
@@ -58,7 +55,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         //Chargement de la timetable
-        CachedTimeTable timeTable = new CachedTimeTable(FileTimeTable.in(Path.of(TIMETABLE_PATH)));
+        CachedTimeTable timeTable = new CachedTimeTable(FileTimeTable.in(Path.of("timetable")));
 
         // Extraction des données des stations
         StopIndex stopIndex = createStopIndex(timeTable);
@@ -93,7 +90,7 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.setMinWidth(WIDTH);
         stage.setMinHeight(HEIGHT);
-        stage.setTitle(APP_TITLE);
+        stage.setTitle("ReCHor");
         stage.show();
 
         // Focus initial

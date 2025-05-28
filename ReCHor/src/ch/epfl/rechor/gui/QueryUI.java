@@ -36,8 +36,6 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
     // Identifiants des champs
     private static final String DEP_STOP_ID = "depStop";
     private static final String ARR_STOP_ID = "arrStop";
-    private static final String DATE_ID = "date";
-    private static final String TIME_ID = "time";
 
     // Textes d'indication
     private static final String DEP_STOP_PROMPT = "Nom de l'arrêt de départ";
@@ -55,12 +53,8 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
             DateTimeFormatter.ofPattern("HH:mm");
     private static final DateTimeFormatter TIME_FORMATTER_WITHOUT_ZEROS =
             DateTimeFormatter.ofPattern("H:mm");
-    private static final LocalDate CURRENT_DATE = LocalDate.now();
-    private static final LocalTime CURRENT_TIME = LocalTime.now();
 
     // Constantes
-    private static final String SWAP_BUTTON_SYMBOL = "⟷";
-    private static final String STYLESHEET_PATH = "query.css";
     private static final int SPACING = 5;
 
     /**
@@ -76,7 +70,7 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         StopField arrField = createStopField(index, ARR_STOP_ID, ARR_STOP_PROMPT);
 
         // Bouton d'échange
-        Button swapButton = new Button(SWAP_BUTTON_SYMBOL);
+        Button swapButton = new Button("⟷");
         TextField depTextField = depField.textField();
         TextField arrTextField = arrField.textField();
 
@@ -87,14 +81,14 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         });
 
         // Configuration date et heure
-        DatePicker datePicker = new DatePicker(CURRENT_DATE);
-        datePicker.setId(DATE_ID);
+        DatePicker datePicker = new DatePicker(LocalDate.now());
+        datePicker.setId("date");
         TextFormatter<LocalTime> timeFormatter = new TextFormatter<>(
                 new LocalTimeStringConverter(TIME_FORMATTER_WITH_ZEROS, TIME_FORMATTER_WITHOUT_ZEROS),
-                CURRENT_TIME);
+                LocalTime.now());
 
         TextField timeField = new TextField();
-        timeField.setId(TIME_ID);
+        timeField.setId("time");
         timeField.setTextFormatter(timeFormatter);
 
         // Construction de l'interface
@@ -107,7 +101,7 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
                         createLabeledControl(DATE_LABEL, datePicker),
                         createLabeledControl(TIME_LABEL, timeField))
         );
-        root.getStylesheets().add(STYLESHEET_PATH);
+        root.getStylesheets().add("query.css");
 
         return new QueryUI(root, depField.stopO(), arrField.stopO(),
                 datePicker.valueProperty(), timeFormatter.valueProperty());
