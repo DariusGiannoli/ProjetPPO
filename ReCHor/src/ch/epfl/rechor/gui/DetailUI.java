@@ -230,7 +230,8 @@ public record DetailUI(Node rootNode) {
                             circlePairs.add(new Pair<>(depCircle, arrCircle));
 
                             // Ajoute la ligne de départ avec heure, cercle, nom de station et quai
-                            addStopRow(tx.depTime(), depCircle, tx.depStop(), DEPARTURE_EVENT_TYPE, row);
+                            addStopRow(tx.depTime(), depCircle, tx.depStop(), DEPARTURE_EVENT_TYPE,
+                                    row);
                             row += ROW_INCREMENT;
 
                             // Ajoute l'icône du véhicule et la destination
