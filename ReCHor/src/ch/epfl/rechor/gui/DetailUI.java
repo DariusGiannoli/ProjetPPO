@@ -170,7 +170,6 @@ public record DetailUI(Node rootNode) {
         private final List<Line> connectionLines = new ArrayList<>();
         private final Pane annotations;
         private Journey lastJourney;
-        private boolean needsLineUpdate = true;
 
         // Positions des colonnes
         private static final int COL_TIME = 0;
@@ -207,7 +206,6 @@ public record DetailUI(Node rootNode) {
             if (!Objects.equals(journey, lastJourney)) {
                 getChildren().clear();
                 circlePairs.clear();
-                needsLineUpdate = true;
                 lastJourney = journey;
 
                 if (journey != null) {
@@ -340,7 +338,6 @@ public record DetailUI(Node rootNode) {
         protected void layoutChildren() {
             super.layoutChildren();
 
-            if (needsLineUpdate) {
                 connectionLines.clear();
                 for (Pair<Circle, Circle> pair : circlePairs) {
                     Circle dep = pair.getKey();
@@ -355,8 +352,6 @@ public record DetailUI(Node rootNode) {
                     connectionLines.add(line);
                 }
                 annotations.getChildren().setAll(connectionLines);
-                needsLineUpdate = false;
-            }
         }
 
     }
