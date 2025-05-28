@@ -55,7 +55,8 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         //Chargement de la timetable
-        CachedTimeTable timeTable = new CachedTimeTable(FileTimeTable.in(Path.of("timetable")));
+        CachedTimeTable timeTable = new CachedTimeTable(FileTimeTable.in(
+                Path.of("timetable")));
 
         // Extraction des données des stations
         StopIndex stopIndex = createStopIndex(timeTable);

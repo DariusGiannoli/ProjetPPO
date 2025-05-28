@@ -219,7 +219,8 @@ public record DetailUI(Node rootNode) {
                             // Ajoute un segment de tx (bus, train, etc.)
                             Leg.Transport tx = (Leg.Transport) leg;
 
-                            // Cache les valeurs utilisées plusieurs fois pour optimiser les performances
+                            // Cache les valeurs utilisées plusieurs fois
+                            // pour optimiser les performances
                             List<Leg.IntermediateStop> intermediateStops = tx.intermediateStops();
                             boolean hasIntermediates = !intermediateStops.isEmpty();
 
@@ -238,7 +239,8 @@ public record DetailUI(Node rootNode) {
                             icon.setFitHeight(ICON_SIZE);
                             icon.setPreserveRatio(true);
 
-                            // Détermine la hauteur de l'icône selon la présence d'arrêts intermédiaires
+                            // Détermine la hauteur de l'icône selon
+                            // la présence d'arrêts intermédiaires
                             int iconRowSpan = hasIntermediates
                                     ? ICON_ROWS_WITH_INTERMEDIATES
                                     : ICON_ROWS_WITHOUT_INTERMEDIATES;

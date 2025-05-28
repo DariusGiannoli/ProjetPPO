@@ -84,7 +84,8 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         DatePicker datePicker = new DatePicker(LocalDate.now());
         datePicker.setId("date");
         TextFormatter<LocalTime> timeFormatter = new TextFormatter<>(
-                new LocalTimeStringConverter(TIME_FORMATTER_WITH_ZEROS, TIME_FORMATTER_WITHOUT_ZEROS),
+                new LocalTimeStringConverter(TIME_FORMATTER_WITH_ZEROS,
+                        TIME_FORMATTER_WITHOUT_ZEROS),
                 LocalTime.now());
 
         TextField timeField = new TextField();
