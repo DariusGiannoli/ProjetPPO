@@ -256,10 +256,6 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
             if (!journey.equals(pastJourney)) {
                 circlesGroup.getChildren().clear();
 
-                // Ajout des cercles de départ/arrivée et des transferts
-                addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
-                addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
-
                 double totalSeconds = totalDuration.toSeconds();
                 Stop depStop = journey.depStop();
                 Stop arrStop = journey.arrStop();
@@ -280,6 +276,11 @@ public record SummaryUI(Node rootNode, ObservableValue<Journey> selectedJourneyO
                         }
                     }
                 }
+
+                // Ajout des cercles de départ/arrivée et des transferts
+                addCircle(DEP_ARR_STYLE_CLASS, START_POSITION);
+                addCircle(DEP_ARR_STYLE_CLASS, END_POSITION);
+
                 pastJourney = journey;
             }
         }
