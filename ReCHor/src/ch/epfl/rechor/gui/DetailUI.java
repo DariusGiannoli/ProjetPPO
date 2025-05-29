@@ -60,11 +60,6 @@ public record DetailUI(Node rootNode) {
     private static final String STOPS_DURATION_FORMAT = "%d arrêts, %d min";
 
     // Identifiants des éléments d'interface
-    private static final String BUTTONS_CONTAINER_ID = "buttons";
-    private static final String DETAIL_PANEL_ID = "detail";
-    private static final String EMPTY_JOURNEY_CONTAINER_ID = "no-journey";
-    private static final String JOURNEY_ANNOTATIONS_LAYER_ID = "annotations";
-    private static final String JOURNEY_SEGMENTS_GRID_ID = "legs";
 
     /**
      * Crée le graphe de scène et retourne une instance de DetailUI
@@ -77,20 +72,20 @@ public record DetailUI(Node rootNode) {
     public static DetailUI create(ObservableValue<Journey> journeyO) {
         // Crée un panneau défilant pour contenir tous les éléments
         ScrollPane scroll = new ScrollPane();
-        scroll.setId(DETAIL_PANEL_ID);
+        scroll.setId("detail");
         scroll.getStylesheets().add("detail.css");
         scroll.setFitToWidth(true);
 
         // Message affiché quand aucun itinéraire n'est sélectionné
         VBox noJourney = new VBox(new Text("Aucun voyage"));
-        noJourney.setId(EMPTY_JOURNEY_CONTAINER_ID);
+        noJourney.setId("no-journey");
         noJourney.setAlignment(Pos.CENTER);
 
         // Crée la grille pour afficher les segments de l'itinéraire
         Pane annotations = new Pane();
-        annotations.setId(JOURNEY_ANNOTATIONS_LAYER_ID);
+        annotations.setId("annotations");
         DetailGridPane legsGrid = new DetailGridPane(annotations);
-        legsGrid.setId(JOURNEY_SEGMENTS_GRID_ID);
+        legsGrid.setId("legs");
 
         // Création des boutons d'export
         HBox buttons = createExportButtons(journeyO);
@@ -155,7 +150,7 @@ public record DetailUI(Node rootNode) {
 
         // Conteneur pour les boutons
         HBox buttons = new HBox(GAP_MEDIUM, btnMap, btnCalendar);
-        buttons.setId(BUTTONS_CONTAINER_ID);
+        buttons.setId("buttons");
         buttons.setAlignment(Pos.CENTER);
 
         return buttons;
