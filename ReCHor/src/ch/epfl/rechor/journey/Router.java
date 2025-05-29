@@ -86,8 +86,8 @@ public record Router(TimeTable timetable) {
     }
 
     /**
-     *  Option 1 de l'algorithme : Descendre à l'arrivée de la liaison et
-     *  marcher jusqu'à la destination si le temps de marche depuis la gare d'arrivée est faisable.
+     * Option 1 de l'algorithme : Descendre à l'arrivée de la liaison et
+     * marcher jusqu'à la destination si le temps de marche depuis la gare d'arrivée est faisable.
      * @param walkTime temps de marche depuis la gare d'arrivée vers la destination.
      * @param arrMinsOfConn l'heure d'arrivée de la liaison en minutes.
      * @param currentConnectionId l'id de la liaison.
