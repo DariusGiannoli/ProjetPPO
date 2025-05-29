@@ -70,7 +70,7 @@ public record QueryUI(Node rootNode, ObservableValue<String> depStopO,
         StopField arrField = createStopField(index, ARR_STOP_ID, ARR_STOP_PROMPT);
 
         // Bouton d'échange
-        Button swapButton = new Button("⟷");
+        Button swapButton = new Button("↔");
         TextField depTextField = depField.textField();
         TextField arrTextField = arrField.textField();
 
