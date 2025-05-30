@@ -116,11 +116,10 @@ public record StopField(TextField textField, ObservableValue<String> stopO) {
             list.scrollTo(0);
         }
 
-        // Affiche la popup uniquement si elle n'est pas déjà visible
-            Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
-            popup.setX(bounds.getMinX());
-            popup.setY(bounds.getMaxY());
-            popup.show(textField.getScene().getWindow());
+        Bounds bounds = textField.localToScreen(textField.getBoundsInLocal());
+        popup.setX(bounds.getMinX());
+        popup.setY(bounds.getMaxY());
+        popup.show(textField.getScene().getWindow());
     }
 
     /**
