@@ -55,8 +55,6 @@ public record DetailUI(Node rootNode) {
     private static final String VOYAGE_CALENDAR_FILENAME_TEMPLATE = "voyage_%s.ics";
     private static final String STOPS_DURATION_FORMAT = "%d arrêts, %d min";
 
-    // Identifiants des éléments d'interface
-
     /**
      * Crée le graphe de scène et retourne une instance de DetailUI
      * contenant une référence à sa racine.
@@ -103,9 +101,6 @@ public record DetailUI(Node rootNode) {
 
     /**
      * Crée et configure les boutons pour l'export de l'itinéraire.
-     *
-     * @param journeyO valeur observable contenant le voyage
-     * @return un HBox contenant les boutons configurés
      */
     private static HBox createExportButtons(ObservableValue<Journey> journeyO) {
         // Crée un bouton pour afficher l'itinéraire sur une carte
@@ -178,8 +173,6 @@ public record DetailUI(Node rootNode) {
 
         /**
          * Constructeur de DetailGridPane, qui configure les colonnes de ce GridPane.
-         *
-         * @param annotations le Pane qui doit contenir les lignes rouges qui relient les cercles.
          */
         DetailGridPane(Pane annotations) {
             this.annotations = annotations;
@@ -345,6 +338,7 @@ public record DetailUI(Node rootNode) {
                     line.setStroke(Color.RED);
                     connectionLines.add(line);
                 }
+
                 annotations.getChildren().setAll(connectionLines);
         }
 
