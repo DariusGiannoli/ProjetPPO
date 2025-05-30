@@ -47,10 +47,6 @@ public record DetailUI(Node rootNode) {
     private static final int ICON_ROWS_WITH_INTERMEDIATES = 2;
     private static final int ICON_ROWS_WITHOUT_INTERMEDIATES = 1;
 
-    // Textes d'interface et libellés
-    private static final String CALENDAR_TAB_LABEL = "Calendrier";
-    private static final String MAP_TAB_LABEL = "Carte";
-
     // Identifiants de types d'événements
     private static final String DEPARTURE_EVENT_TYPE = "departure";
     private static final String INTERMEDIATE_STOPS_IDENTIFIER = "intermediate-stops";
@@ -113,8 +109,8 @@ public record DetailUI(Node rootNode) {
      */
     private static HBox createExportButtons(ObservableValue<Journey> journeyO) {
         // Crée un bouton pour afficher l'itinéraire sur une carte
-        Button btnMap = new Button(MAP_TAB_LABEL);
-        btnMap.setId(MAP_TAB_LABEL);
+        Button btnMap = new Button("Carte");
+        btnMap.setId("Carte");
         btnMap.setOnAction(e -> {
             Journey j = journeyO.getValue();
             if (j != null) {
@@ -129,8 +125,8 @@ public record DetailUI(Node rootNode) {
         });
 
         // Créer un bouton pour exporter l'itinéraire au format calendrier
-        Button btnCalendar = new Button(CALENDAR_TAB_LABEL);
-        btnCalendar.setId(CALENDAR_TAB_LABEL);
+        Button btnCalendar = new Button("Calendrier");
+        btnCalendar.setId("Calendrier");
         btnCalendar.setOnAction(e -> {
             Journey j = journeyO.getValue();
             if (j != null) {
