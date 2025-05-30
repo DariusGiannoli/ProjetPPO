@@ -3,7 +3,6 @@ module ReCHor {
     requires javafx.graphics;
     requires java.desktop;
     requires java.net.http;
-    requires jdk.compiler;
 
     exports ch.epfl.rechor;
     exports ch.epfl.rechor.timetable;
