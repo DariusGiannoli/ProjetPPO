@@ -174,6 +174,7 @@ public class Main extends Application {
 
     /**
      * Point d'entrée de l'application.
+     * Cette méthode initialise l’environnement JavaFX et lance le cycle de vie de l’application.
      *
      * @param args Arguments de la ligne de commande
      */
