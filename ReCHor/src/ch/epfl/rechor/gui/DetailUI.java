@@ -173,6 +173,8 @@ public record DetailUI(Node rootNode) {
 
         /**
          * Constructeur de DetailGridPane, qui configure les colonnes de ce GridPane.
+         *
+         * @param annotations le Pane qui doit contenir les lignes rouges qui relient les cercles.
          */
         DetailGridPane(Pane annotations) {
             this.annotations = annotations;
